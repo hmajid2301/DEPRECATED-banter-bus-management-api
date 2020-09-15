@@ -1,0 +1,318 @@
+openapi: 3.0.1
+info:
+  title: Banter Bus
+  description: The API definition for the Banter Bus server.
+  contact:
+    email: hello@haseebmajid.dev
+  version: 1.0.0
+servers:
+  - url: /api/v1
+tags:
+  - name: game
+  - name: question
+security:
+  - jwt:
+      - banter_bus:game:write
+      - banter_bus:game:read
+      - banter_bus:question:read
+      - banter_bus:question:write
+paths:
+  /game:
+    get:
+      tags:
+        - game
+      summary: Get all game types.
+      operationId: get_all_game_type
+      security:
+        - jwt:
+            - banter_bus:question:read
+      responses:
+        200:
+          description: All the game types.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Game"
+      x-swagger-router-controller: banter_bus.web.controllers.game_controller
+    post:
+      tags:
+        - game
+      summary: Create a new game type.
+      operationId: create_game_type
+      security:
+        - jwt:
+            - banter_bus:question:write
+      requestBody:
+        description: Details of the new game to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewGame"
+            example:
+              name: "quibly"
+              rules_url: "https://gitlab.com/banter-bus/games"
+      responses:
+        200:
+          description: Created a new game type.
+          content: {}
+      x-swagger-router-controller: banter_bus.web.controllers.game_controller
+      x-codegen-request-body-name: body
+  /game/{game_id}/question:
+    post:
+      tags:
+        - question
+      summary: Add a new question to a game.
+      operationId: add_question_to_game
+      security:
+        - jwt:
+            - banter_bus:question:write
+      parameters:
+        - name: game_id
+          in: path
+          description: The id of the game to add the question to.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Details of the question to add.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewQuestion"
+            example:
+              question: "Would you rather do x or y?"
+        required: true
+      responses:
+        200:
+          description: Added question to game.
+          content: {}
+        404:
+          description: The game id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_does_not_exist_error"
+                message: "Failed to add question to game with id 1. Game does not exist."
+      x-swagger-router-controller: banter_bus.web.controllers.question_controller
+      x-codegen-request-body-name: body
+  /game/{game_id}/question/{question_id}:
+    get:
+      tags:
+        - question
+      summary: Get a question from a game.
+      operationId: get_question_from_game
+      security:
+        - jwt:
+            - banter_bus:question:read
+      parameters:
+        - name: game_id
+          in: path
+          description: The id of the game to get the question to.
+          required: true
+          schema:
+            type: string
+        - name: question_id
+          in: path
+          description: The id of the question to get.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Retrieved question.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        404:
+          description: The game id does not exist or the question id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_does_not_exist_error"
+                message: "Failed to add question to game with id 1. Game does not exist."
+      x-swagger-router-controller: banter_bus.web.controllers.question_controller
+    delete:
+      tags:
+        - question
+      summary: Remove a question from a game.
+      operationId: delete_a_question_from_game
+      security:
+        - jwt:
+            - banter_bus:question:write
+      parameters:
+        - name: game_id
+          in: path
+          description: The id of the game to remove the question to.
+          required: true
+          schema:
+            type: string
+        - name: question_id
+          in: path
+          description: The id of the question to remove.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Removed question from game.
+          content: {}
+        404:
+          description: The game id does not exist or the question id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_does_not_exist_error"
+                message: "Failed to add question to game with id 1. Game does not exist."
+      x-swagger-router-controller: banter_bus.web.controllers.question_controller
+    patch:
+      tags:
+        - question
+      summary: Update a question.
+      operationId: update_question
+      security:
+        - jwt:
+            - banter_bus:question:write
+      parameters:
+        - name: game_id
+          in: path
+          description: The id of the game to update.
+          required: true
+          schema:
+            type: string
+        - name: question_id
+          in: path
+          description: The id of the question to update.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchRequest"
+        required: true
+      responses:
+        200:
+          description: Player state updated.
+          content: {}
+        404:
+          description: The game room or question does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "questioned_does_not_exist_error"
+                message: "Failed to update question with id 1. Question does not exist."
+      x-swagger-router-controller: banter_bus.web.controllers.question_controller
+      x-codegen-request-body-name: body
+components:
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    APIError:
+      required:
+        - error_type
+        - message
+      type: object
+      properties:
+        error_type:
+          type: string
+        message:
+          type: string
+    NewGame:
+      required:
+        - game_name
+        - rules_url
+      type: object
+      properties:
+        game_name:
+          type: string
+        rules_url:
+          type: string
+    NewQuestion:
+      required:
+        - question
+      properties:
+        question:
+          type: string
+    GameID:
+      type: string
+    QuestionID:
+      type: string
+    Game:
+      required:
+        - id
+        - name
+        - questions
+        - rules_url
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/GameID"
+        name:
+          type: string
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+        rules_url:
+          type: string
+      example:
+        id: 4452fd22-fde1-11ea-adc1-0242ac120002
+        name: "quibly"
+        questions: []
+        rules_url: "https://gitlab.com/banter-bus/games"
+    Question:
+      required:
+        - id
+        - question
+      properties:
+        id:
+          $ref: "#/components/schemas/QuestionID"
+        question:
+          type: string
+      example:
+        id: 4452fd22-fde1-11ea-adc1
+        question: "What do you prefer x or y?"
+    PatchRequest:
+      type: array
+      items:
+        $ref: "#/components/schemas/PatchDocument"
+    PatchDocument:
+      description: A JSONPatch document as defined by RFC 6902
+      required:
+        - "op"
+        - "path"
+      properties:
+        op:
+          type: string
+          description: The operation to be performed
+          enum:
+            - "add"
+            - "remove"
+            - "replace"
+            - "move"
+            - "copy"
+            - "test"
+        path:
+          type: string
+          description: A JSON-Pointer
+        value:
+          type: object
+          description: The value to be used within the operations.
+        from:
+          type: string
+          description: A string containing a JSON Pointer value.
