@@ -1,0 +1,128 @@
+asyncapi: 2.0.0
+info:
+  title: Banter Bus API
+  version: "1.0.0"
+  description: |
+    The Web Socket API definition for the Banter Bus application.
+
+    ### Supported Games
+
+     * [Quibly](https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly)
+
+  contact:
+    name: Haseeb Majid
+    email: hello@haseebmajid.dev
+servers:
+  production:
+    url: banterbus.haseebmajid.dev/api
+    protocol: wss
+    description: Main API broker
+  development:
+    url: develop.banterbus.haseebmajid.dev/api
+    protocol: wss
+    description: Test API broker
+defaultContentType: application/json
+channels:
+  /room:
+    publish:
+      summary: Create a new game room.
+      operationId: create_room
+      message:
+        $ref: "#/components/messages/NewRoom"
+    subscribe:
+      summary: Get information about a game room.
+      operationId: get_room
+      message:
+        $ref: "#/components/messages/Room"
+  room/{room_id}/player/add:
+    parameters:
+      room_id:
+        $ref: "#/components/parameters/RoomID"
+    publish:
+      summary: Add a player to a game room.
+      operationId: add_player_to_room
+      message:
+        $ref: "#/components/messages/NewPlayer"
+    subscribe:
+      summary: Get information about player from game room.
+      operationId: get_player_from_room
+      message:
+        $ref: "#/components/messages/Player"
+  room/{room_id}/player/{player_id}/delete:
+    parameters:
+      room_id:
+        $ref: "#/components/parameters/RoomID"
+      player_id:
+        $ref: "#/components/parameters/PlayerID"
+    publish:
+      summary: Command to remove a player from a game room.
+      operationId: remove_player_from_room
+      message:
+        $ref: "#/components/messages/Player"
+    subscribe:
+      summary: Update about players removed from the game room.
+      operationId: update_player_removed_from_room
+      message:
+        $ref: "#/components/messages/Player"
+components:
+  parameters:
+    RoomID:
+      schema:
+        type: string
+    PlayerID:
+      schema:
+        type: string
+  messages:
+    NewRoom:
+      payload:
+        required:
+          - game_type
+        type: object
+        properties:
+          game_type:
+            type: string
+    Room:
+      payload:
+        required:
+          - id
+          - game_type
+          - urls
+          - code
+          - state
+        type: object
+        properties:
+          id:
+            $ref: "#/components/parameters/RoomID"
+          urls:
+            type: object
+            properties:
+              shareable_url:
+                type: string
+              host_url:
+                type: string
+          game_type:
+            type: string
+            enum:
+              - quibly
+          code:
+            type: string
+          state:
+            type: array
+    NewPlayer:
+      payload:
+        type: object
+        required:
+          - name
+        properties:
+          name:
+            type: string
+    Player:
+      payload:
+        type: object
+        required:
+          - name
+        properties:
+          player_id:
+            $ref: "#/components/parameters/PlayerID"
+          name:
+            type: string
