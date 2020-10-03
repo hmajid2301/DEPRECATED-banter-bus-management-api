@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  server:
+    container_name: nginx
+    build:
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - 443:443
+    depends_on:
+      - api
+
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ./src:/go/src/app
+    depends_on:
+      - mongo
+
+  mongo:
+    container_name: database
+    image: mongo:latest
+    volumes:
+      - "mongodata:/data/db"
+    ports:
+      - 27100:27017
