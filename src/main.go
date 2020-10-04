@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -33,8 +34,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Connected to MongoDB!")
+	conn, err := redis.Dial("tcp", "message_broker:6379")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+	_, err = conn.Do("HMSET", "album:2", "title", "Electric Ladyland", "artist", "Jimi Hendrix", "price", 4.95, "likes", 8)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	fmt.Println("Electric Ladyland added!")
+	fmt.Println("Connected to MongoDB!")
 	r.Run("localhost:8080")
 }
 
