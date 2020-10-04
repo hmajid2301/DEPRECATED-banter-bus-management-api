@@ -1,6 +1,8 @@
 ARG GO_VERSION=1.15.2
 
 FROM golang:${GO_VERSION}-alpine AS builder
+LABEL version="0.1.0"
+LABEL maintainer="Haseeb Majid<hello@haseebmajid.dev>"
 
 WORKDIR /api
 COPY go.mod go.sum ./
