@@ -59,6 +59,113 @@ paths:
           content: {}
       x-swagger-router-controller: banter_bus.web.controllers.game_controller
       x-codegen-request-body-name: body
+  /game/{game_name}:
+    delete:
+      tags:
+        - game
+      summary: Delete a game type.
+      operationId: delete_game_type
+      security:
+        - jwt:
+            - banter_bus:game:write
+      parameters:
+        - name: game_name
+          in: path
+          description: The name of the game type to delete.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Deleted game type.
+          content: {}
+        404:
+          description: The game id does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_type_does_not_exist_error"
+                message: "Failed to delete game type called FibbingIt"
+      x-swagger-router-controller: banter_bus.web.controllers.game_controller
+  /game/{game_name}:enable:
+    put:
+      tags:
+        - game
+      summary: Enable a game type. This means it cannot be used to create new games.
+      operationId: enable_game_type
+      security:
+        - jwt:
+            - banter_bus:game:write
+      parameters:
+        - name: game_name
+          in: path
+          description: The name of the game type to delete.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Enabled game type.
+          content: {}
+        404:
+          description: The game type does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_type_does_not_exist_error"
+                message: "Failed to delete game type called FibbingIt"
+        409:
+          description: The game type is already enabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_type_already_enabled"
+                message: "Failed to enable game type called FibbingIt. As it is already enable."
+      x-swagger-router-controller: banter_bus.web.controllers.game_controller
+  /game/{game_name}:disable:
+    put:
+      tags:
+        - game
+      summary: Disable a game type. This means it cannot be used to create new games.
+      operationId: disable_game_type
+      security:
+        - jwt:
+            - banter_bus:game:write
+      parameters:
+        - name: game_name
+          in: path
+          description: The name of the game type to delete.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Disabled game type.
+          content: {}
+        404:
+          description: The game type does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_type_does_not_exist_error"
+                message: "Failed to delete game type called FibbingIt"
+        409:
+          description: The game type is already disabled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_type_already_disabled"
+                message: "Failed to disable game type called FibbingIt. As it is already disabled."
   /game/{game_id}/question:
     post:
       tags:
@@ -258,6 +365,7 @@ components:
         - name
         - questions
         - rules_url
+        - state
       type: object
       properties:
         id:
@@ -270,11 +378,17 @@ components:
             $ref: "#/components/schemas/Question"
         rules_url:
           type: string
+        state:
+          type: string
+          enum:
+            - enabled
+            - disabled
       example:
         id: 4452fd22-fde1-11ea-adc1-0242ac120002
         name: "quibly"
         questions: []
         rules_url: "https://gitlab.com/banter-bus/games"
+        state: enabled
     Question:
       required:
         - id

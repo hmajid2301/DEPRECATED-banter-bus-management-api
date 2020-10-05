@@ -1,39 +1,41 @@
 version: "3"
 
 services:
-  server:
-    container_name: nginx
-    build:
-      dockerfile: docker/nginx/Dockerfile
-    ports:
-      - 443:443
-    depends_on:
-      - api
+  # server:
+  #   container_name: banter-bus-nginx
+  #   build:
+  #     context: .
+  #     dockerfile: docker/nginx/Dockerfile
+  #   ports:
+  #     - 443:443
+  #   depends_on:
+  #     - api
 
   api:
-    container_name: api
+    container_name: banter-bus-api
     build:
       context: .
       dockerfile: docker/api/Dockerfile
     ports:
       - 8080:8080
     volumes:
-      - ./src:/go/src/app
+      - ./src/:/api/src/
     depends_on:
-      - mongo
+      - mongodb
 
-  mongo:
-    container_name: database
+  mongodb:
+    container_name: banter-bus-database
     image: mongo:latest
+    env_file: docker/database/.env
     volumes:
-      - "mongo-data:/data/db"
+      - /data/db
     ports:
-      - 27100:27017
+      - 27017:27017
 
   redis:
     container_name: message_broker
     image: redis:latest
     volumes:
-      - "redis-data:/var/lib/redis"
+      - /var/lib/redis
     ports:
       - 6379:6379

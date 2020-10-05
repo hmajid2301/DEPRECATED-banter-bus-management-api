@@ -1,0 +1,6 @@
+database:
+  host: banter-bus-database
+  port: 27017
+  user: banterbus
+  password: banterbus
+  name: banterbus
