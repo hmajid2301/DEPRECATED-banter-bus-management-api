@@ -1,71 +1,80 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"net/http"
-
+	// Log items to the terminal
+	"banter-bus-server/src/controllers"
+	"banter-bus-server/src/database"
 	"log"
 
+	// Import gin for route definition
 	"github.com/gin-gonic/gin"
-	"github.com/gomodule/redigo/redis"
-	"github.com/gorilla/websocket"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	// Import godotenv for .env variables
+	"github.com/joho/godotenv"
+	// Import our app controllers
+	"fmt"
+	"os"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
-func main() {
+// init gets called before the main function
+func init() {
+	// Log error if .env file does not exist
+	if err := godotenv.Load(); err != nil {
+		log.Printf("No .env file found")
+	}
+}
 
-	r := gin.Default()
-	r.GET("/ws", func(c *gin.Context) {
-		wshandler(c.Writer, c.Request)
+func main() {
+	config := database.DatabaseConfig{Username: "banterbus", Password: "banterbus", DatabaseName: "banterbus", Host: "banter-bus-database", Port: "27017"}
+	// Init gin router
+	router := gin.Default()
+	database.InitialiseDatabase(config)
+
+	// Its great to version your API's
+	v1 := router.Group("/api/v1")
+	{
+		// Define the hello controller
+		hello := new(controllers.HelloWorldController)
+		// Define a GET request to call the Default
+		// method in controllers/hello.go
+		v1.GET("/hello", hello.Default)
+	}
+
+	// Handle error response when a route is not defined
+	router.NoRoute(func(c *gin.Context) {
+		// In gin this is how you return a JSON response
+		c.JSON(404, gin.H{"message": "Not found"})
 	})
 
-	clientOptions := options.Client().ApplyURI("mongodb://database:27017")
-	client, err := mongo.Connect(context.TODO(), clientOptions)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = client.Ping(context.TODO(), nil)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	conn, err := redis.Dial("tcp", "message_broker:6379")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-	_, err = conn.Do("HMSET", "album:2", "title", "Electric Ladyland", "artist", "Jimi Hendrix", "price", 4.95, "likes", 8)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Electric Ladyland added!")
-	fmt.Println("Connected to MongoDB!")
-	r.Run("localhost:8080")
+	// Init our server
+	router.Run(":8080")
 }
 
-var wsupgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+// Config is the data type for the expected config file.
+type Config struct {
+	Database struct {
+		Host     string `yaml:"host" env:"BANTER_BUS_DB_HOST" env-default:"database"`
+		Port     string `yaml:"port" env:"BANTER_BUS_DB_PORT" env-default:"27017"`
+		Name     string `yaml:"name" env:"BANTER_BUS_DB_NAME" env-default:"banterbus"`
+		User     string `yaml:"user" env:"BANTER_BUS_DB_USER"`
+		Password string `yaml:"password" env:"BANTER_BUS_DB_PASSWORD"`
+	} `yaml:"database"`
 }
 
-func wshandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := wsupgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("Failed to set websocket upgrade: %+v", err)
-		return
+func config() *Config {
+	var cfg Config
+
+	path, exists := os.LookupEnv("BANTER_BUS_CONFIG_PATH")
+	var configPath = "config.yaml"
+	if exists {
+		configPath = path
 	}
 
-	for {
-		t, msg, err := conn.ReadMessage()
-		if err != nil {
-			break
-		}
-		conn.WriteMessage(t, msg)
+	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
+		fmt.Println(err)
+		os.Exit(2)
 	}
+
+	return &cfg
 }

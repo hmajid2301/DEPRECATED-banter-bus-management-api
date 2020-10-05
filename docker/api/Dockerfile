@@ -1,21 +1,17 @@
 ARG GO_VERSION=1.15.2
 
-FROM golang:${GO_VERSION}-alpine AS builder
-LABEL version="0.1.0"
-LABEL maintainer="Haseeb Majid<hello@haseebmajid.dev>"
+FROM golang:${GO_VERSION}-alpine
+
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
 
 WORKDIR /api
 COPY go.mod go.sum ./
-COPY . .
-
-RUN apk update && apk add alpine-sdk git && rm -rf /var/cache/apk/*
 RUN go mod download
-RUN go build -o ./src ./src/main.go
 
-FROM alpine:latest
+COPY . .
+RUN go get github.com/githubnemo/CompileDaemon
 
-WORKDIR /api
-COPY --from=builder /api/app .
-
-EXPOSE 8080
-ENTRYPOINT ["./app"]
+ENTRYPOINT CompileDaemon -directory=/api/src  -log-prefix=false -build="go build -a -installsuffix cgo -o /go/bin/hello" -command="/go/bin/hello"
