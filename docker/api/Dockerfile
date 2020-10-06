@@ -5,7 +5,8 @@ FROM golang:${GO_VERSION}-alpine
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=amd64
+    GOARCH=amd64 \
+    BANTER_BUS_CONFIG_PATH=/api/src/config.yml
 
 WORKDIR /api
 COPY go.mod go.sum ./
