@@ -1,11 +1,12 @@
 package main
 
 import (
-	"banter-bus-server/src/config"
-	"banter-bus-server/src/controllers"
-	"banter-bus-server/src/database"
+	"log"
+	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"banter-bus-server/src/core/config"
+	"banter-bus-server/src/core/database"
+	"banter-bus-server/src/server"
 )
 
 func main() {
@@ -17,18 +18,16 @@ func main() {
 		Host:         config.Database.Host,
 		Port:         config.Database.Port,
 	}
-	router := gin.Default()
 	database.InitialiseDatabase(dbConfig)
 
-	v1 := router.Group("/api/v1")
-	{
-		hello := new(controllers.HelloWorldController)
-		v1.GET("/hello", hello.Default)
+	router, err := server.NewRouter()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	router.NoRoute(func(c *gin.Context) {
-		c.JSON(404, gin.H{"message": "Not found"})
-	})
-
-	router.Run(":8080")
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: router,
+	}
+	srv.ListenAndServe()
 }

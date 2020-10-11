@@ -60,6 +60,35 @@ paths:
       x-swagger-router-controller: banter_bus.web.controllers.game_controller
       x-codegen-request-body-name: body
   /game/{game_name}:
+    get:
+      tags:
+        - game
+      summary: Get a game type.
+      operationId: get_game_type
+      security:
+        - jwt:
+            - banter_bus:game:read
+      parameters:
+        - name: game_name
+          in: path
+          description: The name of the game type to get.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Deleted game type.
+          content: {}
+        404:
+          description: The game type does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
+              example:
+                error_type: "game_type_does_not_exist_error"
+                message: "Failed to delete game type called FibbingIt"
+      x-swagger-router-controller: banter_bus.web.controllers.game_controller
     delete:
       tags:
         - game
