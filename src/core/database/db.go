@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"gopkg.in/mgo.v2/bson"
 )
 
 //DatabaseConfig is ...
@@ -22,6 +22,7 @@ type DatabaseConfig struct {
 
 var client *mongo.Client
 var database *mongo.Database
+var collection *mongo.Collection
 var ctx = context.TODO()
 
 func InitialiseDatabase(config DatabaseConfig) {
@@ -29,32 +30,38 @@ func InitialiseDatabase(config DatabaseConfig) {
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	fmt.Println("cat")
 	database = client.Database(config.DatabaseName)
+
+	// defer func() {
+	// 	if err = client.Disconnect(ctx); err != nil {
+	// 		panic(err)
+	// 	}
+	// }()
 }
 
-func Insert(collectionName string, id string, object interface{}) {
+func Insert(collectionName string, object interface{}) error {
 	collection := database.Collection(collectionName)
-	itemToAdd := bson.M{id: object}
-	_, err := collection.InsertOne(ctx, itemToAdd)
+	_, err := collection.InsertOne(ctx, object)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return err
 	}
+
+	return nil
 }
 
-func Get(collectionName string, id string) *mongo.SingleResult {
+func Get(collectionName string, filter interface{}, model interface{}) error {
 	collection := database.Collection(collectionName)
-	itemToGet := bson.M{"id": id}
-	item := collection.FindOne(ctx, itemToGet)
-	return item
+	err := collection.FindOne(ctx, filter).Decode(&model)
+	return err
 }
 
 func Delete(collectionName string, id string) {
@@ -71,13 +78,6 @@ func PartialUpdate(collectionName string, itemUpdate interface{}, id string) {
 	filter := bson.M{"id": id}
 	update := bson.M{"$set": itemUpdate}
 	_, err := collection.UpdateOne(ctx, filter, update)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func Disconnect() {
-	err := client.Disconnect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
