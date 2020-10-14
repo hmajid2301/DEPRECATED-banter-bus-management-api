@@ -1,8 +1,6 @@
 package server
 
 import (
-	"banter-bus-server/src/server/controllers"
-	"banter-bus-server/src/server/models"
 	"fmt"
 	"net/http"
 
@@ -12,6 +10,9 @@ import (
 	"github.com/loopfz/gadgeto/tonic"
 	"github.com/wI2L/fizz"
 	"github.com/wI2L/fizz/openapi"
+
+	"banter-bus-server/src/server/controllers"
+	"banter-bus-server/src/server/models"
 )
 
 func NewRouter() (*fizz.Fizz, error) {
@@ -38,8 +39,30 @@ func routes(grp *fizz.RouterGroup) {
 	grp.POST("", []fizz.OperationOption{
 		fizz.Summary("Create a new game type."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad request", nil, nil),
-		fizz.Response(fmt.Sprint(http.StatusConflict), "Does not exist", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusConflict), "Already exists", nil, nil),
 	}, tonic.Handler(controllers.CreateGameType, http.StatusOK))
+	grp.GET("", []fizz.OperationOption{
+		fizz.Summary("Get all game types."),
+	}, tonic.Handler(controllers.GetAllGameType, http.StatusOK))
+	grp.GET("/:name", []fizz.OperationOption{
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
+		fizz.Summary("Get a game types."),
+	}, tonic.Handler(controllers.GetGameType, http.StatusOK))
+	tonic.SetErrorHook(errHook)
+	grp.DELETE("/:name", []fizz.OperationOption{
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
+		fizz.Summary("Delete a game types."),
+	}, tonic.Handler(controllers.RemoveGameType, http.StatusOK))
+	grp.PUT("/:name/enable", []fizz.OperationOption{
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusConflict), "Already enabled", nil, nil),
+		fizz.Summary("Enables a game type."),
+	}, tonic.Handler(controllers.EnableGameType, http.StatusOK))
+	grp.PUT("/:name/disable", []fizz.OperationOption{
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusConflict), "Already disabled", nil, nil),
+		fizz.Summary("Disables a game type."),
+	}, tonic.Handler(controllers.DisableGameType, http.StatusOK))
 	tonic.SetErrorHook(errHook)
 }
 

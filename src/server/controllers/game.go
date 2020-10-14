@@ -16,9 +16,9 @@ func CreateGameType(c *gin.Context, game *models.NewGame) (struct{}, error) {
 
 	gameTag := getJSONTagFromStruct(game, "Name")
 	var filter = map[string]string{gameTag: game.Name}
-	var item models.NewGame
+	var item *models.NewGame
 
-	err := database.Get("game", filter, item)
+	err := database.Get("game", filter, &item)
 	if err == nil {
 		return emptyResponse, errors.AlreadyExistsf("The game type %s", game.Name)
 	}
@@ -27,6 +27,7 @@ func CreateGameType(c *gin.Context, game *models.NewGame) (struct{}, error) {
 		Name:      game.Name,
 		RulesURL:  game.RulesURL,
 		Questions: []models.Question{},
+		Enabled:   true,
 	}
 
 	err = database.Insert("game", EmptyGame)
@@ -34,6 +35,67 @@ func CreateGameType(c *gin.Context, game *models.NewGame) (struct{}, error) {
 		fmt.Println(err)
 	}
 	return emptyResponse, nil
+}
+
+func GetAllGameType(c *gin.Context) ([]*models.Game, error) {
+	games := []*models.Game{}
+	database.GetAll("game", &games)
+	return games, nil
+}
+
+func GetGameType(c *gin.Context, params *models.GameParams) (*models.Game, error) {
+	var game *models.Game
+	gameTag := getJSONTagFromStruct(params, "Name")
+	var filter = map[string]string{gameTag: params.Name}
+	database.Get("game", filter, &game)
+	return game, nil
+}
+
+func RemoveGameType(c *gin.Context, params *models.GameParams) (struct{}, error) {
+	var emptyResponse struct{}
+	gameTag := getJSONTagFromStruct(params, "Name")
+	var filter = map[string]string{gameTag: params.Name}
+
+	var game *models.Game
+	err := database.Get("game", filter, &game)
+	if err != nil {
+		return emptyResponse, errors.NotFoundf("The game type %s", params.Name)
+	}
+	database.Delete("game", filter)
+	return emptyResponse, nil
+}
+
+func EnableGameType(c *gin.Context, params *models.GameParams) (struct{}, error) {
+	return updateGameType(true, params)
+}
+
+func DisableGameType(c *gin.Context, params *models.GameParams) (struct{}, error) {
+	return updateGameType(false, params)
+}
+
+func updateGameType(enable bool, params *models.GameParams) (struct{}, error) {
+	gameTag := getJSONTagFromStruct(params, "Name")
+	var filter = map[string]string{gameTag: params.Name}
+
+	var game *models.Game
+	err := database.Get("game", filter, &game)
+	var emptyResponse struct{}
+	if err != nil {
+		return emptyResponse, errors.NotFoundf("The game type %s", params.Name)
+	} else if !game.Enabled {
+		enabledString := "enabled"
+		if !enable {
+			enabledString = "disabled"
+		}
+		return emptyResponse, errors.NewAlreadyExists(errors.New(""), fmt.Sprintf("Game %s is already %s", params.Name, enabledString))
+	}
+
+	gameTagEnabled := getJSONTagFromStruct(game, "Enabled")
+	var update = map[string]bool{gameTagEnabled: enable}
+
+	database.PartialUpdate("game", filter, update)
+	return emptyResponse, nil
+
 }
 
 func getJSONTagFromStruct(model interface{}, fieldName string) string {
