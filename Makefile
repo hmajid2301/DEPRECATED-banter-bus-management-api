@@ -19,5 +19,8 @@ status: ## Show status of containers
 
 ps: status ## Alias of status
 
+test:
+	@go test ./tests/...
+
 clean: confirm ## Clean all data
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down

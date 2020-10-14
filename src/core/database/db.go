@@ -84,6 +84,13 @@ func Delete(collectionName string, filter interface{}) {
 	}
 }
 
+func RemoveCollection(collectionName string) {
+	err := database.Collection(collectionName).Drop(ctx)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func PartialUpdate(collectionName string, filter interface{}, update interface{}) {
 	collection := database.Collection(collectionName)
 	update = bson.M{"$set": update}
