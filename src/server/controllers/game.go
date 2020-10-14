@@ -37,10 +37,14 @@ func CreateGameType(c *gin.Context, game *models.NewGame) (struct{}, error) {
 	return emptyResponse, nil
 }
 
-func GetAllGameType(c *gin.Context) ([]*models.Game, error) {
+func GetAllGameType(c *gin.Context) ([]string, error) {
 	games := []*models.Game{}
 	database.GetAll("game", &games)
-	return games, nil
+	var gameNames []string
+	for _, game := range games {
+		gameNames = append(gameNames, game.Name)
+	}
+	return gameNames, nil
 }
 
 func GetGameType(c *gin.Context, params *models.GameParams) (*models.Game, error) {
