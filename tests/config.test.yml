@@ -1,0 +1,6 @@
+database:
+  host: 172.22.0.3
+  port: 27017
+  user: banterbus
+  password: banterbus
+  name: banterbus
