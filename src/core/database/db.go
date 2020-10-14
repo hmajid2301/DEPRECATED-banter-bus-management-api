@@ -4,7 +4,6 @@ package database
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -60,25 +59,36 @@ func Insert(collectionName string, object interface{}) error {
 
 func Get(collectionName string, filter interface{}, model interface{}) error {
 	collection := database.Collection(collectionName)
-	err := collection.FindOne(ctx, filter).Decode(&model)
+	err := collection.FindOne(ctx, filter).Decode(model)
 	return err
 }
 
-func Delete(collectionName string, id string) {
+func GetAll(collectionName string, model interface{}) error {
 	collection := database.Collection(collectionName)
-	itemToDelete := bson.M{"id": id}
-	_, err := collection.DeleteOne(ctx, itemToDelete)
+	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
+	}
+
+	if err = cursor.All(ctx, model); err != nil {
+		panic(err)
+	}
+	return err
+}
+
+func Delete(collectionName string, filter interface{}) {
+	collection := database.Collection(collectionName)
+	_, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+		panic(err)
 	}
 }
 
-func PartialUpdate(collectionName string, itemUpdate interface{}, id string) {
+func PartialUpdate(collectionName string, filter interface{}, update interface{}) {
 	collection := database.Collection(collectionName)
-	filter := bson.M{"id": id}
-	update := bson.M{"$set": itemUpdate}
+	update = bson.M{"$set": update}
 	_, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
