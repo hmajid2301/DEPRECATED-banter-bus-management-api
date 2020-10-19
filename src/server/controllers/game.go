@@ -51,7 +51,10 @@ func GetGameType(c *gin.Context, params *models.GameParams) (*models.Game, error
 	var game *models.Game
 	gameTag := getJSONTagFromStruct(params, "Name")
 	var filter = map[string]string{gameTag: params.Name}
-	database.Get("game", filter, &game)
+	err := database.Get("game", filter, &game)
+	if err != nil {
+		return game, errors.NotFoundf("The game type %s", params.Name)
+	}
 	return game, nil
 }
 
@@ -86,7 +89,7 @@ func updateGameType(enable bool, params *models.GameParams) (struct{}, error) {
 	var emptyResponse struct{}
 	if err != nil {
 		return emptyResponse, errors.NotFoundf("The game type %s", params.Name)
-	} else if !game.Enabled {
+	} else if enable == game.Enabled {
 		enabledString := "enabled"
 		if !enable {
 			enabledString = "disabled"

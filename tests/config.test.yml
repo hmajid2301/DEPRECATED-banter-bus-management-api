@@ -1,5 +1,5 @@
 database:
-  host: 172.22.0.3
+  host: localhost
   port: 27017
   user: banterbus
   password: banterbus
