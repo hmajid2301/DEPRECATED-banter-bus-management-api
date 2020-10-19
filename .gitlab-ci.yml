@@ -1,19 +1,17 @@
 image: node:8
 
+variables:
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - go mod download
+
 stages:
   - pre
   - test
   - build
   - publish
   - post
-
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
-
-variables:
-  DOCKER_DRIVER: overlay2
 
 create:merge-request:
   image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-mr
@@ -25,6 +23,18 @@ create:merge-request:
     - tags
   script:
     - gitlab_auto_mr -t master -c WIP -d .gitlab/merge_request_templates/merge_request.md -r -s --use-issue-name
+
+# tests:
+#   image: golang:latest
+#   services:
+#     - mongo:latest
+#   variables:
+#     MONGO_INITDB_ROOT_USERNAME: banterbus
+#     MONGO_INITDB_ROOT_PASSWORD: banterbus
+#     MONGO_INITDB_DATABASE: banterbus
+#   script:
+#     - export BANTER_BUS_DB_HOST="mongodb"
+#     - go test ./tests/...
 
 create:gitlab:release:
   image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-release

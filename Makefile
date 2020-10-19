@@ -1,3 +1,6 @@
+help: ## Show this help.
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+
 up: ## Start all or c=<name> containers in foreground
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up $(c)
 
@@ -19,8 +22,8 @@ status: ## Show status of containers
 
 ps: status ## Alias of status
 
-test:
-	@go test ./tests/...
-
 clean: confirm ## Clean all data
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down
+
+tests: ## Run tests
+	@go test ./tests/...
