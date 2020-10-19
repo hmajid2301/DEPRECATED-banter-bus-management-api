@@ -99,3 +99,201 @@ func TestGetAllGames(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, expectedResult, response)
 }
+
+func TestGetGame(t *testing.T) {
+	cases := []struct {
+		Name           string
+		ExpectedStatus int
+		ExpectedGame   models.Game
+	}{
+		{
+			"quibly",
+			http.StatusOK,
+			models.Game{
+				Name:      "quibly",
+				RulesURL:  "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+				Questions: []models.Question{},
+				Enabled:   true,
+			},
+		},
+		{
+			"quiblyv2",
+			http.StatusOK,
+			models.Game{
+				Name:      "quiblyv2",
+				RulesURL:  "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
+				Questions: []models.Question{},
+				Enabled:   true,
+			},
+		},
+		{
+			"quiblyv3",
+			http.StatusNotFound,
+			models.Game{},
+		},
+		{
+			"another_one",
+			http.StatusNotFound,
+			models.Game{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(fmt.Sprintf("Get Game"), func(t *testing.T) {
+			req, _ := http.NewRequest("GET", fmt.Sprintf("/game/%s", tc.Name), nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			assert.Equal(t, tc.ExpectedStatus, w.Code)
+
+			if w.Code == http.StatusOK {
+				var response *models.Game
+				json.Unmarshal([]byte(w.Body.String()), &response)
+				assert.Equal(t, tc.ExpectedGame, response)
+			}
+		})
+	}
+}
+
+func TestRemoveGame(t *testing.T) {
+	cases := []struct {
+		Name              string
+		ExpectedStatus    int
+		ExpectedGameNames []string
+	}{
+		{
+			"quiblyv2",
+			http.StatusOK,
+			[]string{"quibly"},
+		},
+		{
+			"quiblyv2",
+			http.StatusNotFound,
+			[]string{},
+		},
+		{
+			"quiblyv3",
+			http.StatusNotFound,
+			[]string{},
+		},
+		{
+			"another_one",
+			http.StatusNotFound,
+			[]string{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(fmt.Sprintf("Remove Game"), func(t *testing.T) {
+			req, _ := http.NewRequest("DELETE", fmt.Sprintf("/game/%s", tc.Name), nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			assert.Equal(t, tc.ExpectedStatus, w.Code)
+
+			if w.Code == http.StatusOK {
+				req, _ := http.NewRequest("GET", "/game", nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var response []string
+				json.Unmarshal([]byte(w.Body.String()), &response)
+				assert.Equal(t, http.StatusOK, w.Code)
+				assert.Equal(t, tc.ExpectedGameNames, response)
+			}
+		})
+	}
+}
+
+func TestDisableGame(t *testing.T) {
+	cases := []struct {
+		Name              string
+		ExpectedStatus    int
+		ExpectedGameNames models.Game
+	}{
+		{
+			"quibly",
+			http.StatusOK,
+			models.Game{
+				Name:      "quibly",
+				RulesURL:  "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+				Questions: []models.Question{},
+				Enabled:   false,
+			},
+		},
+		{
+			"quibly",
+			http.StatusConflict,
+			models.Game{},
+		},
+		{
+			"quiblyv2",
+			http.StatusNotFound,
+			models.Game{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(fmt.Sprintf("Disable A Game"), func(t *testing.T) {
+			req, _ := http.NewRequest("PUT", fmt.Sprintf("/game/%s/disable", tc.Name), nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			assert.Equal(t, tc.ExpectedStatus, w.Code)
+
+			if w.Code == http.StatusOK {
+				req, _ := http.NewRequest("GET", fmt.Sprintf("/game/%s", tc.Name), nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var response *models.Game
+				json.Unmarshal([]byte(w.Body.String()), &response)
+				assert.Equal(t, http.StatusOK, w.Code)
+				assert.Equal(t, tc.ExpectedGameNames, response)
+			}
+		})
+	}
+}
+
+func TestEnableGame(t *testing.T) {
+	cases := []struct {
+		Name              string
+		ExpectedStatus    int
+		ExpectedGameNames models.Game
+	}{
+		{
+			"quibly",
+			http.StatusOK,
+			models.Game{
+				Name:      "quibly",
+				RulesURL:  "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+				Questions: []models.Question{},
+				Enabled:   true,
+			},
+		},
+		{
+			"quibly",
+			http.StatusConflict,
+			models.Game{},
+		},
+		{
+			"quiblyv2",
+			http.StatusNotFound,
+			models.Game{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(fmt.Sprintf("Enable A Game"), func(t *testing.T) {
+			req, _ := http.NewRequest("PUT", fmt.Sprintf("/game/%s/enable", tc.Name), nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			assert.Equal(t, tc.ExpectedStatus, w.Code)
+
+			if w.Code == http.StatusOK {
+				req, _ := http.NewRequest("GET", fmt.Sprintf("/game/%s", tc.Name), nil)
+				w := httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				var response *models.Game
+				json.Unmarshal([]byte(w.Body.String()), &response)
+				assert.Equal(t, http.StatusOK, w.Code)
+				assert.Equal(t, tc.ExpectedGameNames, response)
+			}
+		})
+	}
+}
