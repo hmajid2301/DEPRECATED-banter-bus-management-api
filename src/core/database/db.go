@@ -26,6 +26,7 @@ var ctx = context.TODO()
 
 func InitialiseDatabase(config DatabaseConfig) {
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/", config.Username, config.Password, config.Host, config.Port)
+	fmt.Println("DB", uri)
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
@@ -49,6 +50,17 @@ func InitialiseDatabase(config DatabaseConfig) {
 func Insert(collectionName string, object interface{}) error {
 	collection := database.Collection(collectionName)
 	_, err := collection.InsertOne(ctx, object)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func InsertMultiple(collectionName string, object []interface{}) error {
+	collection := database.Collection(collectionName)
+	_, err := collection.InsertMany(ctx, object)
 	if err != nil {
 		fmt.Println(err)
 		return err

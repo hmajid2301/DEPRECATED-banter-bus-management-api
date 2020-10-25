@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gomodule/redigo v1.8.2
 	github.com/gorilla/websocket v1.4.2
+	github.com/houqp/gtest v1.0.0
 	github.com/ilyakaznacheev/cleanenv v1.2.5
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/loopfz/gadgeto v0.9.0

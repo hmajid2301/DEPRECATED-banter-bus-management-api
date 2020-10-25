@@ -24,17 +24,17 @@ create:merge-request:
   script:
     - gitlab_auto_mr -t master -c WIP -d .gitlab/merge_request_templates/merge_request.md -r -s --use-issue-name
 
-# tests:
-#   image: golang:latest
-#   services:
-#     - mongo:latest
-#   variables:
-#     MONGO_INITDB_ROOT_USERNAME: banterbus
-#     MONGO_INITDB_ROOT_PASSWORD: banterbus
-#     MONGO_INITDB_DATABASE: banterbus
-#   script:
-#     - export BANTER_BUS_DB_HOST="mongodb"
-#     - go test ./tests/...
+tests:
+  image: golang:latest
+  services:
+    - mongo:latest
+  variables:
+    MONGO_INITDB_ROOT_USERNAME: banterbus
+    MONGO_INITDB_ROOT_PASSWORD: banterbus
+    MONGO_INITDB_DATABASE: banterbus
+  script:
+    - export BANTER_BUS_DB_HOST="mongo"
+    - make test
 
 create:gitlab:release:
   image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-release
