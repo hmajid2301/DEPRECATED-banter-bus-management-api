@@ -1,3 +1,5 @@
+.PHONY: test
+
 help: ## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
@@ -25,5 +27,5 @@ ps: status ## Alias of status
 clean: confirm ## Clean all data
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down
 
-tests: ## Run tests
-	@go test ./tests/...
+test: ## generate grpc code and run short tests
+	@go test -v ./tests/... -short
