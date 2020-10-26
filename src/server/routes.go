@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/juju/errors"
 	"github.com/loopfz/gadgeto/tonic"
+	"github.com/sirupsen/logrus"
+	ginlogrus "github.com/toorop/gin-logrus"
 	"github.com/wI2L/fizz"
 	"github.com/wI2L/fizz/openapi"
 
@@ -17,7 +19,9 @@ import (
 
 func NewRouter() (*fizz.Fizz, error) {
 	engine := gin.New()
+	logrus := logrus.New()
 	engine.Use(cors.Default())
+	engine.Use(ginlogrus.Logger(logrus), gin.Recovery())
 	fizz := fizz.NewFromEngine(engine)
 
 	infos := &openapi.Info{
@@ -28,7 +32,6 @@ func NewRouter() (*fizz.Fizz, error) {
 	fizz.GET("/openapi.json", nil, fizz.OpenAPI(infos, "json"))
 
 	routes(fizz.Group("/game", "game", "Related to managing the game types."))
-
 	if len(fizz.Errors()) != 0 {
 		return nil, fmt.Errorf("fizz errors: %v", fizz.Errors())
 	}

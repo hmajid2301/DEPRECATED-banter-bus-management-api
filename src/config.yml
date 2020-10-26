@@ -1,3 +1,6 @@
+app:
+  logLevel: INFO
+  environment: development
 database:
   host: banter-bus-database
   port: 27017
