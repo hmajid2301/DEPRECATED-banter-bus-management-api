@@ -1,12 +1,14 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
-	"banter-bus-server/src/core/config"
+	log "github.com/sirupsen/logrus"
+
 	"banter-bus-server/src/core/database"
 	"banter-bus-server/src/server"
+	"banter-bus-server/src/utils/config"
+	logger "banter-bus-server/src/utils/log"
 )
 
 func main() {
@@ -19,15 +21,19 @@ func main() {
 		Port:         config.Database.Port,
 	}
 	database.InitialiseDatabase(dbConfig)
+	logger.FormatLogger()
 
 	router, err := server.NewRouter()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to load router", err)
 	}
 
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: router,
 	}
-	srv.ListenAndServe()
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Fatal("Failed to start server", err)
+	}
 }

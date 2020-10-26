@@ -14,10 +14,10 @@ import (
 	"github.com/wI2L/fizz"
 	"gopkg.in/go-playground/assert.v1"
 
-	"banter-bus-server/src/core/config"
 	"banter-bus-server/src/core/database"
 	"banter-bus-server/src/server"
 	"banter-bus-server/src/server/models"
+	"banter-bus-server/src/utils/config"
 )
 
 var router *fizz.Fizz
@@ -30,8 +30,8 @@ type TestData struct {
 
 func (s *SampleTests) Setup(t *testing.T) {
 	os.Setenv("BANTER_BUS_CONFIG_PATH", "config.test.yml")
+	os.Setenv("BANTER_BUS_LOG_LEVEL", "FATAL")
 	config := config.GetConfig()
-	fmt.Println(config.Database.Host)
 	dbConfig := database.DatabaseConfig{
 		Username:     config.Database.Username,
 		Password:     config.Database.Password,
