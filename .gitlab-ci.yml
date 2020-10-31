@@ -1,4 +1,4 @@
-image: node:8
+image: golang
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -24,17 +24,84 @@ create:merge-request:
   script:
     - gitlab_auto_mr -t master -c WIP -d .gitlab/merge_request_templates/merge_request.md -r -s --use-issue-name
 
+publish-docker:test:
+  stage: pre
+  only:
+    - master
+  image: docker
+  before_script: []
+  script:
+    - docker login ${CI_REGISTRY} -u gitlab-ci-token -p ${CI_BUILD_TOKEN}
+    - docker build -f docker/api/Dockerfile -t ${CI_REGISTRY_IMAGE}:test .
+    - docker push ${CI_REGISTRY_IMAGE}:test
+
+# include:
+#   - project: "tymonx/gitlab-ci"
+#     ref: v0.69.0
+#     file: "/templates/generic/go.yml"
+
+# lint:
+#   extends: .go-lint
+
+# lint:commits:
+#   image: node
+#   stage: test
+#   before_script:
+#     - cd commitlint
+#     - yarn install
+#   script:
+#     - yarn commitlint --from=$CI_MERGE_REQUEST_TARGET_BRANCH_SHA --to=$CI_COMMIT_SHA
+
 tests:
-  image: golang:latest
+  stage: test
   services:
     - mongo:latest
+  # extends: .go-test
   variables:
+    GO_COVERAGE: "20.0"
     MONGO_INITDB_ROOT_USERNAME: banterbus
     MONGO_INITDB_ROOT_PASSWORD: banterbus
     MONGO_INITDB_DATABASE: banterbus
   script:
     - export BANTER_BUS_DB_HOST="mongo"
     - make test
+
+# coverage:
+#   stage: test
+#   # only:
+#   #   - master
+#   services:
+#     - mongo:latest
+#   variables:
+#     MONGO_INITDB_ROOT_USERNAME: banterbus
+#     MONGO_INITDB_ROOT_PASSWORD: banterbus
+#     MONGO_INITDB_DATABASE: banterbus
+#   script:
+#     - export BANTER_BUS_DB_HOST="mongo"
+#     - make coverage
+#   coverage: '/total:\s+\(statements\)\s+(\d+.\d+\%)/'
+
+publish:openapi:
+  image: golang:latest
+  stage: publish
+  only:
+    - master
+  allow_failure: true
+  before_script:
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$GIT_SSH_PRIV_KEY")
+    - git config --global user.email "bot@haseebmajid.dev"
+    - git config --global user.name "Banter Bus Bot"
+    - mkdir -p ~/.ssh
+    - touch ~/.ssh/known_hosts
+  script:
+    - go mod download
+    - make update-openapi
+    - git status
+    - git add specs/openapi.json
+    - git commit -m "Update Openapi"
+    - git push
 
 create:gitlab:release:
   image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-release
