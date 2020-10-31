@@ -18,7 +18,6 @@ create:merge-request:
   stage: pre
   before_script: []
   except:
-    - production
     - master
     - tags
   script:
@@ -41,11 +40,16 @@ include:
     file: "/templates/generic/go.yml"
 
 lint:
+  stage: test
   extends: .go-lint
+  only:
+    - merge_request
 
 lint:commits:
   image: node
   stage: test
+  only:
+    - merge_request
   before_script:
     - cd commitlint
     - yarn install
@@ -54,9 +58,11 @@ lint:commits:
 
 tests:
   stage: test
+  only:
+    - merge_request
   services:
     - mongo:latest
-  # extends: .go-test
+  extends: .go-test
   variables:
     GO_COVERAGE: "20.0"
     MONGO_INITDB_ROOT_USERNAME: banterbus
