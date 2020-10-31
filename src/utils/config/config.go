@@ -30,7 +30,7 @@ type Config struct {
 //GetConfig ...
 func GetConfig() *Config {
 	path, exists := os.LookupEnv("BANTER_BUS_CONFIG_PATH")
-	var configPath = "config.yaml"
+	var configPath = "config.yml"
 	if exists {
 		configPath = path
 	}
