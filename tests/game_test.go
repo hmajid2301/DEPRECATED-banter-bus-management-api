@@ -320,3 +320,13 @@ func (s *SampleTests) SubTestDisableGame(t *testing.T) {
 		})
 	}
 }
+
+func (s *SampleTests) SubTestGetOpenAPI(t *testing.T) {
+	req, _ := http.NewRequest("GET", "/openapi.json", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	var a = []byte(w.Body.String())
+	var out bytes.Buffer
+	json.Indent(&out, a, "", "  ")
+	ioutil.WriteFile("../openapi.json", out.Bytes(), 0644)
+}
