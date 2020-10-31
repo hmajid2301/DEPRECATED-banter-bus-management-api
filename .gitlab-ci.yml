@@ -25,8 +25,8 @@ create:merge-request:
 
 publish-docker:test:
   stage: pre
-  only:
-    - master
+  # only:
+  #   - master
   image: docker
   before_script: []
   script:
