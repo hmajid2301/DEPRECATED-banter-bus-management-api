@@ -35,22 +35,22 @@ publish-docker:test:
     - docker build -f docker/api/Dockerfile -t ${CI_REGISTRY_IMAGE}:test .
     - docker push ${CI_REGISTRY_IMAGE}:test
 
-# include:
-#   - project: "tymonx/gitlab-ci"
-#     ref: v0.69.0
-#     file: "/templates/generic/go.yml"
+include:
+  - project: "tymonx/gitlab-ci"
+    ref: v0.69.0
+    file: "/templates/generic/go.yml"
 
-# lint:
-#   extends: .go-lint
+lint:
+  extends: .go-lint
 
-# lint:commits:
-#   image: node
-#   stage: test
-#   before_script:
-#     - cd commitlint
-#     - yarn install
-#   script:
-#     - yarn commitlint --from=$CI_MERGE_REQUEST_TARGET_BRANCH_SHA --to=$CI_COMMIT_SHA
+lint:commits:
+  image: node
+  stage: test
+  before_script:
+    - cd commitlint
+    - yarn install
+  script:
+    - yarn commitlint --from=$CI_MERGE_REQUEST_TARGET_BRANCH_SHA --to=$CI_COMMIT_SHA
 
 tests:
   stage: test
