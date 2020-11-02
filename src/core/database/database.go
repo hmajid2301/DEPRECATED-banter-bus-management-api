@@ -12,8 +12,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//DatabaseConfig is ...
-type DatabaseConfig struct {
+//Config is data required to connect to the database.
+type Config struct {
 	Host         string
 	Port         string
 	DatabaseName string
@@ -21,41 +21,36 @@ type DatabaseConfig struct {
 	Password     string
 }
 
-var client *mongo.Client
-var database *mongo.Database
-var collection *mongo.Collection
-var ctx = context.TODO()
+var _database *mongo.Database
+var _ctx = context.TODO()
 
-func InitialiseDatabase(config DatabaseConfig) {
+// InitialiseDatabase initializes the connection to the database.
+func InitialiseDatabase(config Config) {
 	log.Info("Connecting to database.")
+
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/", config.Username, config.Password, config.Host, config.Port)
 	clientOptions := options.Client().ApplyURI(uri)
-	client, err := mongo.Connect(ctx, clientOptions)
+	client, err := mongo.Connect(_ctx, clientOptions)
+
 	if err != nil {
 		log.Error("Failed to connect to database.", err)
 		panic(err)
 	}
 
-	log.Info("Connected to database")
-	database = client.Database(config.DatabaseName)
+	log.Info("Connected to database.")
+
+	_database = client.Database(config.DatabaseName)
 }
 
-func Ping() bool {
-	err := client.Ping(ctx, nil)
-	if err != nil {
-		panic(err)
-	}
-
-	return true
-}
-
+// Insert adds a new entry to the database.
 func Insert(collectionName string, object interface{}) error {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"object":     object,
 	}).Debug("Inserting object into database.")
-	collection := database.Collection(collectionName)
-	_, err := collection.InsertOne(ctx, object)
+	collection := _database.Collection(collectionName)
+
+	_, err := collection.InsertOne(_ctx, object)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -64,13 +59,15 @@ func Insert(collectionName string, object interface{}) error {
 	return nil
 }
 
+// InsertMultiple adds multiple entries to the database at once.
 func InsertMultiple(collectionName string, object []interface{}) error {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"object":     object,
 	}).Debug("Inserting multiple objects into database.")
-	collection := database.Collection(collectionName)
-	_, err := collection.InsertMany(ctx, object)
+	collection := _database.Collection(collectionName)
+
+	_, err := collection.InsertMany(_ctx, object)
 	if err != nil {
 		log.Error(err)
 		return err
@@ -79,65 +76,73 @@ func InsertMultiple(collectionName string, object []interface{}) error {
 	return nil
 }
 
+// Get retrieves an entry from the database.
 func Get(collectionName string, filter interface{}, model interface{}) error {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"filer":      filter,
 		"model":      model,
 	}).Debug("Getting object from database.")
-	collection := database.Collection(collectionName)
-	err := collection.FindOne(ctx, filter).Decode(model)
+	collection := _database.Collection(collectionName)
+	err := collection.FindOne(_ctx, filter).Decode(model)
+
 	return err
 }
 
+// GetAll entries from the database.
 func GetAll(collectionName string, model interface{}) error {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"model":      model,
 	}).Debug("Getting multiple objects from database.")
-	collection := database.Collection(collectionName)
-	cursor, err := collection.Find(ctx, bson.M{})
+	collection := _database.Collection(collectionName)
+
+	cursor, err := collection.Find(_ctx, bson.M{})
 	if err != nil {
 		log.Error("Failed to get object", err)
 	}
 
-	if err = cursor.All(ctx, model); err != nil {
+	if err = cursor.All(_ctx, model); err != nil {
 		log.Error("Failed to transform object", err)
 	}
+
 	return err
 }
 
+// Delete removes an entry from the database.
 func Delete(collectionName string, filter interface{}) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
 	}).Debug("Deleting object from database.")
-	collection := database.Collection(collectionName)
-	_, err := collection.DeleteOne(ctx, filter)
+	collection := _database.Collection(collectionName)
+	_, err := collection.DeleteOne(_ctx, filter)
 	if err != nil {
 		panic(err)
 	}
 }
 
+// RemoveCollection removes a collection from the database.
 func RemoveCollection(collectionName string) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 	}).Warn("Deleting collection from database.")
-	err := database.Collection(collectionName).Drop(ctx)
+	err := _database.Collection(collectionName).Drop(_ctx)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func UpdateItem(collectionName string, filter interface{}, update interface{}) {
+// UpdateEntry updates an existing entry in the database.
+func UpdateEntry(collectionName string, filter interface{}, update interface{}) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
 		"update":     update,
 	}).Debug("Update item in database.")
-	collection := database.Collection(collectionName)
+	collection := _database.Collection(collectionName)
 	update = bson.M{"$set": update}
-	_, err := collection.UpdateOne(ctx, filter, update)
+	_, err := collection.UpdateOne(_ctx, filter, update)
 	if err != nil {
 		panic(err)
 	}

@@ -1,4 +1,4 @@
-package controllers
+package controllers_test
 
 import (
 	"bytes"
@@ -16,8 +16,15 @@ func TestGetOpenAPI(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/openapi.json", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	var a = []byte(w.Body.String())
 	var out bytes.Buffer
-	json.Indent(&out, a, "", "  ")
-	ioutil.WriteFile("../openapi.json", out.Bytes(), 0644)
+
+	err := json.Indent(&out, w.Body.Bytes(), "", "  ")
+	if err != nil {
+		panic(err)
+	}
+
+	err = ioutil.WriteFile("../specs/openapi.json", out.Bytes(), 0600)
+	if err != nil {
+		panic(err)
+	}
 }

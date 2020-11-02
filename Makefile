@@ -1,7 +1,8 @@
-.PHONY: test coverage _coverage-tool
+.PHONY: test coverage
 
 help: ## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+
 up: ## Start all or c=<name> containers in foreground
 	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up $(c)
 
@@ -29,13 +30,11 @@ clean: confirm ## Clean all data
 test: ARGS=""
 coverage: ARGS="-coverprofile=coverage.out"
 
-coverage test: ## Run tests
+coverage test: ## Run all tests.
 	@go test -v ./tests/... -short $(ARGS)
 
-# coverage: test -coverprofile=coverage.out _coverage-tool ## Run tests and get coverage report
-
-_coverage-tool: ## Generate coverage report
-	@go tool cover -func=coverage.out
+lint: ## Run linter on source code and tests.
+	@golangci-lint run
 
 update-openapi: ## update openapi spec JSON file from the app
-	@sh utils/update_openapi.sh
+	@go test ./tests/openapi_test.go -v

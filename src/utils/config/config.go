@@ -10,7 +10,7 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-var once sync.Once
+var _once sync.Once
 
 // Config is the data type for the expected config file.
 type Config struct {
@@ -27,20 +27,22 @@ type Config struct {
 	} `yaml:"database"`
 }
 
-//GetConfig ...
+//GetConfig gets the config
 func GetConfig() *Config {
 	path, exists := os.LookupEnv("BANTER_BUS_CONFIG_PATH")
+
 	var configPath = "config.yml"
 	if exists {
 		configPath = path
 	}
 
 	var cfg Config
-	once.Do(func() {
+
+	_once.Do(func() {
 		err := cleanenv.ReadConfig(configPath, &cfg)
 		if err != nil {
 			log.Error("Failed to load config.", err)
-			os.Exit(1)
+			panic(err)
 		}
 	})
 

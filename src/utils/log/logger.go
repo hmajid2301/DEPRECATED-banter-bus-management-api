@@ -1,4 +1,4 @@
-// Package is ....
+// Package logger is
 package logger
 
 import (
@@ -7,16 +7,19 @@ import (
 	"banter-bus-server/src/utils/config"
 )
 
+//FormatLogger formats the logger as JSON/text depending on environment.
 func FormatLogger() {
-	config := config.GetConfig()
-	if config.App.Environment == "production" {
+	appConfig := config.GetConfig()
+	if appConfig.App.Environment == "production" {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
 		log.SetFormatter(&log.TextFormatter{})
 	}
-	logLevel, err := log.ParseLevel(config.App.LogLevel)
+
+	logLevel, err := log.ParseLevel(appConfig.App.LogLevel)
 	if err != nil {
 		logLevel = log.FatalLevel
 	}
+
 	log.SetLevel(logLevel)
 }

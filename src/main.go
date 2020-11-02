@@ -12,13 +12,13 @@ import (
 )
 
 func main() {
-	config := config.GetConfig()
-	dbConfig := database.DatabaseConfig{
-		Username:     config.Database.Username,
-		Password:     config.Database.Password,
-		DatabaseName: config.Database.DatabaseName,
-		Host:         config.Database.Host,
-		Port:         config.Database.Port,
+	appConfig := config.GetConfig()
+	dbConfig := database.Config{
+		Username:     appConfig.Database.Username,
+		Password:     appConfig.Database.Password,
+		DatabaseName: appConfig.Database.DatabaseName,
+		Host:         appConfig.Database.Host,
+		Port:         appConfig.Database.Port,
 	}
 	database.InitialiseDatabase(dbConfig)
 	logger.FormatLogger()

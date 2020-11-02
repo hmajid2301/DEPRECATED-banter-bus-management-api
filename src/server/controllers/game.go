@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/juju/errors"
@@ -12,22 +12,28 @@ import (
 	"banter-bus-server/src/server/models"
 )
 
-func CreateGameType(c *gin.Context, game *models.NewGame) (struct{}, error) {
+// CreateGameType adds a new game type to the database.
+func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
 	gameLogger := log.WithFields(log.Fields{
 		"game_name": game.Name,
 	})
 	gameLogger.Debug("Trying to add new game.")
-	var emptyResponse struct{}
 
 	gameTag := getJSONTagFromStruct(game, "Name")
-	var filter = map[string]string{gameTag: game.Name}
-	var item *models.NewGame
+
+	var (
+		emptyResponse struct{}
+		filter        = map[string]string{gameTag: game.Name}
+		item          *models.NewGame
+	)
 
 	err := database.Get("game", filter, &item)
+
 	if err == nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Game already exists.")
+
 		return emptyResponse, errors.AlreadyExistsf("The game type %s", game.Name)
 	}
 
@@ -47,10 +53,16 @@ func CreateGameType(c *gin.Context, game *models.NewGame) (struct{}, error) {
 	return emptyResponse, nil
 }
 
-func GetAllGameType(c *gin.Context) ([]string, error) {
+// GetAllGameType gets a list of names of all game types.
+func GetAllGameType(_ *gin.Context) ([]string, error) {
 	log.Debug("Trying to get all games.")
 	games := []*models.Game{}
-	database.GetAll("game", &games)
+	err := database.GetAll("game", &games)
+
+	if err != nil {
+		log.Warn("Failed to get game types.")
+	}
+
 	var gameNames []string
 	for _, game := range games {
 		gameNames = append(gameNames, game.Name)
@@ -58,7 +70,8 @@ func GetAllGameType(c *gin.Context) ([]string, error) {
 	return gameNames, nil
 }
 
-func GetGameType(c *gin.Context, params *models.GameParams) (*models.Game, error) {
+// GetGameType gets all the information about a specific game type.
+func GetGameType(_ *gin.Context, params *models.GameParams) (*models.Game, error) {
 	gameLogger := log.WithFields(log.Fields{
 		"game_name": params.Name,
 	})
@@ -76,7 +89,8 @@ func GetGameType(c *gin.Context, params *models.GameParams) (*models.Game, error
 	return game, nil
 }
 
-func RemoveGameType(c *gin.Context, params *models.GameParams) (struct{}, error) {
+// RemoveGameType removes a game type from the database.
+func RemoveGameType(_ *gin.Context, params *models.GameParams) (struct{}, error) {
 	gameLogger := log.WithFields(log.Fields{
 		"game_name": params.Name,
 	})
@@ -87,31 +101,35 @@ func RemoveGameType(c *gin.Context, params *models.GameParams) (struct{}, error)
 
 	var game *models.Game
 	err := database.Get("game", filter, &game)
+
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Game doesn't exists.")
 		return emptyResponse, errors.NotFoundf("The game type %s", params.Name)
 	}
+
 	database.Delete("game", filter)
 	return emptyResponse, nil
 }
 
-func EnableGameType(c *gin.Context, params *models.GameParams) (struct{}, error) {
+// EnableGameType enables a disabled game type.
+func EnableGameType(_ *gin.Context, params *models.GameParams) (struct{}, error) {
 	log.WithFields(log.Fields{
 		"game_name": params.Name,
-	}).Warn("Enabling game.")
-	return updateGameType(true, params)
+	}).Info("Enabling game.")
+	return updateGameType("true", params)
 }
 
-func DisableGameType(c *gin.Context, params *models.GameParams) (struct{}, error) {
+// DisableGameType disabled an enabled game type.
+func DisableGameType(_ *gin.Context, params *models.GameParams) (struct{}, error) {
 	log.WithFields(log.Fields{
 		"game_name": params.Name,
-	}).Warn("Disabling game.")
-	return updateGameType(false, params)
+	}).Info("Disabling game.")
+	return updateGameType("false", params)
 }
 
-func updateGameType(enable bool, params *models.GameParams) (struct{}, error) {
+func updateGameType(enable string, params *models.GameParams) (struct{}, error) {
 	gameLogger := log.WithFields(log.Fields{
 		"game_name": params.Name,
 	})
@@ -126,21 +144,21 @@ func updateGameType(enable bool, params *models.GameParams) (struct{}, error) {
 			"game_name": params.Name,
 		}).Warn("Game doesn't exist.")
 		return emptyResponse, errors.NotFoundf("The game type %s", params.Name)
-	} else if enable == game.Enabled {
-		enabledString := "enabled"
-		if !enable {
-			enabledString = "disabled"
-		}
+	} else if enable == strconv.FormatBool(game.Enabled) {
 		gameLogger.WithFields(log.Fields{
 			"game_name": params.Name,
 		}).Warn("Game already exists.")
-		return emptyResponse, errors.NewAlreadyExists(errors.New(""), fmt.Sprintf("Game %s is already %s", params.Name, enabledString))
+		return emptyResponse, errors.AlreadyExistsf("Game %s is already %s", params.Name, enable)
 	}
 
 	gameTagEnabled := getJSONTagFromStruct(game, "Enabled")
-	var update = map[string]bool{gameTagEnabled: enable}
+	b, err := strconv.ParseBool(enable)
+	if err != nil {
+		panic(err)
+	}
+	var update = map[string]bool{gameTagEnabled: b}
 
-	database.UpdateItem("game", filter, update)
+	database.UpdateEntry("game", filter, update)
 	return emptyResponse, nil
 }
 
@@ -152,6 +170,7 @@ func getJSONTagFromStruct(model interface{}, fieldName string) string {
 			"model":     model,
 		}).Warn("Field not found.")
 	}
-	jsonFieldName := string(field.Tag.Get("json"))
+
+	jsonFieldName := field.Tag.Get("json")
 	return jsonFieldName
 }

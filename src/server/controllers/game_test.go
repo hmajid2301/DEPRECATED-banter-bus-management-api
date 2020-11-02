@@ -1,4 +1,4 @@
-package controllers
+package controllers_test
 
 import (
 	"bytes"
@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/houqp/gtest"
+	log "github.com/sirupsen/logrus"
 	"github.com/wI2L/fizz"
 	"gopkg.in/go-playground/assert.v1"
 
@@ -30,9 +31,9 @@ type TestData struct {
 
 func (s *SampleTests) Setup(t *testing.T) {
 	os.Setenv("BANTER_BUS_CONFIG_PATH", "config.test.yml")
-	os.Setenv("BANTER_BUS_LOG_LEVEL", "FATAL")
+	log.SetOutput(ioutil.Discard)
 	config := config.GetConfig()
-	dbConfig := database.DatabaseConfig{
+	dbConfig := database.Config{
 		Username:     config.Database.Username,
 		Password:     config.Database.Password,
 		DatabaseName: config.Database.DatabaseName,
@@ -47,13 +48,22 @@ func (s *SampleTests) Teardown(t *testing.T) {}
 func (s *SampleTests) BeforeEach(t *testing.T) {
 	data, _ := ioutil.ReadFile("test_data.json")
 	var docs TestData
-	json.Unmarshal(data, &docs)
+
+	err := json.Unmarshal(data, &docs)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	var ui []interface{}
+
 	for _, t := range docs.Games {
 		ui = append(ui, t)
 	}
 
-	database.InsertMultiple("game", ui)
+	err = database.InsertMultiple("game", ui)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (s *SampleTests) AfterEach(t *testing.T) {
@@ -96,9 +106,9 @@ func (s *SampleTests) SubTestAddGame(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		t.Run(fmt.Sprintf("Add New Game"), func(t *testing.T) {
+		t.Run("Add New Game", func(t *testing.T) {
 			data, _ := json.Marshal(tc.Payload)
-			encodedData := bytes.NewBuffer([]byte(data))
+			encodedData := bytes.NewBuffer(data)
 			req, _ := http.NewRequest("POST", "/game", encodedData)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
@@ -112,13 +122,18 @@ func (s *SampleTests) SubTestGetAllGames(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	var response []string
-	json.Unmarshal([]byte(w.Body.String()), &response)
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	var expectedResult = []string{
 		"a_game",
 		"fibbly",
 		"draw_me",
 	}
+
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, expectedResult, response)
 }
@@ -162,7 +177,7 @@ func (s *SampleTests) SubTestGetGame(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		t.Run(fmt.Sprintf("Get Game"), func(t *testing.T) {
+		t.Run("Get Game", func(t *testing.T) {
 			req, _ := http.NewRequest("GET", fmt.Sprintf("/game/%s", tc.Name), nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
@@ -170,7 +185,12 @@ func (s *SampleTests) SubTestGetGame(t *testing.T) {
 
 			if w.Code == http.StatusOK {
 				var response *models.Game
-				json.Unmarshal([]byte(w.Body.String()), &response)
+
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				if err != nil {
+					fmt.Println(err)
+				}
+
 				assert.Equal(t, tc.ExpectedGame, response)
 			}
 		})
@@ -206,7 +226,7 @@ func (s *SampleTests) SubTestRemoveGame(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		t.Run(fmt.Sprintf("Remove Game"), func(t *testing.T) {
+		t.Run("Remove Game", func(t *testing.T) {
 			req, _ := http.NewRequest("DELETE", fmt.Sprintf("/game/%s", tc.Name), nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
@@ -217,7 +237,12 @@ func (s *SampleTests) SubTestRemoveGame(t *testing.T) {
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				var response []string
-				json.Unmarshal([]byte(w.Body.String()), &response)
+
+				err := json.Unmarshal(w.Body.Bytes(), &response)
+				if err != nil {
+					fmt.Println(err)
+				}
+
 				assert.Equal(t, http.StatusOK, w.Code)
 				assert.Equal(t, tc.ExpectedGameNames, response)
 			}
@@ -254,21 +279,8 @@ func (s *SampleTests) SubTestEnableGame(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		t.Run(fmt.Sprintf("Enable A Game"), func(t *testing.T) {
-			req, _ := http.NewRequest("PUT", fmt.Sprintf("/game/%s/enable", tc.Name), nil)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			assert.Equal(t, tc.ExpectedStatus, w.Code)
-
-			if w.Code == http.StatusOK {
-				req, _ := http.NewRequest("GET", fmt.Sprintf("/game/%s", tc.Name), nil)
-				w := httptest.NewRecorder()
-				router.ServeHTTP(w, req)
-				var response *models.Game
-				json.Unmarshal([]byte(w.Body.String()), &response)
-				assert.Equal(t, http.StatusOK, w.Code)
-				assert.Equal(t, tc.ExpectedGameNames, response)
-			}
+		t.Run("Enable A Game", func(t *testing.T) {
+			enableOrDisableTest(t, "enable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
 		})
 	}
 }
@@ -302,31 +314,33 @@ func (s *SampleTests) SubTestDisableGame(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		t.Run(fmt.Sprintf("Disable A Game"), func(t *testing.T) {
-			req, _ := http.NewRequest("PUT", fmt.Sprintf("/game/%s/disable", tc.Name), nil)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-			assert.Equal(t, tc.ExpectedStatus, w.Code)
-
-			if w.Code == http.StatusOK {
-				req, _ := http.NewRequest("GET", fmt.Sprintf("/game/%s", tc.Name), nil)
-				w := httptest.NewRecorder()
-				router.ServeHTTP(w, req)
-				var response *models.Game
-				json.Unmarshal([]byte(w.Body.String()), &response)
-				assert.Equal(t, http.StatusOK, w.Code)
-				assert.Equal(t, tc.ExpectedGameNames, response)
-			}
+		t.Run("Disable A Game", func(t *testing.T) {
+			enableOrDisableTest(t, "disable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
 		})
 	}
 }
 
-func (s *SampleTests) SubTestGetOpenAPI(t *testing.T) {
-	req, _ := http.NewRequest("GET", "/openapi.json", nil)
+func enableOrDisableTest(
+	t *testing.T,
+	enable string,
+	gameName string,
+	expectedGameNames models.Game,
+	expectedStatus int) {
+	req, _ := http.NewRequest("PUT", fmt.Sprintf("/game/%s/%s", gameName, enable), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	var a = []byte(w.Body.String())
-	var out bytes.Buffer
-	json.Indent(&out, a, "", "  ")
-	ioutil.WriteFile("../openapi.json", out.Bytes(), 0644)
+	assert.Equal(t, expectedStatus, w.Code)
+
+	if w.Code == http.StatusOK {
+		req, _ := http.NewRequest("GET", fmt.Sprintf("/game/%s", gameName), nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		var response *models.Game
+		err := json.Unmarshal(w.Body.Bytes(), &response)
+		if err != nil {
+			panic(err)
+		}
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, expectedGameNames, response)
+	}
 }

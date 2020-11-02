@@ -17,25 +17,29 @@ import (
 	"banter-bus-server/src/server/models"
 )
 
+// NewRouter creates all the routes/endpoints, using Fizz.
 func NewRouter() (*fizz.Fizz, error) {
 	engine := gin.New()
-	logrus := logrus.New()
+	logger := logrus.New()
+
 	engine.Use(cors.Default())
-	engine.Use(ginlogrus.Logger(logrus), gin.Recovery())
-	fizz := fizz.NewFromEngine(engine)
+
+	engine.Use(ginlogrus.Logger(logger), gin.Recovery())
+	fizzApp := fizz.NewFromEngine(engine)
 
 	infos := &openapi.Info{
 		Title:       "Banter Bus",
 		Description: "The API definition for the Banter Bus server.",
 		Version:     "1.0.0",
 	}
-	fizz.GET("/openapi.json", nil, fizz.OpenAPI(infos, "json"))
+	fizzApp.GET("/openapi.json", nil, fizzApp.OpenAPI(infos, "json"))
 
-	routes(fizz.Group("/game", "game", "Related to managing the game types."))
-	if len(fizz.Errors()) != 0 {
-		return nil, fmt.Errorf("fizz errors: %v", fizz.Errors())
+	routes(fizzApp.Group("/game", "game", "Related to managing the game types."))
+
+	if len(fizzApp.Errors()) != 0 {
+		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())
 	}
-	return fizz, nil
+	return fizzApp, nil
 }
 
 func routes(grp *fizz.RouterGroup) {
@@ -69,14 +73,14 @@ func routes(grp *fizz.RouterGroup) {
 	tonic.SetErrorHook(errHook)
 }
 
-func errHook(c *gin.Context, e error) (int, interface{}) {
+func errHook(_ *gin.Context, e error) (int, interface{}) {
 	code, msg := http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)
 
 	if _, ok := e.(tonic.BindError); ok {
 		code, msg = http.StatusBadRequest, e.Error()
 	} else {
 		switch {
-		case errors.IsBadRequest(e), errors.IsNotValid(e), errors.IsNotSupported(e), errors.IsNotAssigned(e), errors.IsNotProvisioned(e):
+		case errors.IsBadRequest(e), errors.IsNotValid(e), errors.IsNotSupported(e), errors.IsNotProvisioned(e):
 			code, msg = http.StatusBadRequest, e.Error()
 		case errors.IsForbidden(e):
 			code, msg = http.StatusForbidden, e.Error()
@@ -92,7 +96,7 @@ func errHook(c *gin.Context, e error) (int, interface{}) {
 			code, msg = http.StatusNotImplemented, e.Error()
 		}
 	}
-	err := models.ApiError{
+	err := models.APIError{
 		Message: msg,
 	}
 	return code, err

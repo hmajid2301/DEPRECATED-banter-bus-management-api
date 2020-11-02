@@ -1,5 +1,6 @@
 package models
 
-type ApiError struct {
+// APIError is a generic error message returned by the API.
+type APIError struct {
 	Message string `json:"message"`
 }
