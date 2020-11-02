@@ -110,7 +110,7 @@ func GetAll(collectionName string, model interface{}) error {
 }
 
 // Delete removes an entry from the database.
-func Delete(collectionName string, filter interface{}) {
+func Delete(collectionName string, filter map[string]string) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
@@ -134,7 +134,7 @@ func RemoveCollection(collectionName string) {
 }
 
 // UpdateEntry updates an existing entry in the database.
-func UpdateEntry(collectionName string, filter interface{}, update interface{}) {
+func UpdateEntry(collectionName string, filter map[string]string, update interface{}) (bool, error) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
@@ -142,8 +142,37 @@ func UpdateEntry(collectionName string, filter interface{}, update interface{}) 
 	}).Debug("Update item in database.")
 	collection := _database.Collection(collectionName)
 	update = bson.M{"$set": update}
-	_, err := collection.UpdateOne(_ctx, filter, update)
+	ok, err := collection.UpdateOne(_ctx, filter, update)
 	if err != nil {
-		panic(err)
+		log.Error("Failed to update entry", err)
+		return false, err
 	}
+
+	var updated = false
+	if ok.ModifiedCount > 0 {
+		updated = true
+	}
+	return updated, nil
+}
+
+// AppendToEntry appends an new entry to an array in the database.
+func AppendToEntry(collectionName string, filter interface{}, add interface{}) (bool, error) {
+	log.WithFields(log.Fields{
+		"collection": collectionName,
+		"filter":     filter,
+		"add":        add,
+	}).Debug("Adding item to existing entry in database.")
+	collection := _database.Collection(collectionName)
+
+	ok, err := collection.UpdateOne(_ctx, filter, bson.M{"$push": add})
+	if err != nil {
+		log.Error("Failed to append to entry", err)
+		return false, err
+	}
+
+	var updated = false
+	if ok.ModifiedCount > 0 {
+		updated = true
+	}
+	return updated, nil
 }

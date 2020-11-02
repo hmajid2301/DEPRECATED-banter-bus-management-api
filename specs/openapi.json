@@ -215,6 +215,67 @@
           }
         }
       }
+    },
+    "/game/{name}/question": {
+      "post": {
+        "tags": [
+          "game"
+        ],
+        "summary": "Add a new question to a game type.",
+        "operationId": "AddQuestion",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "round": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "content",
+                  "round"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -229,10 +290,7 @@
             "type": "string"
           },
           "questions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ModelsQuestion"
-            }
+            "$ref": "#/components/schemas/ModelsQuestion"
           },
           "rules_url": {
             "type": "string"
@@ -242,8 +300,23 @@
       "ModelsQuestion": {
         "type": "object",
         "properties": {
-          "question": {
-            "type": "string"
+          "one": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "three": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "two": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }

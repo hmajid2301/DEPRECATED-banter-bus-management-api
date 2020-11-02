@@ -1,4 +1,4 @@
-.PHONY: test coverage _start-db _down-db
+.PHONY: test coverage start-db down-db
 
 help: ## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
@@ -7,14 +7,14 @@ lint: ## Run linter on source code and tests.
 	@golangci-lint run
 
 test: ARGS=""
-coverage: ARGS="-coverprofile=coverage.out"
+_coverage: ARGS="-coverprofile=coverage.out -coverpkg=./..."
 
-coverage test: ## Run all tests.
-	@go test -v ./tests/... -short $(ARGS)
+_coverage test: ## Run all tests.
+	@go test -v ./... -short $(ARGS)
 
-tests-local: _start-db test _down-db ### Run tests locally.
+tests-local: start-db test down ### Run tests locally.
 
-debug-app: ## Run docker ready for debugging in vscode.
+debug: ## Run docker ready for debugging in vscode.
 	@USE=DEBUG docker-compose up --build
 
 update-openapi: ## update openapi spec JSON file from the app
@@ -23,8 +23,8 @@ update-openapi: ## update openapi spec JSON file from the app
 start: ## Start the application.
 	@docker-compose up --build
 
-_start-db:
-	@docker-compose up mongodb -d
+start-db:
+	@docker-compose up mongodb mongoclient
 
-_down-db:
-	@docker-compose down mongodb
+down:
+	@docker-compose down

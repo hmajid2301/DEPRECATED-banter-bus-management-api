@@ -22,9 +22,11 @@ services:
       - 8080:8080
       - 2345:2345
     volumes:
-      - ${PWD}/src:/go/app/src/
+      - ${PWD}/src/:/go/src/src/
     depends_on:
       - mongodb
+    security_opt:
+      - "seccomp:unconfined"
 
   mongodb:
     container_name: banter-bus-database

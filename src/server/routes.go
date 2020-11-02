@@ -34,7 +34,7 @@ func NewRouter() (*fizz.Fizz, error) {
 	}
 	fizzApp.GET("/openapi.json", nil, fizzApp.OpenAPI(infos, "json"))
 
-	routes(fizzApp.Group("/game", "game", "Related to managing the game types."))
+	gameRoutes(fizzApp.Group("/game", "game", "Related to managing the game types."))
 
 	if len(fizzApp.Errors()) != 0 {
 		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())
@@ -42,7 +42,7 @@ func NewRouter() (*fizz.Fizz, error) {
 	return fizzApp, nil
 }
 
-func routes(grp *fizz.RouterGroup) {
+func gameRoutes(grp *fizz.RouterGroup) {
 	grp.POST("", []fizz.OperationOption{
 		fizz.Summary("Create a new game type."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad request", nil, nil),
@@ -70,6 +70,12 @@ func routes(grp *fizz.RouterGroup) {
 		fizz.Response(fmt.Sprint(http.StatusConflict), "Already disabled", nil, nil),
 		fizz.Summary("Disables a game type."),
 	}, tonic.Handler(controllers.DisableGameType, http.StatusOK))
+	grp.POST("/:name/question", []fizz.OperationOption{
+		fizz.Summary("Add a new question to a game type."),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad request", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusConflict), "Already exists", nil, nil),
+	}, tonic.Handler(controllers.AddQuestion, http.StatusOK))
 	tonic.SetErrorHook(errHook)
 }
 

@@ -4,77 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
-	"github.com/houqp/gtest"
-	log "github.com/sirupsen/logrus"
-	"github.com/wI2L/fizz"
 	"gopkg.in/go-playground/assert.v1"
 
-	"banter-bus-server/src/core/database"
-	"banter-bus-server/src/server"
 	"banter-bus-server/src/server/models"
-	"banter-bus-server/src/utils/config"
 )
 
-var router *fizz.Fizz
-
-type SampleTests struct{}
-
-type TestData struct {
-	Games []models.Game `json:"games"`
-}
-
-func (s *SampleTests) Setup(t *testing.T) {
-	os.Setenv("BANTER_BUS_CONFIG_PATH", "config.test.yml")
-	log.SetOutput(ioutil.Discard)
-	config := config.GetConfig()
-	dbConfig := database.Config{
-		Username:     config.Database.Username,
-		Password:     config.Database.Password,
-		DatabaseName: config.Database.DatabaseName,
-		Host:         config.Database.Host,
-		Port:         config.Database.Port,
-	}
-	database.InitialiseDatabase(dbConfig)
-	router, _ = server.NewRouter()
-}
-func (s *SampleTests) Teardown(t *testing.T) {}
-
-func (s *SampleTests) BeforeEach(t *testing.T) {
-	data, _ := ioutil.ReadFile("test_data.json")
-	var docs TestData
-
-	err := json.Unmarshal(data, &docs)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	var ui []interface{}
-
-	for _, t := range docs.Games {
-		ui = append(ui, t)
-	}
-
-	err = database.InsertMultiple("game", ui)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func (s *SampleTests) AfterEach(t *testing.T) {
-	database.RemoveCollection("game")
-}
-
-func TestSampleTests(t *testing.T) {
-	gtest.RunSubTests(t, &SampleTests{})
-}
-
-func (s *SampleTests) SubTestAddGame(t *testing.T) {
+func (s *Tests) SubTestAddGame(t *testing.T) {
 	cases := []struct {
 		Payload  interface{}
 		Expected int
@@ -111,16 +50,16 @@ func (s *SampleTests) SubTestAddGame(t *testing.T) {
 			encodedData := bytes.NewBuffer(data)
 			req, _ := http.NewRequest("POST", "/game", encodedData)
 			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
+			s.router.ServeHTTP(w, req)
 			assert.Equal(t, tc.Expected, w.Code)
 		})
 	}
 }
 
-func (s *SampleTests) SubTestGetAllGames(t *testing.T) {
+func (s *Tests) SubTestGetAllGames(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/game", nil)
 	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
+	s.router.ServeHTTP(w, req)
 	var response []string
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 
@@ -132,13 +71,15 @@ func (s *SampleTests) SubTestGetAllGames(t *testing.T) {
 		"a_game",
 		"fibbly",
 		"draw_me",
+		"new_totally_original_game",
+		"new_totally_original_game_2",
 	}
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, expectedResult, response)
 }
 
-func (s *SampleTests) SubTestGetGame(t *testing.T) {
+func (s *Tests) SubTestGetGame(t *testing.T) {
 	cases := []struct {
 		Name           string
 		ExpectedStatus int
@@ -150,7 +91,7 @@ func (s *SampleTests) SubTestGetGame(t *testing.T) {
 			models.Game{
 				Name:      "a_game",
 				RulesURL:  "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/a_game",
-				Questions: []models.Question{},
+				Questions: &models.Question{},
 				Enabled:   true,
 			},
 		},
@@ -160,7 +101,7 @@ func (s *SampleTests) SubTestGetGame(t *testing.T) {
 			models.Game{
 				Name:      "fibbly",
 				RulesURL:  "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbly",
-				Questions: []models.Question{},
+				Questions: &models.Question{},
 				Enabled:   true,
 			},
 		},
@@ -180,7 +121,7 @@ func (s *SampleTests) SubTestGetGame(t *testing.T) {
 		t.Run("Get Game", func(t *testing.T) {
 			req, _ := http.NewRequest("GET", fmt.Sprintf("/game/%s", tc.Name), nil)
 			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
+			s.router.ServeHTTP(w, req)
 			assert.Equal(t, tc.ExpectedStatus, w.Code)
 
 			if w.Code == http.StatusOK {
@@ -197,7 +138,7 @@ func (s *SampleTests) SubTestGetGame(t *testing.T) {
 	}
 }
 
-func (s *SampleTests) SubTestRemoveGame(t *testing.T) {
+func (s *Tests) SubTestRemoveGame(t *testing.T) {
 	cases := []struct {
 		Name              string
 		ExpectedStatus    int
@@ -206,7 +147,7 @@ func (s *SampleTests) SubTestRemoveGame(t *testing.T) {
 		{
 			"a_game",
 			http.StatusOK,
-			[]string{"fibbly", "draw_me"},
+			[]string{"fibbly", "draw_me", "new_totally_original_game", "new_totally_original_game_2"},
 		},
 		{
 			"a_game",
@@ -229,13 +170,13 @@ func (s *SampleTests) SubTestRemoveGame(t *testing.T) {
 		t.Run("Remove Game", func(t *testing.T) {
 			req, _ := http.NewRequest("DELETE", fmt.Sprintf("/game/%s", tc.Name), nil)
 			w := httptest.NewRecorder()
-			router.ServeHTTP(w, req)
+			s.router.ServeHTTP(w, req)
 			assert.Equal(t, tc.ExpectedStatus, w.Code)
 
 			if w.Code == http.StatusOK {
 				req, _ := http.NewRequest("GET", "/game", nil)
 				w := httptest.NewRecorder()
-				router.ServeHTTP(w, req)
+				s.router.ServeHTTP(w, req)
 				var response []string
 
 				err := json.Unmarshal(w.Body.Bytes(), &response)
@@ -250,7 +191,7 @@ func (s *SampleTests) SubTestRemoveGame(t *testing.T) {
 	}
 }
 
-func (s *SampleTests) SubTestEnableGame(t *testing.T) {
+func (s *Tests) SubTestEnableGame(t *testing.T) {
 	cases := []struct {
 		Name              string
 		ExpectedStatus    int
@@ -262,7 +203,7 @@ func (s *SampleTests) SubTestEnableGame(t *testing.T) {
 			models.Game{
 				Name:      "draw_me",
 				RulesURL:  "https://google.com/draw_me",
-				Questions: []models.Question{},
+				Questions: &models.Question{},
 				Enabled:   true,
 			},
 		},
@@ -280,12 +221,12 @@ func (s *SampleTests) SubTestEnableGame(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run("Enable A Game", func(t *testing.T) {
-			enableOrDisableTest(t, "enable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
+			enableOrDisableTest(t, s.router, "enable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
 		})
 	}
 }
 
-func (s *SampleTests) SubTestDisableGame(t *testing.T) {
+func (s *Tests) SubTestDisableGame(t *testing.T) {
 	cases := []struct {
 		Name              string
 		ExpectedStatus    int
@@ -297,7 +238,7 @@ func (s *SampleTests) SubTestDisableGame(t *testing.T) {
 			models.Game{
 				Name:      "a_game",
 				RulesURL:  "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/a_game",
-				Questions: []models.Question{},
+				Questions: &models.Question{},
 				Enabled:   false,
 			},
 		},
@@ -315,13 +256,14 @@ func (s *SampleTests) SubTestDisableGame(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run("Disable A Game", func(t *testing.T) {
-			enableOrDisableTest(t, "disable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
+			enableOrDisableTest(t, s.router, "disable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
 		})
 	}
 }
 
 func enableOrDisableTest(
 	t *testing.T,
+	router http.Handler,
 	enable string,
 	gameName string,
 	expectedGameNames models.Game,

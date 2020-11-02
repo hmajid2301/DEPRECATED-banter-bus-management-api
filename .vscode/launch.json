@@ -9,8 +9,10 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${fileDirname}",
-            "env": {},
+            "program": "${workspaceRoot}/src/main.go",
+            "env": {
+                "BANTER_BUS_DB_HOST": "localhost"
+            },
             "args": []
         },
         {
@@ -21,8 +23,10 @@
             "remotePath": "",
             "port": 2345,
             "host": "127.0.0.1",
-            "program": "${workspaceRoot}",
-            "env": {},
+            "program": "${file}",
+            "env": {
+                "BANTER_BUS_DB_HOST": "localhost"
+            },
             "args": [],
             "showLog": true
         },

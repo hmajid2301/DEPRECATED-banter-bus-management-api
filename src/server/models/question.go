@@ -1,6 +1,8 @@
 package models
 
-//Question is the data for questions related to game types.
+// Question is the data for questions related to game types.
 type Question struct {
-	Question string ` bson:"question" json:"question"`
+	One   []string `bson:"one" json:"one,omitempty"`
+	Two   []string `bson:"two" json:"two,omitempty"`
+	Three []string `bson:"three" json:"three,omitempty"`
 }

@@ -59,7 +59,7 @@ lint:
   only:
     - merge_request
 
-lint:format:
+format:check:
   stage: test
   extends: .go-format
   only:
@@ -73,37 +73,27 @@ lint:commits:
   before_script: []
   script:
     - npm install -g @commitlint/cli @commitlint/config-conventional
-    - git fetch origin ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME};
-    - git fetch origin ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME};
-    - commitlint --from=origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} --to=origin/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME};
+    - git fetch origin ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
+    - git fetch origin ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
+    - commitlint --from=origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} --to=origin/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
 
 tests:
   stage: test
   only:
     - merge_request
-  services:
-    - mongo:latest
-  variables:
-    MONGO_INITDB_ROOT_USERNAME: banterbus
-    MONGO_INITDB_ROOT_PASSWORD: banterbus
-    MONGO_INITDB_DATABASE: banterbus
+  extends:
+    - .mongo
   script:
     - export BANTER_BUS_DB_HOST="mongo"
     - make test
 
-coverage:
-  stage: test
-  extends: .go-test
-  only:
-    - master
-  services:
-    - mongo:latest
-  variables:
-    MONGO_INITDB_ROOT_USERNAME: banterbus
-    MONGO_INITDB_ROOT_PASSWORD: banterbus
-    MONGO_INITDB_DATABASE: banterbus
-  script:
-    - export BANTER_BUS_DB_HOST="mongo"
+# coverage:
+#   stage: test
+#   # only:
+#   #   - master
+#   extends: 
+#     - .go-test
+#     - .mongo
 
 publish:openapi:
   image: golang:latest

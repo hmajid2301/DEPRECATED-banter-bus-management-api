@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 
@@ -28,7 +29,6 @@ func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
 	)
 
 	err := database.Get("game", filter, &item)
-
 	if err == nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
@@ -40,7 +40,7 @@ func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
 	var EmptyGame = models.Game{
 		Name:      game.Name,
 		RulesURL:  game.RulesURL,
-		Questions: []models.Question{},
+		Questions: &models.Question{},
 		Enabled:   true,
 	}
 
@@ -158,7 +158,14 @@ func updateGameType(enable string, params *models.GameParams) (struct{}, error) 
 	}
 	var update = map[string]bool{gameTagEnabled: b}
 
-	database.UpdateEntry("game", filter, update)
+	updated, err := database.UpdateEntry("game", filter, update)
+	if !updated || err != nil {
+		gameLogger.Warn(
+			fmt.Sprintf("Failed to update %s", game.Name),
+		)
+		return emptyResponse, errors.Errorf("Failed to update game with new question.")
+	}
+
 	return emptyResponse, nil
 }
 
