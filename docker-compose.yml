@@ -16,10 +16,13 @@ services:
     build:
       context: .
       dockerfile: docker/api/Dockerfile
+    environment:
+      - USE=${USE}
     ports:
       - 8080:8080
+      - 2345:2345
     volumes:
-      - ./src/:/api/src/
+      - ${PWD}/src:/go/app/src/
     depends_on:
       - mongodb
 
