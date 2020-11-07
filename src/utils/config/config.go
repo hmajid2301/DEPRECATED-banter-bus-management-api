@@ -1,4 +1,4 @@
-//Package config ...
+// Package config ...
 package config
 
 import (
@@ -27,7 +27,7 @@ type Config struct {
 	} `yaml:"database"`
 }
 
-//GetConfig gets the config
+// GetConfig gets the config
 func GetConfig() *Config {
 	path, exists := os.LookupEnv("BANTER_BUS_CONFIG_PATH")
 

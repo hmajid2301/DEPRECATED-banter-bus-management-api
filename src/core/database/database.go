@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//Config is data required to connect to the database.
+// Config is data required to connect to the database.
 type Config struct {
 	Host         string
 	Port         string

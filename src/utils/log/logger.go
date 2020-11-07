@@ -7,7 +7,7 @@ import (
 	"banter-bus-server/src/utils/config"
 )
 
-//FormatLogger formats the logger as JSON/text depending on environment.
+// FormatLogger formats the logger as JSON/text depending on environment.
 func FormatLogger() {
 	appConfig := config.GetConfig()
 	if appConfig.App.Environment == "production" {
