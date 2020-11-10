@@ -38,10 +38,16 @@ func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
 	}
 
 	var EmptyGame = models.Game{
-		Name:      game.Name,
-		RulesURL:  game.RulesURL,
-		Questions: &models.Question{},
-		Enabled:   true,
+		Name:     game.Name,
+		RulesURL: game.RulesURL,
+		Questions: &models.Question{
+			Rounds: &models.Rounds{
+				One:   []string{},
+				Two:   []string{},
+				Three: []string{},
+			},
+		},
+		Enabled: true,
 	}
 
 	err = database.Insert("game", EmptyGame)

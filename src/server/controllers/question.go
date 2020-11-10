@@ -23,16 +23,17 @@ func AddQuestion(_ *gin.Context, questionInput *models.NewQuestionInput) (struct
 	questionLogger.Debug("Trying to add new question.")
 
 	questionTag := getJSONTagFromStruct(&models.Game{}, "Questions")
+	roundTag := getJSONTagFromStruct(&models.Question{}, "Rounds")
 
 	var (
 		emptyResponse    struct{}
-		questionLocation = fmt.Sprintf("%s.%s", questionTag, question.Round)
+		questionLocation = fmt.Sprintf("%s.%s.%s", questionTag, roundTag, question.Round)
 		questionToAdd    = map[string]string{questionLocation: question.Content}
 		gameName         = models.GameParams{Name: game.Name}
-		gameA            *models.Game
+		currentGame      *models.Game
 	)
 
-	err := database.Get("game", gameName, &gameA)
+	err := database.Get("game", gameName, &currentGame)
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err": err,
@@ -41,7 +42,7 @@ func AddQuestion(_ *gin.Context, questionInput *models.NewQuestionInput) (struct
 		return emptyResponse, errors.NotFoundf("The game type %s", game.Name)
 	}
 
-	if !gameA.Enabled {
+	if !currentGame.Enabled {
 		questionLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Game isn't enabled.")

@@ -3,28 +3,48 @@
     {
       "name": "a_game",
       "rules_url": "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/a_game",
-      "questions": {},
+      "questions": {
+        "rounds": {
+          "one": [],
+          "two": [],
+          "three": []
+        }
+      },
       "enabled": true
     },
     {
       "name": "fibbly",
       "rules_url": "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbly",
-      "questions": {},
+      "questions": {
+        "rounds": {
+          "one": [],
+          "two": [],
+          "three": []
+        }
+      },
       "enabled": true
     },
     {
       "name": "draw_me",
       "rules_url": "https://google.com/draw_me",
-      "questions": {},
+      "questions": {
+        "rounds": {
+          "one": [],
+          "two": [],
+          "three": []
+        }
+      },
       "enabled": false
     },
     {
       "name": "new_totally_original_game",
       "rules_url": "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/new_totally_original_game",
       "questions": {
-        "one": ["this is a question?"],
-        "two": [],
-        "three": ["this is a another question?"]
+        "rounds": {
+          "one": ["this is a question?"],
+          "two": [],
+          "three": ["this is a another question?"]
+        }
       },
       "enabled": true
     },
@@ -32,9 +52,11 @@
       "name": "new_totally_original_game_2",
       "rules_url": "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/new_totally_original_game_2",
       "questions": {
-        "one": [],
-        "two": [],
-        "three": []
+        "rounds": {
+          "one": [],
+          "two": [],
+          "three": []
+        }
       },
       "enabled": false
     }

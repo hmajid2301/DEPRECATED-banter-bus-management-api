@@ -4,7 +4,8 @@ help: ## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 lint: ## Run linter on source code and tests.
-	@golangci-lint run
+	@golangci-lint run -c .golangci.yml ./...
+	@REVIVE_FORCE_COLOR=1 revive -formatter friendly ./...
 
 test: ARGS=""
 _coverage: ARGS="-coverprofile=coverage.out -coverpkg=./..."
@@ -18,7 +19,7 @@ debug: ## Run docker ready for debugging in vscode.
 	@USE=DEBUG docker-compose up --build
 
 update-openapi: ## update openapi spec JSON file from the app
-	@go test ./tests/openapi_test.go -v
+	@go test ./utils/generate_openapi_test.go -v
 
 start: ## Start the application.
 	@docker-compose up --build

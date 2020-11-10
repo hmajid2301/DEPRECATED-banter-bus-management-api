@@ -23,7 +23,7 @@ func TestGetOpenAPI(t *testing.T) {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile("../specs/openapi.json", out.Bytes(), 0600)
+	err = ioutil.WriteFile("../openapi.json", out.Bytes(), 0600)
 	if err != nil {
 		panic(err)
 	}

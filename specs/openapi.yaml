@@ -17,46 +17,6 @@ security:
       - banter_bus:question:read
       - banter_bus:question:write
 paths:
-  /game/{game_id}/question:
-    post:
-      tags:
-        - question
-      summary: Add a new question to a game.
-      operationId: add_question_to_game
-      security:
-        - jwt:
-            - banter_bus:question:write
-      parameters:
-        - name: game_id
-          in: path
-          description: The id of the game to add the question to.
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Details of the question to add.
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NewQuestion"
-            example:
-              question: "Would you rather do x or y?"
-        required: true
-      responses:
-        200:
-          description: Added question to game.
-          content: {}
-        404:
-          description: The game id does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/APIError"
-              example:
-                error_type: "game_does_not_exist_error"
-                message: "Failed to add question to game with id 1. Game does not exist."
-      x-swagger-router-controller: banter_bus.web.controllers.question_controller
-      x-codegen-request-body-name: body
   /game/{game_id}/question/{question_id}:
     get:
       tags:
