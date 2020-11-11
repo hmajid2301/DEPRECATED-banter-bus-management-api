@@ -77,23 +77,31 @@ lint:commits:
     - git fetch origin ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
     - commitlint --from=origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} --to=origin/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
 
-tests:
+coverage:
   stage: test
+  image: golang
   only:
     - merge_request
-  extends:
-    - .mongo
+    - master
+  services:
+    - mongo
+  variables:
+    MONGO_INITDB_ROOT_USERNAME: banterbus
+    MONGO_INITDB_ROOT_PASSWORD: banterbus
+    MONGO_INITDB_DATABASE: banterbus
   script:
     - export BANTER_BUS_DB_HOST="mongo"
-    - make test
-
-# coverage:
-#   stage: test
-#   # only:
-#   #   - master
-#   extends: 
-#     - .go-test
-#     - .mongo
+    - go get golang.org/x/tools/cmd/cover
+    - go get github.com/t-yuki/gocover-cobertura
+    - go get -u github.com/jstemmer/go-junit-report
+    - make coverage 2>&1 | go-junit-report > junit.xml
+    - gocover-cobertura < coverage.out > cobertura.xml
+  coverage: '/coverage: \d+.\d+% of statements/'
+  artifacts:
+      when: always
+      reports:
+          junit: junit.xml
+          cobertura: cobertura.xml
 
 publish:openapi:
   image: golang:latest

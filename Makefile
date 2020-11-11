@@ -7,13 +7,15 @@ lint: ## Run linter on source code and tests.
 	@golangci-lint run -c .golangci.yml ./...
 	@REVIVE_FORCE_COLOR=1 revive -formatter friendly ./...
 
-test: ARGS=""
-_coverage: ARGS="-coverprofile=coverage.out -coverpkg=./..."
+test: ## Run all tests.
+	@go test -v ./tests/...
 
-_coverage test: ## Run all tests.
-	@go test -v ./... -short $(ARGS)
+coverage: ## Run tests with coverage data
+	@go test -v ./tests/... -coverprofile=coverage.out -coverpkg=./src/... -covermode count
 
 tests-local: start-db test down ### Run tests locally.
+
+coverage-local: start-db coverage down ### Run tests locally.
 
 debug: ## Run docker ready for debugging in vscode.
 	@USE=DEBUG docker-compose up --build

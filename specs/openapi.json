@@ -219,7 +219,7 @@
     "/game/{name}/question": {
       "post": {
         "tags": [
-          "game"
+          "question"
         ],
         "summary": "Add a new question to a game type.",
         "operationId": "AddQuestion",
@@ -300,6 +300,14 @@
       "ModelsQuestion": {
         "type": "object",
         "properties": {
+          "rounds": {
+            "$ref": "#/components/schemas/ModelsRounds"
+          }
+        }
+      },
+      "ModelsRounds": {
+        "type": "object",
+        "properties": {
           "one": {
             "type": "array",
             "items": {
@@ -326,6 +334,10 @@
     {
       "name": "game",
       "description": "Related to managing the game types."
+    },
+    {
+      "name": "question",
+      "description": "Related to managing the questions to a game type."
     }
   ]
 }

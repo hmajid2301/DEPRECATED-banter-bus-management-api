@@ -15,6 +15,7 @@ require (
 	github.com/houqp/gtest v1.0.0
 	github.com/ilyakaznacheev/cleanenv v1.2.5
 	github.com/json-iterator/go v1.1.10 // indirect
+	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/loopfz/gadgeto v0.9.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
