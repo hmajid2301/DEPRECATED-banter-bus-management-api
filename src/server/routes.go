@@ -48,7 +48,7 @@ func gameRoutes(grp *fizz.RouterGroup) {
 		fizz.Summary("Create a new game type."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad request", nil, nil),
 		fizz.Response(fmt.Sprint(http.StatusConflict), "Already exists", nil, nil),
-	}, tonic.Handler(controllers.CreateGameType, http.StatusOK))
+	}, tonic.Handler(controllers.CreateGameType, http.StatusCreated))
 	grp.GET("", []fizz.OperationOption{
 		fizz.Summary("Get all game types."),
 	}, tonic.Handler(controllers.GetAllGameType, http.StatusOK))
@@ -80,7 +80,7 @@ func questionRoutes(grp *fizz.RouterGroup) {
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad request", nil, nil),
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
 		fizz.Response(fmt.Sprint(http.StatusConflict), "Already exists", nil, nil),
-	}, tonic.Handler(controllers.AddQuestion, http.StatusOK))
+	}, tonic.Handler(controllers.AddQuestion, http.StatusCreated))
 	tonic.SetErrorHook(errHook)
 }
 

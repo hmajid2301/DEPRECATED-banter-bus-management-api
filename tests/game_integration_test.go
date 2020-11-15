@@ -33,10 +33,10 @@ func (s *Tests) SubTestGetAllGames(t *testing.T) {
 	w := httptest.NewRecorder()
 	s.router.ServeHTTP(w, req)
 	var response []string
-	err := json.Unmarshal(w.Body.Bytes(), &response)
 
+	err := json.Unmarshal(w.Body.Bytes(), &response)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	var expectedResult = []string{
@@ -105,7 +105,7 @@ func (s *Tests) SubTestEnableGame(t *testing.T) {
 	for _, tc := range data.EnableGame {
 		testName := fmt.Sprintf("Enable Game: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			enableOrDisableTest(t, s.router, "enable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
+			enableOrDisableGameTest(t, s.router, "enable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
 		})
 	}
 }
@@ -114,12 +114,12 @@ func (s *Tests) SubTestDisableGame(t *testing.T) {
 	for _, tc := range data.DisableGame {
 		testName := fmt.Sprintf("Disable Game: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			enableOrDisableTest(t, s.router, "disable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
+			enableOrDisableGameTest(t, s.router, "disable", tc.Name, tc.ExpectedGameNames, tc.ExpectedStatus)
 		})
 	}
 }
 
-func enableOrDisableTest(
+func enableOrDisableGameTest(
 	t *testing.T,
 	router http.Handler,
 	enable string,

@@ -43,20 +43,26 @@ func InitialiseDatabase(config Config) {
 }
 
 // Insert adds a new entry to the database.
-func Insert(collectionName string, object interface{}) error {
+func Insert(collectionName string, object interface{}) (bool, error) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"object":     object,
 	}).Debug("Inserting object into database.")
 	collection := _database.Collection(collectionName)
 
-	_, err := collection.InsertOne(_ctx, object)
+	ok, err := collection.InsertOne(_ctx, object)
 	if err != nil {
-		log.Error(err)
-		return err
+		log.Error(err, ok)
+		return false, err
 	}
 
-	return nil
+	var inserted = true
+	if ok.InsertedID == nil {
+		log.Error("No elements inserted.")
+		inserted = false
+	}
+
+	return inserted, nil
 }
 
 // InsertMultiple adds multiple entries to the database at once.
@@ -84,8 +90,12 @@ func Get(collectionName string, filter interface{}, model interface{}) error {
 		"model":      model,
 	}).Debug("Getting object from database.")
 	collection := _database.Collection(collectionName)
-	err := collection.FindOne(_ctx, filter).Decode(model)
+	encodedFilter, marshalErr := bson.Marshal(filter)
+	if marshalErr != nil {
+		return marshalErr
+	}
 
+	err := collection.FindOne(_ctx, encodedFilter).Decode(model)
 	return err
 }
 
@@ -110,16 +120,26 @@ func GetAll(collectionName string, model interface{}) error {
 }
 
 // Delete removes an entry from the database.
-func Delete(collectionName string, filter map[string]string) {
+func Delete(collectionName string, filter interface{}) (bool, error) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
 	}).Debug("Deleting object from database.")
 	collection := _database.Collection(collectionName)
-	_, err := collection.DeleteOne(_ctx, filter)
+
+	ok, err := collection.DeleteOne(_ctx, filter)
 	if err != nil {
-		panic(err)
+		log.Error(err)
+		return false, err
 	}
+
+	var deleted = true
+	if ok.DeletedCount == 0 {
+		log.Error("No elements deleted.")
+		deleted = false
+	}
+
+	return deleted, nil
 }
 
 // RemoveCollection removes a collection from the database.
@@ -134,13 +154,14 @@ func RemoveCollection(collectionName string) {
 }
 
 // UpdateEntry updates an existing entry in the database.
-func UpdateEntry(collectionName string, filter map[string]string, update interface{}) (bool, error) {
+func UpdateEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
 		"update":     update,
 	}).Debug("Update item in database.")
 	collection := _database.Collection(collectionName)
+
 	update = bson.M{"$set": update}
 	ok, err := collection.UpdateOne(_ctx, filter, update)
 	if err != nil {

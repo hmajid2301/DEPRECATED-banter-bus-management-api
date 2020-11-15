@@ -17,7 +17,7 @@ var AddGame = []struct {
 			Name:     "quibly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Add another new game",
@@ -25,7 +25,7 @@ var AddGame = []struct {
 			Name:     "quiblyv2",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Try to add another game wrong Nam field",
@@ -65,14 +65,7 @@ var GetGame = []struct {
 		models.Game{
 			Name:     "a_game",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/a_game",
-			Questions: &models.Question{
-				Rounds: &models.Rounds{
-					One:   []string{},
-					Two:   []string{},
-					Three: []string{},
-				},
-			},
-			Enabled: true,
+			Enabled:  true,
 		},
 	},
 	{
@@ -82,14 +75,7 @@ var GetGame = []struct {
 		models.Game{
 			Name:     "fibbly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbly",
-			Questions: &models.Question{
-				Rounds: &models.Rounds{
-					One:   []string{},
-					Two:   []string{},
-					Three: []string{},
-				},
-			},
-			Enabled: true,
+			Enabled:  true,
 		},
 	},
 	{
@@ -147,14 +133,7 @@ var EnableGame = []struct {
 		models.Game{
 			Name:     "draw_me",
 			RulesURL: "https://google.com/draw_me",
-			Questions: &models.Question{
-				Rounds: &models.Rounds{
-					One:   []string{},
-					Two:   []string{},
-					Three: []string{},
-				},
-			},
-			Enabled: true,
+			Enabled:  true,
 		},
 	},
 	{
@@ -185,14 +164,7 @@ var DisableGame = []struct {
 		models.Game{
 			Name:     "a_game",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/a_game",
-			Questions: &models.Question{
-				Rounds: &models.Rounds{
-					One:   []string{},
-					Two:   []string{},
-					Three: []string{},
-				},
-			},
-			Enabled: false,
+			Enabled:  false,
 		},
 	},
 	{

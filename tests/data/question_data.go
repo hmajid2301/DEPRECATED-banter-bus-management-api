@@ -18,7 +18,7 @@ var AddQuestion = []struct {
 		&models.NewQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "one",
-		}, http.StatusOK,
+		}, http.StatusCreated,
 	},
 	{
 		"Add another question to round one",
@@ -26,7 +26,7 @@ var AddQuestion = []struct {
 		&models.NewQuestion{
 			Content: "This is another question?",
 			Round:   "one",
-		}, http.StatusOK,
+		}, http.StatusCreated,
 	},
 	{
 		"Add question to round two",
@@ -34,7 +34,7 @@ var AddQuestion = []struct {
 		&models.NewQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "two",
-		}, http.StatusOK,
+		}, http.StatusCreated,
 	},
 	{
 		"Add question to round three",
@@ -42,7 +42,7 @@ var AddQuestion = []struct {
 		&models.NewQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "three",
-		}, http.StatusOK,
+		}, http.StatusCreated,
 	},
 	{
 		"Try add question to wrong round (four)",

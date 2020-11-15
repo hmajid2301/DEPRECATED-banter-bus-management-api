@@ -27,7 +27,7 @@ start: ## Start the application.
 	@docker-compose up --build
 
 start-db:
-	@docker-compose up mongodb mongoclient
+	@docker-compose up -d mongodb mongoclient
 
 down:
 	@docker-compose down

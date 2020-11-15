@@ -2,8 +2,8 @@ package controllers_test
 
 import (
 	"banter-bus-server/src/core/database"
+	"banter-bus-server/src/core/dbmodels"
 	"banter-bus-server/src/server"
-	"banter-bus-server/src/server/models"
 	"banter-bus-server/src/utils/config"
 	"encoding/json"
 	"fmt"
@@ -20,8 +20,15 @@ type Tests struct {
 	router *fizz.Fizz
 }
 
+type GameData struct {
+	Name      string             `bson:"name"`
+	Questions *dbmodels.Question `bson:"questions"`
+	RulesURL  string             `json:"rules_url" bson:"rules_url"`
+	Enabled   bool               `bson:"enabled"`
+}
+
 type TestData struct {
-	Games []models.Game `json:"games"`
+	Games []GameData `json:"games"`
 }
 
 func (s *Tests) Setup(t *testing.T) {
@@ -57,7 +64,7 @@ func TestSampleTests(t *testing.T) {
 func InsertData(dataFilePath string, collection string) {
 	data, _ := ioutil.ReadFile("data/game.json")
 	var (
-		docs     TestData
+		docs     *TestData
 		dataList []interface{}
 	)
 
