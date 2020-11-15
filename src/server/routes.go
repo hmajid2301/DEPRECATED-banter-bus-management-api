@@ -15,16 +15,18 @@ import (
 
 	"banter-bus-server/src/server/controllers"
 	"banter-bus-server/src/server/models"
+	logger "banter-bus-server/src/utils/log"
 )
 
 // NewRouter creates all the routes/endpoints, using Fizz.
 func NewRouter() (*fizz.Fizz, error) {
 	engine := gin.New()
-	logger := logrus.New()
+	newLogger := logrus.New()
+	logger.FormatLogger(newLogger)
 
 	engine.Use(cors.Default())
 
-	engine.Use(ginlogrus.Logger(logger), gin.Recovery())
+	engine.Use(ginlogrus.Logger(newLogger), gin.Recovery())
 	fizzApp := fizz.NewFromEngine(engine)
 
 	infos := &openapi.Info{

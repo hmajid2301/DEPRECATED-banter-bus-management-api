@@ -2,23 +2,23 @@
 package logger
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	"banter-bus-server/src/utils/config"
 )
 
 // FormatLogger formats the logger as JSON/text depending on environment.
-func FormatLogger() {
+func FormatLogger(log *logrus.Logger) {
 	appConfig := config.GetConfig()
 	if appConfig.App.Environment == "production" {
-		log.SetFormatter(&log.JSONFormatter{})
+		log.SetFormatter(&logrus.JSONFormatter{})
 	} else {
-		log.SetFormatter(&log.TextFormatter{})
+		log.SetFormatter(&logrus.TextFormatter{})
 	}
 
-	logLevel, err := log.ParseLevel(appConfig.App.LogLevel)
+	logLevel, err := logrus.ParseLevel(appConfig.App.LogLevel)
 	if err != nil {
-		logLevel = log.FatalLevel
+		logLevel = logrus.FatalLevel
 	}
 
 	log.SetLevel(logLevel)

@@ -8,11 +8,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"testing"
 
 	"github.com/houqp/gtest"
+	"github.com/sirupsen/logrus"
 	"github.com/wI2L/fizz"
 )
 
@@ -33,7 +33,7 @@ type TestData struct {
 
 func (s *Tests) Setup(t *testing.T) {
 	os.Setenv("BANTER_BUS_CONFIG_PATH", "config.test.yml")
-	log.SetOutput(ioutil.Discard)
+	logrus.SetOutput(ioutil.Discard)
 	config := config.GetConfig()
 	dbConfig := database.Config{
 		Username:     config.Database.Username,

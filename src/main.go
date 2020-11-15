@@ -8,7 +8,6 @@ import (
 	"banter-bus-server/src/core/database"
 	"banter-bus-server/src/server"
 	"banter-bus-server/src/utils/config"
-	logger "banter-bus-server/src/utils/log"
 )
 
 func main() {
@@ -21,7 +20,6 @@ func main() {
 		Port:         appConfig.Database.Port,
 	}
 	database.InitialiseDatabase(dbConfig)
-	logger.FormatLogger()
 
 	router, err := server.NewRouter()
 	if err != nil {
