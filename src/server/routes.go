@@ -58,29 +58,29 @@ func maintenanceRoutes(grp *fizz.RouterGroup) {
 func gameRoutes(grp *fizz.RouterGroup) {
 	grp.POST("", []fizz.OperationOption{
 		fizz.Summary("Create a new game type."),
-		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad request", nil, nil),
-		fizz.Response(fmt.Sprint(http.StatusConflict), "Already exists", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", models.APIError{}, nil),
+		fizz.Response(fmt.Sprint(http.StatusConflict), "Game type already exists", models.APIError{}, nil),
 	}, tonic.Handler(controllers.CreateGameType, http.StatusCreated))
 	grp.GET("", []fizz.OperationOption{
 		fizz.Summary("Get all game types."),
 	}, tonic.Handler(controllers.GetAllGameType, http.StatusOK))
 	grp.GET("/:name", []fizz.OperationOption{
-		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game type doesn't exist", models.APIError{}, nil),
 		fizz.Summary("Get a game types."),
 	}, tonic.Handler(controllers.GetGameType, http.StatusOK))
 	tonic.SetErrorHook(errHook)
 	grp.DELETE("/:name", []fizz.OperationOption{
-		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game type doesn't exist", models.APIError{}, nil),
 		fizz.Summary("Delete a game types."),
 	}, tonic.Handler(controllers.RemoveGameType, http.StatusOK))
 	grp.PUT("/:name/enable", []fizz.OperationOption{
-		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
-		fizz.Response(fmt.Sprint(http.StatusConflict), "Already enabled", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game type doesn't exist", models.APIError{}, nil),
+		fizz.Response(fmt.Sprint(http.StatusConflict), "Game type is already enabled", models.APIError{}, nil),
 		fizz.Summary("Enables a game type."),
 	}, tonic.Handler(controllers.EnableGameType, http.StatusOK))
 	grp.PUT("/:name/disable", []fizz.OperationOption{
-		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
-		fizz.Response(fmt.Sprint(http.StatusConflict), "Already disabled", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game type doesn't exist", models.APIError{}, nil),
+		fizz.Response(fmt.Sprint(http.StatusConflict), "Game type is already disabled", models.APIError{}, nil),
 		fizz.Summary("Disables a game type."),
 	}, tonic.Handler(controllers.DisableGameType, http.StatusOK))
 	tonic.SetErrorHook(errHook)
@@ -89,9 +89,14 @@ func gameRoutes(grp *fizz.RouterGroup) {
 func questionRoutes(grp *fizz.RouterGroup) {
 	grp.POST("/:name/question", []fizz.OperationOption{
 		fizz.Summary("Add a new question to a game type."),
-		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad request", nil, nil),
-		fizz.Response(fmt.Sprint(http.StatusNotFound), "Does not exist", nil, nil),
-		fizz.Response(fmt.Sprint(http.StatusConflict), "Already exists", nil, nil),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", models.APIError{}, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game type doesn't exist", models.APIError{}, nil),
+		fizz.Response(
+			fmt.Sprint(http.StatusConflict),
+			"Question already exists for this game type and this round",
+			models.APIError{},
+			nil,
+		),
 	}, tonic.Handler(controllers.AddQuestion, http.StatusCreated))
 	tonic.SetErrorHook(errHook)
 }
