@@ -1,8 +1,9 @@
 package data
 
 import (
-	"banter-bus-server/src/server/models"
 	"net/http"
+
+	"banter-bus-server/src/server/models"
 )
 
 // AddGame is the test data for adding new game types.

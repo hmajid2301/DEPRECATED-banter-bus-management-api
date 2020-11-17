@@ -30,7 +30,7 @@ require (
 	go.mongodb.org/mongo-driver v1.4.1
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/sys v0.0.0-20201109165425-215b40eba54c // indirect
-	golang.org/x/tools v0.0.0-20201109182053-3db8fd265862 // indirect
+	golang.org/x/tools v0.0.0-20201116182000-1d699438d2cf // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22

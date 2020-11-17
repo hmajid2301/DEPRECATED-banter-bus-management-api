@@ -1,8 +1,9 @@
 package data
 
 import (
-	"banter-bus-server/src/server/models"
 	"net/http"
+
+	"banter-bus-server/src/server/models"
 )
 
 // AddQuestion is the test data for add questions to a game types.

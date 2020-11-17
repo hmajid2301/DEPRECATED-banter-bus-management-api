@@ -1,13 +1,14 @@
 package controllers_test
 
 import (
-	"banter-bus-server/tests/data"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"banter-bus-server/tests/data"
 
 	"gopkg.in/go-playground/assert.v1"
 )

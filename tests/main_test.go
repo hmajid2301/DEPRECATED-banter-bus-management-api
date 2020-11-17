@@ -1,15 +1,16 @@
 package controllers_test
 
 import (
-	"banter-bus-server/src/core/database"
-	"banter-bus-server/src/core/dbmodels"
-	"banter-bus-server/src/server"
-	"banter-bus-server/src/utils/config"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"banter-bus-server/src/core/database"
+	"banter-bus-server/src/core/dbmodels"
+	"banter-bus-server/src/server"
+	"banter-bus-server/src/utils/config"
 
 	"github.com/houqp/gtest"
 	"github.com/sirupsen/logrus"

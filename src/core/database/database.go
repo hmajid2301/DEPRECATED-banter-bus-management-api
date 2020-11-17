@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -21,6 +22,7 @@ type Config struct {
 	Password     string
 }
 
+var _client *mongo.Client
 var _database *mongo.Database
 var _ctx = context.TODO()
 
@@ -39,7 +41,19 @@ func InitialiseDatabase(config Config) {
 
 	log.Info("Connected to database.")
 
+	_client = client
 	_database = client.Database(config.DatabaseName)
+}
+
+// Ping is used to check if the database is still connected to the app.
+func Ping() bool {
+	err := _client.Ping(_ctx, readpref.Primary())
+	if err != nil {
+		log.Error("Failed to ping database.", err)
+		return false
+	}
+
+	return true
 }
 
 // Insert adds a new entry to the database.

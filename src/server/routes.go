@@ -36,6 +36,8 @@ func NewRouter() (*fizz.Fizz, error) {
 	}
 	fizzApp.GET("/openapi.json", nil, fizzApp.OpenAPI(infos, "json"))
 
+	maintenanceRoutes(fizzApp.Group("", "maintenance", "Related to managing the maintenance of the API."))
+
 	gameRoutes(fizzApp.Group("/game", "game", "Related to managing the game types."))
 	questionRoutes(fizzApp.Group("/game", "question", "Related to managing the questions to a game type."))
 
@@ -43,6 +45,14 @@ func NewRouter() (*fizz.Fizz, error) {
 		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())
 	}
 	return fizzApp, nil
+}
+
+func maintenanceRoutes(grp *fizz.RouterGroup) {
+	grp.GET("/healthcheck", []fizz.OperationOption{
+		fizz.Summary("Checks Banter Bus API is healthy."),
+		fizz.Response(fmt.Sprint(http.StatusInternalServerError), "Server Error", nil, nil),
+	}, tonic.Handler(controllers.Healthcheck, http.StatusOK))
+	tonic.SetErrorHook(errHook)
 }
 
 func gameRoutes(grp *fizz.RouterGroup) {

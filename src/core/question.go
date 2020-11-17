@@ -1,9 +1,10 @@
 package core
 
 import (
+	"fmt"
+
 	"banter-bus-server/src/core/database"
 	"banter-bus-server/src/core/dbmodels"
-	"fmt"
 
 	"github.com/juju/errors"
 )
