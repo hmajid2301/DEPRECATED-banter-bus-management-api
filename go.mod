@@ -5,6 +5,8 @@ go 1.15
 require (
 	github.com/dave/dst v0.26.2 // indirect
 	github.com/fatih/color v1.10.0 // indirect
+	github.com/gavv/httpexpect v2.0.0+incompatible
+	github.com/gavv/httpexpect/v2 v2.1.0 // indirect
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
@@ -22,6 +24,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mgechev/revive v1.0.2 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
+	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/segmentio/golines v0.0.0-20200824192126-7f30d3046793 // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/toorop/gin-logrus v0.0.0-20200831135515-d2ee50d38dae

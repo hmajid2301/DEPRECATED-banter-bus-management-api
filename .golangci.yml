@@ -41,3 +41,6 @@ linters:
     - unused
     - varcheck
     - whitespace
+
+service:
+  golangci-lint-version: 1.32.2 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"testing"
 
@@ -12,19 +13,19 @@ import (
 	"banter-bus-server/src/server"
 	"banter-bus-server/src/utils/config"
 
+	"github.com/gavv/httpexpect"
 	"github.com/houqp/gtest"
 	"github.com/sirupsen/logrus"
-	"github.com/wI2L/fizz"
 )
 
 type Tests struct {
-	router *fizz.Fizz
+	httpExpect *httpexpect.Expect
 }
 
 type GameData struct {
 	Name      string             `bson:"name"`
 	Questions *dbmodels.Question `bson:"questions"`
-	RulesURL  string             `json:"rules_url" bson:"rules_url"`
+	RulesURL  string             `bson:"rules_url" json:"rules_url"`
 	Enabled   bool               `bson:"enabled"`
 }
 
@@ -45,7 +46,16 @@ func (s *Tests) Setup(t *testing.T) {
 	}
 	database.InitialiseDatabase(dbConfig)
 	router, _ := server.NewRouter()
-	s.router = router
+	s.httpExpect = httpexpect.WithConfig(httpexpect.Config{
+		Client: &http.Client{
+			Transport: httpexpect.NewBinder(router.Engine()),
+			Jar:       httpexpect.NewJar(),
+		},
+		Reporter: httpexpect.NewAssertReporter(t),
+		Printers: []httpexpect.Printer{
+			httpexpect.NewDebugPrinter(t, true),
+		},
+	})
 }
 
 func (s *Tests) Teardown(t *testing.T) {}

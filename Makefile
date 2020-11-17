@@ -1,11 +1,18 @@
-.PHONY: test coverage start-db down-db
+.PHONY: test coverage start-db down-db format format-check
 
 help: ## Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
 lint: ## Run linter on source code and tests.
-	@golangci-lint run -c .golangci.yml ./...
+	@golangci-lint run -c .golangci.yml --timeout 5m ./...
 	@REVIVE_FORCE_COLOR=1 revive -formatter friendly ./...
+
+format: ARGS="-w"
+format-check: ARGS="-l"
+
+format format-check:  ## Checks if the code is complaint with the formatters
+	@golines $(ARGS) -m 120 src/ tests
+	@goimports $(ARGS) -local banter-bus-server/ src/ tests/
 
 test: ## Run all tests.
 	@go test -v ./tests/...
@@ -15,7 +22,7 @@ coverage: ## Run tests with coverage data
 
 tests-local: start-db test down ### Run tests locally.
 
-coverage-local: start-db coverage down ### Run tests locally.
+coverage-local: start-db coverage down ### Run coverage locally.
 
 debug: ## Run docker ready for debugging in vscode.
 	@USE=DEBUG docker-compose up --build

@@ -57,22 +57,22 @@ publish-docker:test:
     - docker build -f docker/api/Dockerfile -t ${CI_REGISTRY_IMAGE}:test .
     - docker push ${CI_REGISTRY_IMAGE}:test
 
-include:
-  - project: "tymonx/gitlab-ci"
-    ref: v0.69.0
-    file: "/templates/generic/go.yml"
-
 lint:
   stage: test
-  extends: .go-lint
   only:
     - merge_request
+  script:
+    - go get -u github.com/mgechev/revive
+    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
+    - make lint
 
 format:check:
   stage: test
-  extends: .go-format
   only:
     - merge_request
+  script:
+    - go get -u github.com/segmentio/golines
+    - if [[ $(make format | wc -c) -ne 0 ]]; then exit 1; fi
 
 lint:commits:
   image: node
@@ -105,7 +105,9 @@ coverage:
     - go get -u github.com/jstemmer/go-junit-report
     - make coverage 2>&1 | go-junit-report > junit.xml
     - gocover-cobertura < coverage.out > cobertura.xml
-  coverage: '/coverage: \d+.\d+% of statements/'
+  after_script:
+    - cat junit.xml | grep "coverage.statements.pct"
+  coverage: '/value="\d+.\d+"/'
   artifacts:
       when: always
       reports:
