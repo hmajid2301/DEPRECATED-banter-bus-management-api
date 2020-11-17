@@ -10,7 +10,8 @@ import (
 var AddGame = []struct {
 	TestDescription string
 	Payload         interface{}
-	Expected        int
+	ExpectedStatus  int
+	ExpectedGame    models.Game
 }{
 	{
 		"Add a new game",
@@ -19,6 +20,11 @@ var AddGame = []struct {
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 		},
 		http.StatusCreated,
+		models.Game{
+			Name:     "quibly",
+			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+			Enabled:  true,
+		},
 	},
 	{
 		"Add another new game",
@@ -27,6 +33,11 @@ var AddGame = []struct {
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
 		},
 		http.StatusCreated,
+		models.Game{
+			Name:     "quiblyv2",
+			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
+			Enabled:  true,
+		},
 	},
 	{
 		"Try to add another game wrong Nam field",
@@ -34,6 +45,7 @@ var AddGame = []struct {
 			Nam:      "quiblyv3",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
 		}, http.StatusBadRequest,
+		models.Game{},
 	},
 	{
 		"Try to add another game wrong Rule field",
@@ -42,6 +54,7 @@ var AddGame = []struct {
 			RuleURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
 		},
 		http.StatusBadRequest,
+		models.Game{},
 	},
 	{
 		"Try to add a game that already exists.",
@@ -49,6 +62,7 @@ var AddGame = []struct {
 			Name:     "quiblyv2",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
 		}, http.StatusConflict,
+		models.Game{},
 	},
 }
 
@@ -95,37 +109,33 @@ var GetGame = []struct {
 
 // RemoveGame is the test data for removing existing game types.
 var RemoveGame = []struct {
-	TestDescription   string
-	Name              string
-	ExpectedStatus    int
-	ExpectedGameNames []string
+	TestDescription string
+	Name            string
+	ExpectedStatus  int
 }{
 	{
 		"Remove an existing game",
 		"a_game",
 		http.StatusOK,
-		[]string{"fibbly", "draw_me", "new_totally_original_game", "new_totally_original_game_2"},
 	},
 	{
 		"Try to remove a game thats already been removed",
 		"a_game",
 		http.StatusNotFound,
-		[]string{},
 	},
 	{
 		"Try to remove another game that doesn't exist",
 		"quiblyv3",
 		http.StatusNotFound,
-		[]string{},
 	},
 }
 
 // EnableGame is the test data for enabling game types.
 var EnableGame = []struct {
-	TestDescription   string
-	Name              string
-	ExpectedStatus    int
-	ExpectedGameNames models.Game
+	TestDescription string
+	Name            string
+	ExpectedStatus  int
+	ExpectedGame    models.Game
 }{
 	{
 		"Enabled a disabled game",
@@ -153,10 +163,10 @@ var EnableGame = []struct {
 
 // DisableGame is the test data for disabling game types.
 var DisableGame = []struct {
-	TestDescription   string
-	Name              string
-	ExpectedStatus    int
-	ExpectedGameNames models.Game
+	TestDescription string
+	Name            string
+	ExpectedStatus  int
+	ExpectedGame    models.Game
 }{
 	{
 		"Disable an enabled game",
