@@ -24,6 +24,12 @@ tests-local: start-db test down ### Run tests locally.
 
 coverage-local: start-db coverage down ### Run coverage locally.
 
+code-quality: ## Run code quality job.
+	@golangci-lint run --timeout 3m0s --issues-exit-code 0 --out-format code-climate 
+
+sast: ## Run Static Application Security Testing  job
+	@gosec src/...
+
 debug: ## Run docker ready for debugging in vscode.
 	@USE=DEBUG docker-compose up --build
 

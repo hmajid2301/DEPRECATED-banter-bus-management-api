@@ -86,18 +86,37 @@ lint:commits:
     - git fetch origin ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
     - commitlint --from=origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} --to=origin/${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
 
+lint:code-qualiy:
+  stage: test
+  only:
+    - merge_request
+    - master
+  before_script:
+    - apt update && apt install jq -y
+    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
+  script:
+    - make code-quality | tee gl-code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
+  artifacts:
+    when: always
+    reports:
+      codequality: gl-code-quality-report.json
+
+security:SAST:
+  stage: test
+  only:
+    - merge_request
+  script:
+    - go get github.com/securego/gosec/v2/cmd/gosec
+    - make sast
+
 coverage:
   stage: test
   image: golang
   only:
     - merge_request
     - master
-  services:
-    - mongo
-  variables:
-    MONGO_INITDB_ROOT_USERNAME: banterbus
-    MONGO_INITDB_ROOT_PASSWORD: banterbus
-    MONGO_INITDB_DATABASE: banterbus
+  extends:
+    - .mongo
   script:
     - export BANTER_BUS_DB_HOST="mongo"
     - go get golang.org/x/tools/cmd/cover
@@ -115,7 +134,6 @@ coverage:
           cobertura: cobertura.xml
 
 publish:openapi:
-  image: golang:latest
   stage: publish
   only:
     - master
@@ -123,7 +141,6 @@ publish:openapi:
     - .private-key
   allow_failure: true
   script:
-    - go mod download
     - make update-openapi
     - git status
     - git add specs/openapi.json
