@@ -10,16 +10,15 @@ import (
 
 // Healthcheck checks if the API is healthy.
 func Healthcheck(_ *gin.Context) (*models.Healthcheck, error) {
-	var healthcheck = "The API is healthy."
 	var err error
 
 	healthy := database.Ping()
 
 	if !healthy {
-		healthcheck = "Database is not healthy!"
-		err = errors.Errorf("Healthcheck Failed!")
+		return &models.Healthcheck{}, errors.Errorf("Healthcheck Failed!")
 	}
+
 	return &models.Healthcheck{
-		Message: healthcheck,
+		Message: "The API is healthy.",
 	}, err
 }

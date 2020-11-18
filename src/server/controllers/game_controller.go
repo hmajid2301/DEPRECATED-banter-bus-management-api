@@ -14,21 +14,22 @@ func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
 	gameLogger := log.WithFields(log.Fields{
 		"game_name": game.Name,
 	})
-	gameLogger.Debug("Trying to add new game.")
+	gameLogger.Debug("Trying to add new game type.")
 
 	var emptyResponse struct{}
 	err := core.AddGameType(game.Name, game.RulesURL)
-	if errors.IsAlreadyExists(err) {
-		gameLogger.WithFields(log.Fields{
-			"err": err,
-		}).Warn("Game already exists.")
 
-		return emptyResponse, errors.AlreadyExistsf("The game type %s", game.Name)
-	} else if err != nil {
+	if err != nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
 		}).Error("Failed to add new game.")
-		return emptyResponse, errors.Errorf("Failed to add game")
+
+		if errors.IsAlreadyExists(err) {
+			gameLogger.WithFields(log.Fields{
+				"err": err,
+			}).Warn("Game already exists.")
+		}
+		return emptyResponse, err
 	}
 
 	return emptyResponse, nil
@@ -43,7 +44,7 @@ func GetAllGameType(_ *gin.Context) ([]string, error) {
 		log.WithFields(log.Fields{
 			"err": err,
 		}).Error("Failed to get game types.")
-		return []string{}, errors.Errorf("Failed to add game")
+		return []string{}, err
 	}
 
 	return gameNames, nil

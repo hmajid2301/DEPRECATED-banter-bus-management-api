@@ -15,12 +15,12 @@ func AddQuestion(gameName string, round string, content string) error {
 	if game.Name == "" {
 		return errors.NotFoundf("The game type %s", gameName)
 	} else if !*game.Enabled {
-		return errors.AlreadyExistsf("The game type %s is not enabled", gameName)
+		return errors.NewAlreadyExists(errors.New(""), "The game type %s is not enabled")
 	}
 
 	questionExists := doesQuestionExist(gameName, round, content)
 	if questionExists {
-		return errors.AlreadyExistsf("The question already exists")
+		return errors.AlreadyExistsf("The gameName %s, round %s, question %s", gameName, round, content)
 	}
 
 	filter := dbmodels.Game{Name: gameName}
