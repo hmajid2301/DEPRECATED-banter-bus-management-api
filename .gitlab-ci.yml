@@ -28,9 +28,10 @@ stages:
   before_script:
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
     - eval $(ssh-agent -s)
-    - ssh-add <(echo "$GIT_SSH_PRIV_KEY")
+    - ssh-add <(echo "$GIT_SSH_PRIVATE_KEY")
     - git config --global user.email "bot@haseebmajid.dev"
     - git config --global user.name "Banter Bus Bot"
+    - git remote set-url origin "git@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
     - mkdir -p ~/.ssh
     - touch ~/.ssh/known_host
 
@@ -133,7 +134,7 @@ coverage:
           junit: junit.xml
           cobertura: cobertura.xml
 
-publish:openapi:
+update:openapi:
   stage: publish
   # only:
   #   - master
