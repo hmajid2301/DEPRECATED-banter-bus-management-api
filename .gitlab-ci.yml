@@ -31,7 +31,8 @@ stages:
     - ssh-add <(echo "$GIT_SSH_PRIVATE_KEY")
     - git config --global user.email "bot@haseebmajid.dev"
     - git config --global user.name "Banter Bus Bot"
-    - git remote set-url origin "git@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
+    - git remote set-url origin "git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git"
+    - git remote -v
     - mkdir -p ~/.ssh
     - touch ~/.ssh/known_host
 
