@@ -146,7 +146,7 @@ publish:openapi:
     - git status
     - git add specs/openapi.json
     - 'git commit -m "docs: Update Openapi" -m "Commit by Banter Bus Bot. Update openapi.json."'
-    - git push origin ${CI_COMMIT_BRANCH}
+    - git push origin HEAD:feature/#43
 
 create:gitlab:release:
   image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-release
