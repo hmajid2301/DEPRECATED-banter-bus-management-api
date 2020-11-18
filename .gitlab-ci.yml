@@ -24,18 +24,6 @@ stages:
     - go mod download
     - export BANTER_BUS_DB_HOST="mongo"
 
-.private-key:
-  before_script:
-    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
-    - eval $(ssh-agent -s)
-    - ssh-add <(echo "$GIT_SSH_PRIVATE_KEY")
-    - git config --global user.email "bot@haseebmajid.dev"
-    - git config --global user.name "Banter Bus Bot"
-    - git remote set-url origin "https://gitlab-ci-token:$GIT_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
-    - git remote -v
-    - mkdir -p ~/.ssh
-    - touch ~/.ssh/known_host
-
 create:merge-request:
   image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-mr
   stage: pre
@@ -137,17 +125,20 @@ coverage:
 
 update:openapi:
   stage: publish
-  # only:
-  #   - master
-  extends:
-    - .private-key
+  only:
+    - master
   allow_failure: true
+  before_script:
+    - git config --global user.email "bot@haseebmajid.dev"
+    - git config --global user.name "Banter Bus Bot"
+    - git remote set-url origin "https://gitlab-ci-token:$GIT_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
+    - git remote -v
   script:
     - make update-openapi
     - git fetch origin ${CI_COMMIT_BRANCH}
     - git status
     - git add specs/openapi.json
-    - 'git commit -m "docs: Update Openapi" -m "Commit by Banter Bus Bot. Update openapi.json."'
+    - 'git commit -m "docs: update openapi" -m "Commit by Banter Bus Bot. Update openapi.json."'
     - git push origin HEAD:feature/#43
 
 create:gitlab:release:
