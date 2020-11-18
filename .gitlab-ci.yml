@@ -135,13 +135,14 @@ coverage:
 
 publish:openapi:
   stage: publish
-  only:
-    - master
+  # only:
+  #   - master
   extends:
     - .private-key
   allow_failure: true
   script:
     - make update-openapi
+    - git fetch origin ${CI_COMMIT_BRANCH}
     - git status
     - git add specs/openapi.json
     - 'git commit -m "docs: Update Openapi" -m "Commit by Banter Bus Bot. Update openapi.json."'
