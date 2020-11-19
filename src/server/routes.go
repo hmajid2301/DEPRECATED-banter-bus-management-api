@@ -63,7 +63,7 @@ func gameRoutes(grp *fizz.RouterGroup) {
 	}, tonic.Handler(controllers.CreateGameType, http.StatusCreated))
 	grp.GET("", []fizz.OperationOption{
 		fizz.Summary("Get all game types."),
-	}, tonic.Handler(controllers.GetAllGameType, http.StatusOK))
+	}, tonic.Handler(controllers.GetAllGameTypes, http.StatusOK))
 	grp.GET("/:name", []fizz.OperationOption{
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game type doesn't exist", models.APIError{}, nil),
 		fizz.Summary("Get a game types."),

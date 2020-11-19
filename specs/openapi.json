@@ -7,8 +7,32 @@
   },
   "paths": {
     "/game": {
+      "get": {
+        "tags": [
+          "game"
+        ],
+        "summary": "Get all game types.",
+        "operationId": "GetAllGameTypes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
-        "tags": ["game"],
+        "tags": [
+          "game"
+        ],
         "summary": "Create a new game type.",
         "operationId": "CreateGameType",
         "requestBody": {
@@ -24,7 +48,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["name", "rules_url"]
+                "required": [
+                  "name",
+                  "rules_url"
+                ]
               }
             }
           }
@@ -65,7 +92,9 @@
     },
     "/game/{name}": {
       "get": {
-        "tags": ["game"],
+        "tags": [
+          "game"
+        ],
         "summary": "Get a game types.",
         "operationId": "GetGameType",
         "parameters": [
@@ -102,7 +131,9 @@
         }
       },
       "delete": {
-        "tags": ["game"],
+        "tags": [
+          "game"
+        ],
         "summary": "Delete a game types.",
         "operationId": "RemoveGameType",
         "parameters": [
@@ -141,7 +172,9 @@
     },
     "/game/{name}/disable": {
       "put": {
-        "tags": ["game"],
+        "tags": [
+          "game"
+        ],
         "summary": "Disables a game type.",
         "operationId": "DisableGameType",
         "parameters": [
@@ -190,7 +223,9 @@
     },
     "/game/{name}/enable": {
       "put": {
-        "tags": ["game"],
+        "tags": [
+          "game"
+        ],
         "summary": "Enables a game type.",
         "operationId": "EnableGameType",
         "parameters": [
@@ -239,7 +274,9 @@
     },
     "/game/{name}/question": {
       "post": {
-        "tags": ["question"],
+        "tags": [
+          "question"
+        ],
         "summary": "Add a new question to a game type.",
         "operationId": "AddQuestion",
         "parameters": [
@@ -265,7 +302,10 @@
                     "type": "string"
                   }
                 },
-                "required": ["content", "round"]
+                "required": [
+                  "content",
+                  "round"
+                ]
               }
             }
           }
@@ -316,7 +356,9 @@
     },
     "/healthcheck": {
       "get": {
-        "tags": ["maintenance"],
+        "tags": [
+          "maintenance"
+        ],
         "summary": "Checks Banter Bus API is healthy.",
         "operationId": "Healthcheck",
         "responses": {

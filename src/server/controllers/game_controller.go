@@ -35,8 +35,8 @@ func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
 	return emptyResponse, nil
 }
 
-// GetAllGameType gets a list of names of all game types.
-func GetAllGameType(_ *gin.Context) ([]string, error) {
+// GetAllGameTypes gets a list of names of all game types.
+func GetAllGameTypes(_ *gin.Context) ([]string, error) {
 	log.Debug("Trying to get all games.")
 
 	gameNames, err := core.GetAllGameTypes()
