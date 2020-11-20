@@ -131,8 +131,8 @@ update:openapi:
   allow_failure: true
   before_script:
     - git config --global user.email "bot@haseebmajid.dev"
-    - git config --global user.name "Banter Bus Bot"
-    - git remote set-url origin "https://gitlab-ci-token:$GIT_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
+    - git config --global user.name "banter-bus-bot"
+    - git remote set-url origin "https://gitlab-ci-token:$GITLAB_PRIVATE_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
     - git remote -v
   script:
     - make update-openapi
