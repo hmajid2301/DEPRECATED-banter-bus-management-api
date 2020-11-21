@@ -9,9 +9,9 @@ import (
 )
 
 // AddQuestion adds a new question to a game.
-func AddQuestion(_ *gin.Context, questionInput *models.NewQuestionInput) (*models.Question, error) {
+func AddQuestion(_ *gin.Context, questionInput *models.ReceiveQuestionInput) error {
 	var (
-		question = questionInput.NewQuestion
+		question = questionInput.ReceiveQuestion
 		game     = questionInput.GameParams
 	)
 	questionLogger := log.WithFields(log.Fields{
@@ -25,8 +25,31 @@ func AddQuestion(_ *gin.Context, questionInput *models.NewQuestionInput) (*model
 			"err": err,
 		}).Warn("Failed to add question.")
 
-		return &models.Question{}, err
+		return err
 	}
 
-	return &models.Question{}, nil
+	return nil
+}
+
+// RemoveQuestion removes a question from a game.
+func RemoveQuestion(_ *gin.Context, questionInput *models.ReceiveQuestionInput) error {
+	var (
+		question = questionInput.ReceiveQuestion
+		game     = questionInput.GameParams
+	)
+	questionLogger := log.WithFields(log.Fields{
+		"question": question.Content,
+	})
+	questionLogger.Debug("Trying to remove question.")
+
+	err := core.RemoveQuestion(game.Name, question.Round, question.Content)
+	if err != nil {
+		questionLogger.WithFields(log.Fields{
+			"err": err,
+		}).Warn("Failed to remove question.")
+
+		return err
+	}
+
+	return nil
 }

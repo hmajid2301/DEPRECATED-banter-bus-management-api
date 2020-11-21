@@ -43,7 +43,7 @@
         "rounds": {
           "one": ["this is a question?"],
           "two": [],
-          "three": ["this is a another question?"]
+          "three": ["this is another question?"]
         }
       },
       "enabled": true

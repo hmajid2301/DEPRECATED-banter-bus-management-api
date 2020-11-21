@@ -98,6 +98,13 @@ func questionRoutes(grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(controllers.AddQuestion, http.StatusCreated))
 	tonic.SetErrorHook(errHook)
+
+	grp.DELETE("/:name/question", []fizz.OperationOption{
+		fizz.Summary("Remove a question from a game type."),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", models.APIError{}, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game type/question combo doesn't exist", models.APIError{}, nil),
+	}, tonic.Handler(controllers.RemoveQuestion, http.StatusOK))
+	tonic.SetErrorHook(errHook)
 }
 
 func errHook(_ *gin.Context, e error) (int, interface{}) {

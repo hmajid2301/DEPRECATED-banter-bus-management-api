@@ -166,7 +166,7 @@ var RemoveGame = []struct {
 		http.StatusOK,
 	},
 	{
-		"Try to remove a game thats already been removed",
+		"Try to remove a game that's already been removed",
 		"a_game",
 		http.StatusNotFound,
 	},

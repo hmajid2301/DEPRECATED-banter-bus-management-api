@@ -16,7 +16,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to round one",
 		"new_totally_original_game",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "one",
 		}, http.StatusCreated,
@@ -24,7 +24,7 @@ var AddQuestion = []struct {
 	{
 		"Add another question to round one",
 		"new_totally_original_game",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "This is another question?",
 			Round:   "one",
 		}, http.StatusCreated,
@@ -32,7 +32,7 @@ var AddQuestion = []struct {
 	{
 		"Add question to round two",
 		"new_totally_original_game",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "two",
 		}, http.StatusCreated,
@@ -40,7 +40,7 @@ var AddQuestion = []struct {
 	{
 		"Add question to round three",
 		"new_totally_original_game",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "three",
 		}, http.StatusCreated,
@@ -48,7 +48,7 @@ var AddQuestion = []struct {
 	{
 		"Try add question to wrong round (four)",
 		"new_totally_original_game",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "four",
 		}, http.StatusBadRequest,
@@ -72,7 +72,7 @@ var AddQuestion = []struct {
 	{
 		"Try to add question to not existent game",
 		"does_not_exist",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "What is a question?",
 			Round:   "one",
 		}, http.StatusNotFound,
@@ -80,7 +80,7 @@ var AddQuestion = []struct {
 	{
 		"Try to add question that already exists",
 		"new_totally_original_game",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "three",
 		}, http.StatusConflict,
@@ -88,7 +88,7 @@ var AddQuestion = []struct {
 	{
 		"Try to add question that already exists round one",
 		"new_totally_original_game",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "this is a question?",
 			Round:   "one",
 		}, http.StatusConflict,
@@ -96,17 +96,90 @@ var AddQuestion = []struct {
 	{
 		"Try to add another question that already exists round three",
 		"new_totally_original_game",
-		&models.NewQuestion{
-			Content: "this is a another question?",
+		&models.ReceiveQuestion{
+			Content: "this is another question?",
 			Round:   "three",
 		}, http.StatusConflict,
 	},
 	{
 		"Try to add questions that already exists round one to another game type",
 		"new_totally_original_game_2",
-		&models.NewQuestion{
+		&models.ReceiveQuestion{
 			Content: "what is the funniest thing ever told?",
 			Round:   "one",
 		}, http.StatusConflict,
+	},
+}
+
+// RemoveQuestion is the test data for removing questions from game types.
+var RemoveQuestion = []struct {
+	TestDescription string
+	GameType        string
+	Payload         interface{}
+	Expected        int
+}{
+	{
+		"Delete a question from round one",
+		"new_totally_original_game",
+		&models.ReceiveQuestion{
+			Content: "this is a question?",
+			Round:   "one",
+		}, http.StatusOK,
+	},
+	{
+		"Try to remove non-existent question",
+		"new_totally_original_game",
+		&models.ReceiveQuestion{
+			Content: "what is the saddest thing ever told?",
+			Round:   "three",
+		}, http.StatusNotFound,
+	},
+	{
+		"Try to remove question that has already been removed",
+		"new_totally_original_game",
+		&models.ReceiveQuestion{
+			Content: "this is a question?",
+			Round:   "one",
+		}, http.StatusNotFound,
+	},
+	{
+		"Remove question from round three",
+		"new_totally_original_game",
+		&models.ReceiveQuestion{
+			Content: "this is another question?",
+			Round:   "three",
+		}, http.StatusOK,
+	},
+	{
+		"Try remove question from wrong round (four)",
+		"new_totally_original_game",
+		&models.ReceiveQuestion{
+			Content: "what is the funniest thing ever told?",
+			Round:   "four",
+		}, http.StatusBadRequest,
+	},
+	{
+		"Try remove question wrong Question field",
+		"new_totally_original_game",
+		struct{ Que, Round string }{
+			Que:   "quibly",
+			Round: "one",
+		}, http.StatusBadRequest,
+	},
+	{
+		"Try remove question wrong Round field",
+		"new_totally_original_game",
+		struct{ Question, Rod string }{
+			Question: "quibly",
+			Rod:      "one",
+		}, http.StatusBadRequest,
+	},
+	{
+		"Try to remove question from not existent game",
+		"does_not_exist",
+		&models.ReceiveQuestion{
+			Content: "What is a question?",
+			Round:   "one",
+		}, http.StatusNotFound,
 	},
 }
