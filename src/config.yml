@@ -1,5 +1,5 @@
 app:
-  logLevel: INFO
+  logLevel: DEBUG
   environment: development
 database:
   host: banter-bus-database

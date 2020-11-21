@@ -51,7 +51,7 @@ func GetGameType(name string) (*dbmodels.Game, error) {
 }
 
 // GetAllGameTypes is used to get all game types.
-func GetAllGameTypes() ([]string, error) {
+func GetAllGameTypes(filter *bool) ([]string, error) {
 	games := []*dbmodels.Game{}
 
 	err := database.GetAll("game", &games)
@@ -61,6 +61,9 @@ func GetAllGameTypes() ([]string, error) {
 
 	var gameNames []string
 	for _, game := range games {
+		if filter != nil && *filter != *game.Enabled {
+			continue
+		}
 		gameNames = append(gameNames, game.Name)
 	}
 	return gameNames, nil

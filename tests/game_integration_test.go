@@ -28,16 +28,22 @@ func (s *Tests) SubTestAddGame(t *testing.T) {
 }
 
 func (s *Tests) SubTestGetAllGames(t *testing.T) {
-	var expectedResult = []string{
-		"a_game",
-		"fibbly",
-		"draw_me",
-		"new_totally_original_game",
-		"new_totally_original_game_2",
+	for _, tc := range data.GetAllGame {
+		testName := fmt.Sprintf("Get All Games: %s", tc.TestDescription)
+		t.Run(testName, func(t *testing.T) {
+			var response *httpexpect.Request
+
+			if tc.Filter == "" {
+				response = s.httpExpect.GET("/game")
+			} else {
+				response = s.httpExpect.GET("/game").WithQuery("games", tc.Filter)
+			}
+
+			response.
+				Expect().
+				Status(http.StatusOK).JSON().Array().Equal(tc.ExpectedNames)
+		})
 	}
-	s.httpExpect.GET("/game").
-		Expect().
-		Status(http.StatusOK).JSON().Array().Equal(expectedResult)
 }
 
 func (s *Tests) SubTestGetGame(t *testing.T) {

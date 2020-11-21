@@ -66,6 +66,53 @@ var AddGame = []struct {
 	},
 }
 
+// GetAllGame is the test data for getting existing game types.
+var GetAllGame = []struct {
+	TestDescription string
+	Filter          string
+	ExpectedNames   []string
+}{
+	{
+		"Get games no filter",
+		"",
+		[]string{
+			"a_game",
+			"fibbly",
+			"draw_me",
+			"new_totally_original_game",
+			"new_totally_original_game_2",
+		},
+	},
+	{
+		"Get games all filter",
+		"all",
+		[]string{
+			"a_game",
+			"fibbly",
+			"draw_me",
+			"new_totally_original_game",
+			"new_totally_original_game_2",
+		},
+	},
+	{
+		"Get games enabled filter",
+		"enabled",
+		[]string{
+			"a_game",
+			"fibbly",
+			"new_totally_original_game",
+		},
+	},
+	{
+		"Get games disabled filter",
+		"disabled",
+		[]string{
+			"draw_me",
+			"new_totally_original_game_2",
+		},
+	},
+}
+
 // GetGame is the test data for getting existing game types.
 var GetGame = []struct {
 	TestDescription string

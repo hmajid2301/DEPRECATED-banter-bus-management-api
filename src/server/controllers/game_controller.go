@@ -36,10 +36,23 @@ func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
 }
 
 // GetAllGameTypes gets a list of names of all game types.
-func GetAllGameTypes(_ *gin.Context) ([]string, error) {
+func GetAllGameTypes(_ *gin.Context, params *models.ListGameParams) ([]string, error) {
 	log.Debug("Trying to get all games.")
 
-	gameNames, err := core.GetAllGameTypes()
+	var (
+		t = true
+		f = false
+	)
+
+	var n *bool
+	filters := map[string]*bool{
+		"enabled":  &t,
+		"disabled": &f,
+		"all":      n,
+	}
+
+	enabledFilters := filters[params.Games]
+	gameNames, err := core.GetAllGameTypes(enabledFilters)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"err": err,
