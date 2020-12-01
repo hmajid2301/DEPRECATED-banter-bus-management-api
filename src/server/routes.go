@@ -40,6 +40,8 @@ func NewRouter() (*fizz.Fizz, error) {
 	routes.GameRoutes(fizzApp.Group("/game", "game", "Related to managing games."))
 	routes.QuestionRoutes(fizzApp.Group("/game/:name/question", "question", "Related to managing the questions."))
 
+	routes.UserRoutes(fizzApp.Group("/user", "user", "Related to managing users."))
+
 	if len(fizzApp.Errors()) != 0 {
 		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())
 	}

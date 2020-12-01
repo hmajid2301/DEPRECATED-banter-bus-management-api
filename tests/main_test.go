@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"banter-bus-server/src/core/database"
+	"banter-bus-server/src/core/models"
 	"banter-bus-server/src/server"
 	"banter-bus-server/src/utils/config"
 
@@ -30,7 +31,8 @@ type GameData struct {
 }
 
 type TestData struct {
-	Games []GameData `json:"games"`
+	Games []GameData    `json:"games"`
+	Users []models.User `json:"users"`
 }
 
 func (s *Tests) Setup(t *testing.T) {
@@ -45,8 +47,12 @@ func (s *Tests) Setup(t *testing.T) {
 		Port:         config.Database.Port,
 	}
 	database.InitialiseDatabase(dbConfig)
+	router, err := server.NewRouter()
 
-	router, _ := server.NewRouter()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	s.httpExpect = httpexpect.WithConfig(httpexpect.Config{
 		Client: &http.Client{
 			Transport: httpexpect.NewBinder(router.Engine()),
@@ -63,10 +69,12 @@ func (s *Tests) Teardown(t *testing.T) {}
 
 func (s *Tests) BeforeEach(t *testing.T) {
 	InsertData("data/game_collection.json", "game")
+	InsertData("data/user_collection.json", "user")
 }
 
 func (s *Tests) AfterEach(t *testing.T) {
 	database.RemoveCollection("game")
+	database.RemoveCollection("user")
 }
 
 func TestSampleTests(t *testing.T) {
@@ -86,6 +94,10 @@ func InsertData(dataFilePath string, collection string) {
 	}
 
 	for _, t := range docs.Games {
+		dataList = append(dataList, t)
+	}
+
+	for _, t := range docs.Users {
 		dataList = append(dataList, t)
 	}
 

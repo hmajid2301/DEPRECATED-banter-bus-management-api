@@ -100,7 +100,7 @@ func InsertMultiple(collectionName string, object []interface{}) error {
 func Get(collectionName string, filter interface{}, model interface{}) error {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
-		"filer":      filter,
+		"filter":     filter,
 		"model":      model,
 	}).Debug("Getting object from database.")
 	collection := _database.Collection(collectionName)
