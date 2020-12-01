@@ -1,0 +1,142 @@
+{
+  "games": [
+    {
+      "name": "quibly",
+      "rules_url": "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+      "enabled": true,
+      "questions": {
+        "pair": [
+          {
+            "enabled": true,
+            "content": {
+              "en": "this is a question?",
+              "ur": "this is a question?",
+              "de": "this is a question?"
+            }
+          },
+          {
+            "enabled": false,
+            "content": {
+              "en": "this is also question?",
+              "ur": "this is also question?",
+              "de": "this is also question?"
+            }
+          }
+        ],
+        "answers": [
+          {
+            "enabled": true,
+            "content": {
+              "en": "pink mustard",
+              "de": "german"
+            }
+          }
+        ],
+        "group": [
+          {
+            "enabled": false,
+            "content": {
+              "fr": "this is a another question?"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "fibbing_it",
+      "rules_url": "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
+      "enabled": true,
+      "questions": {
+        "opinion": {
+          "horse_group": {
+            "questions": [
+              {
+                "enabled": true,
+                "content": {
+                  "en": "What do you think about horses?"
+                }
+              },
+              {
+                "enabled": false,
+                "content": {
+                  "en": "What do you think about camels?"
+                }
+              }
+            ],
+            "answers": [
+              {
+                "enabled": false,
+                "content": {
+                  "en": "cool"
+                }
+              },
+              {
+                "enabled": true,
+                "content": {
+                  "en": "lame"
+                }
+              },
+              {
+                "enabled": true,
+                "content": {
+                  "en": "tasty"
+                }
+              }
+            ]
+          }
+        },
+        "free_form": {
+          "bike_group": [
+            {
+              "enabled": true,
+              "content": {
+                "en": "Favourite bike colour?"
+              }
+            },
+            {
+              "enabled": false,
+              "content": {
+                "en": "A funny question?"
+              }
+            }
+          ]
+        },
+        "likely": [
+          {
+            "enabled": true,
+            "content": {
+              "en": "to eat ice-cream from the tub"
+            }
+          },
+          {
+            "enabled": false,
+            "content": {
+              "en": "to get arrested"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "drawlosseum",
+      "rules_url": "https://google.com/drawlosseum",
+      "enabled": false,
+      "questions": {
+        "drawings": [
+          {
+            "enabled": true,
+            "content": {
+              "en": "horse"
+            }
+          },
+          {
+            "enabled": false,
+            "content": {
+              "en": "spoon"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

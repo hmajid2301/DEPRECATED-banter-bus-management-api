@@ -33,11 +33,12 @@ sast: ## Run Static Application Security Testing  job
 debug: ## Run docker ready for debugging in vscode.
 	@USE=DEBUG docker-compose up --build
 
-update-openapi: ## update openapi spec JSON file from the app
+get-openapi-spec: ## get openapi spec JSON file from the app
 	@go test ./utils/generate_openapi_test.go -v
 
+# prompt_example> make start OPTIONS="-- -d"
 start: ## Start the application.
-	@docker-compose up --build
+	@docker-compose up --build $(OPTIONS)
 
 start-db:
 	@docker-compose up -d mongodb mongoclient

@@ -71,7 +71,7 @@ lint:commits:
     - merge_request
   before_script: []
   script:
-    - "echo 'module.exports = { extends: [\"@commitlint/config-conventional\"] };' > commitlint.config.js"
+    - 'echo ''module.exports = { extends: ["@commitlint/config-conventional"] };'' > commitlint.config.js'
     - npm install -g @commitlint/cli @commitlint/config-conventional
     - git fetch origin ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
     - git fetch origin ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}
@@ -119,28 +119,17 @@ coverage:
     - cat junit.xml | grep "coverage.statements.pct"
   coverage: '/value="\d+.\d+"/'
   artifacts:
-      when: always
-      reports:
-          junit: junit.xml
-          cobertura: cobertura.xml
+    when: always
+    reports:
+      junit: junit.xml
+      cobertura: cobertura.xml
 
-update:openapi:
-  stage: publish
+trigger:openapi:update:docs:
   only:
-    - schedules
-  allow_failure: true
-  before_script:
-    - git config --global user.email "bot@haseebmajid.dev"
-    - git config --global user.name "banter-bus-bot"
-    - git remote set-url origin "https://gitlab-ci-token:$GITLAB_PRIVATE_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
-    - git remote -v
+    - master
+  image: curl
   script:
-    - make update-openapi
-    - git fetch origin ${CI_COMMIT_BRANCH}
-    - git status
-    - git add specs/openapi.json
-    - 'git commit -m "docs: update openapi" -m "Commit by Banter Bus Bot. Update openapi.json."'
-    - git push origin HEAD:master
+    - curl -X POST -F token=$DOCS_TRIGGER_TOKEN  -F "variables[SOURCE_TRIGGER]=banter-bus-server"  https://gitlab.com/api/v4/projects/22432967/trigger/pipeline
 
 create:gitlab:release:
   image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-release

@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"banter-bus-server/src/core/database"
-	"banter-bus-server/src/core/dbmodels"
 	"banter-bus-server/src/server"
 	"banter-bus-server/src/utils/config"
 
@@ -23,10 +22,11 @@ type Tests struct {
 }
 
 type GameData struct {
-	Name      string             `bson:"name"`
-	Questions *dbmodels.Question `bson:"questions"`
-	RulesURL  string             `bson:"rules_url" json:"rules_url"`
-	Enabled   bool               `bson:"enabled"`
+	Name      string                 `bson:"name"`
+	RulesURL  string                 `bson:"rules_url,omitempty" json:"rules_url,omitempty"`
+	Type      string                 `bson:"type,omitempty"`
+	Enabled   *bool                  `bson:"enabled,omitempty"`
+	Questions map[string]interface{} `bson:"questions"`
 }
 
 type TestData struct {
@@ -45,6 +45,7 @@ func (s *Tests) Setup(t *testing.T) {
 		Port:         config.Database.Port,
 	}
 	database.InitialiseDatabase(dbConfig)
+
 	router, _ := server.NewRouter()
 	s.httpExpect = httpexpect.WithConfig(httpexpect.Config{
 		Client: &http.Client{
@@ -61,7 +62,7 @@ func (s *Tests) Setup(t *testing.T) {
 func (s *Tests) Teardown(t *testing.T) {}
 
 func (s *Tests) BeforeEach(t *testing.T) {
-	InsertData("data/game.json", "game")
+	InsertData("data/game_collection.json", "game")
 }
 
 func (s *Tests) AfterEach(t *testing.T) {
@@ -73,7 +74,7 @@ func TestSampleTests(t *testing.T) {
 }
 
 func InsertData(dataFilePath string, collection string) {
-	data, _ := ioutil.ReadFile("data/game.json")
+	data, _ := ioutil.ReadFile(dataFilePath)
 	var (
 		docs     *TestData
 		dataList []interface{}

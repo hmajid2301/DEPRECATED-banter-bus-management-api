@@ -6,23 +6,23 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"banter-bus-server/src/core"
-	"banter-bus-server/src/server/models"
+	serverModels "banter-bus-server/src/server/models"
 )
 
-// CreateGameType adds a new game type to the database.
-func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
+// CreateGame adds a new game.
+func CreateGame(_ *gin.Context, game *serverModels.ReceiveGame) (struct{}, error) {
 	gameLogger := log.WithFields(log.Fields{
 		"game_name": game.Name,
 	})
-	gameLogger.Debug("Trying to add new game type.")
+	gameLogger.Debug("Trying to add new game.")
 
 	var emptyResponse struct{}
-	err := core.AddGameType(game.Name, game.RulesURL)
+	err := core.AddGame(game.Name, game.RulesURL)
 
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
-		}).Error("Failed to add new game.")
+		}).Error("Failed to add the new game.")
 
 		if errors.IsAlreadyExists(err) {
 			gameLogger.WithFields(log.Fields{
@@ -35,8 +35,8 @@ func CreateGameType(_ *gin.Context, game *models.NewGame) (struct{}, error) {
 	return emptyResponse, nil
 }
 
-// GetAllGameTypes gets a list of names of all game types.
-func GetAllGameTypes(_ *gin.Context, params *models.ListGameParams) ([]string, error) {
+// GetAllGames gets a list of names of all game.
+func GetAllGames(_ *gin.Context, params *serverModels.ListGameParams) ([]string, error) {
 	log.Debug("Trying to get all games.")
 
 	var (
@@ -52,7 +52,7 @@ func GetAllGameTypes(_ *gin.Context, params *models.ListGameParams) ([]string, e
 	}
 
 	enabledFilters := filters[params.Games]
-	gameNames, err := core.GetAllGameTypes(enabledFilters)
+	gameNames, err := core.GetAllGames(enabledFilters)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"err": err,
@@ -63,22 +63,22 @@ func GetAllGameTypes(_ *gin.Context, params *models.ListGameParams) ([]string, e
 	return gameNames, nil
 }
 
-// GetGameType gets all the information about a specific game type.
-func GetGameType(_ *gin.Context, params *models.GameParams) (*models.Game, error) {
+// GetGame gets all the information about a specific game.
+func GetGame(_ *gin.Context, params *serverModels.GameParams) (*serverModels.Game, error) {
 	gameLogger := log.WithFields(log.Fields{
 		"game_name": params.Name,
 	})
 	gameLogger.Debug("Trying to get a game.")
 
-	game, err := core.GetGameType(params.Name)
+	game, err := core.GetGame(params.Name)
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Game doesn't exists.")
-		return &models.Game{}, errors.NotFoundf("The game type %s", params.Name)
+		return &serverModels.Game{}, errors.NotFoundf("The game %s", params.Name)
 	}
 
-	actualGame := &models.Game{
+	actualGame := &serverModels.Game{
 		Name:     game.Name,
 		RulesURL: game.RulesURL,
 		Enabled:  *game.Enabled,
@@ -86,8 +86,8 @@ func GetGameType(_ *gin.Context, params *models.GameParams) (*models.Game, error
 	return actualGame, nil
 }
 
-// RemoveGameType removes a game type from the database.
-func RemoveGameType(_ *gin.Context, params *models.GameParams) (struct{}, error) {
+// RemoveGame removes a game.
+func RemoveGame(_ *gin.Context, params *serverModels.GameParams) (struct{}, error) {
 	gameLogger := log.WithFields(log.Fields{
 		"game_name": params.Name,
 	})
@@ -95,7 +95,7 @@ func RemoveGameType(_ *gin.Context, params *models.GameParams) (struct{}, error)
 
 	var emptyResponse struct{}
 
-	err := core.RemoveGameTypes(params.Name)
+	err := core.RemoveGame(params.Name)
 	if errors.IsNotFound(err) {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
@@ -112,13 +112,13 @@ func RemoveGameType(_ *gin.Context, params *models.GameParams) (struct{}, error)
 	return emptyResponse, nil
 }
 
-// EnableGameType enables a disabled game type.
-func EnableGameType(_ *gin.Context, params *models.GameParams) (struct{}, error) {
+// EnableGame enables a disabled game.
+func EnableGame(_ *gin.Context, params *serverModels.GameParams) (struct{}, error) {
 	return updateEnableGameState(params.Name, true)
 }
 
-// DisableGameType disabled an enabled game type.
-func DisableGameType(_ *gin.Context, params *models.GameParams) (struct{}, error) {
+// DisableGame disabled an enabled game.
+func DisableGame(_ *gin.Context, params *serverModels.GameParams) (struct{}, error) {
 	return updateEnableGameState(params.Name, false)
 }
 
@@ -133,7 +133,7 @@ func updateEnableGameState(name string, enable bool) (struct{}, error) {
 
 	var emptyResponse struct{}
 
-	updated, err := core.UpdateEnableGameType(name, enable)
+	updated, err := core.UpdateEnableGame(name, enable)
 	if err != nil || !updated {
 		gameLogger.WithFields(log.Fields{
 			"err": err,

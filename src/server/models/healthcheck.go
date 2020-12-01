@@ -1,4 +1,4 @@
-package models
+package serverModels
 
 // Healthcheck is a message returned by the healthcheck.
 type Healthcheck struct {

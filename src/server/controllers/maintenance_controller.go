@@ -5,20 +5,20 @@ import (
 	"github.com/juju/errors"
 
 	"banter-bus-server/src/core/database"
-	"banter-bus-server/src/server/models"
+	serverModels "banter-bus-server/src/server/models"
 )
 
 // Healthcheck checks if the API is healthy.
-func Healthcheck(_ *gin.Context) (*models.Healthcheck, error) {
+func Healthcheck(_ *gin.Context) (*serverModels.Healthcheck, error) {
 	var err error
 
 	healthy := database.Ping()
 
 	if !healthy {
-		return &models.Healthcheck{}, errors.Errorf("Healthcheck Failed!")
+		return &serverModels.Healthcheck{}, errors.Errorf("Healthcheck Failed!")
 	}
 
-	return &models.Healthcheck{
+	return &serverModels.Healthcheck{
 		Message: "The API is healthy.",
 	}, err
 }

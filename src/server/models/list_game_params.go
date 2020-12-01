@@ -1,4 +1,4 @@
-package models
+package serverModels
 
 // ListGameParams is the params from request.
 type ListGameParams struct {

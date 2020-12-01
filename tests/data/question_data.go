@@ -3,7 +3,7 @@ package data
 import (
 	"net/http"
 
-	"banter-bus-server/src/server/models"
+	serverModels "banter-bus-server/src/server/models"
 )
 
 // AddQuestion is the test data for add questions to a game types.
@@ -14,100 +14,642 @@ var AddQuestion = []struct {
 	Expected        int
 }{
 	{
-		"Add a question to round one",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "what is the funniest thing ever told?",
-			Round:   "one",
+		"Add a question to quibly and to round pair",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "this is another question?",
+			Round:   "pair",
 		}, http.StatusCreated,
 	},
 	{
-		"Add another question to round one",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
+		"Add a question to quibly and to round answer, language de",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content:      "what is the funniest thing ever told?",
+			LanguageCode: "de",
+			Round:        "answers",
+		}, http.StatusCreated,
+	},
+	{
+		"Add a question to quibly and to round group",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "what does ATGM stand for?",
+			Round:   "group",
+		}, http.StatusCreated,
+	},
+	{
+		"Add a question to drawlosseum, language ur",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content:      "camel",
+			LanguageCode: "ur",
+		}, http.StatusCreated,
+	},
+	{
+		"Add another question to drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "pencil",
+		}, http.StatusCreated,
+	},
+	{
+		"Add yet another question to drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "food fight",
+		}, http.StatusCreated,
+	},
+	{
+		"Add a question to fibbing it, round opinion new group bike group, language en",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content:      "do you love bikes?",
+			LanguageCode: "en",
+			Round:        "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "questions",
+			},
+		}, http.StatusCreated,
+	},
+	{
+		"Add another question to fibbing it, round opinion new group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "how much does liam love bikes?",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "questions",
+			},
+		}, http.StatusCreated,
+	},
+	{
+		"Add an answer to fibbing it, round opinion existing group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "answers",
+			},
+		}, http.StatusCreated,
+	},
+	{
+		"Add an answer to fibbing it, round free_form existing group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What is love?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+			},
+		}, http.StatusCreated,
+	},
+	{
+		"Add an answer to fibbing it, round free_form new group horse group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What is the fastest horse?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+			},
+		}, http.StatusCreated,
+	},
+	{
+		"Add an answer to fibbing it, round free_form existing group horse group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What is the second horse called?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+			},
+		}, http.StatusCreated,
+	},
+	{
+		"Add an answer to fibbing it, round likely",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "to never eat a vegetable again?",
+			Round:   "likely",
+		}, http.StatusCreated,
+	},
+	{
+		"Add question to quibly, invalid round",
+		"quibly",
+		&serverModels.ReceiveQuestion{
 			Content: "This is another question?",
-			Round:   "one",
-		}, http.StatusCreated,
-	},
-	{
-		"Add question to round two",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "what is the funniest thing ever told?",
-			Round:   "two",
-		}, http.StatusCreated,
-	},
-	{
-		"Add question to round three",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "what is the funniest thing ever told?",
-			Round:   "three",
-		}, http.StatusCreated,
-	},
-	{
-		"Try add question to wrong round (four)",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "what is the funniest thing ever told?",
-			Round:   "four",
+			Round:   "invalid",
 		}, http.StatusBadRequest,
 	},
 	{
-		"Try add question wrong Question field",
-		"new_totally_original_game",
-		struct{ Que, Round string }{
-			Que:   "quibly",
-			Round: "one",
+		"Add question to quibly, invalid2 round",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "This is another question?",
+			Round:   "invalid2",
 		}, http.StatusBadRequest,
 	},
 	{
-		"Try add question wrong Round field",
-		"new_totally_original_game",
-		struct{ Question, Rod string }{
-			Question: "quibly",
-			Rod:      "one",
+		"Add an answer to fibbing it, invalid round free_form",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What is the fastest horse?",
+			Round:   "invalid_free_form",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+			},
 		}, http.StatusBadRequest,
 	},
 	{
-		"Try to add question to not existent game",
-		"does_not_exist",
-		&models.ReceiveQuestion{
-			Content: "What is a question?",
-			Round:   "one",
+		"Add an answer to fibbing it, invalid language code",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content:      "What is the fastest horse?",
+			LanguageCode: "deed",
+			Round:        "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "answers",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Add an answer to fibbing it, round opinion invalid type",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "answer",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Add an answer to fibbing it, round opinion invalid answer type",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "answer",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Add an answer to fibbing it, round opinion invalid question type",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "question",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Add an answer to fibbing it, round opinion invalid type",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "type",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"game does not exist but missing content",
+		"quibly v3",
+		&serverModels.ReceiveQuestion{}, http.StatusBadRequest,
+	},
+	{
+		"game does not exist",
+		"quibly_v2",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
 		}, http.StatusNotFound,
 	},
 	{
-		"Try to add question that already exists",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "what is the funniest thing ever told?",
-			Round:   "three",
-		}, http.StatusConflict,
+		"another game does not exist",
+		"quibly v3",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
+		}, http.StatusNotFound,
 	},
 	{
-		"Try to add question that already exists round one",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "this is a question?",
-			Round:   "one",
-		}, http.StatusConflict,
-	},
-	{
-		"Try to add another question that already exists round three",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
+		"Add a question that already exists to quibly and to round pair",
+		"quibly",
+		&serverModels.ReceiveQuestion{
 			Content: "this is another question?",
-			Round:   "three",
+			Round:   "pair",
 		}, http.StatusConflict,
 	},
 	{
-		"Try to add questions that already exists round one to another game type",
-		"new_totally_original_game_2",
-		&models.ReceiveQuestion{
-			Content: "what is the funniest thing ever told?",
-			Round:   "one",
+		"Add a question that already exists to quibly and to round answer",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "pink mustard",
+			Round:   "answers",
 		}, http.StatusConflict,
+	},
+	{
+		"Add a question that already exists to quibly and to round answer",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content:      "german",
+			LanguageCode: "de",
+			Round:        "answers",
+		}, http.StatusConflict,
+	},
+	{
+		"Add a question that already exists to quibly and to round group",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "what does ATGM stand for?",
+			Round:   "group",
+		}, http.StatusConflict,
+	},
+	{
+		"Add a question that already exists to drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "horse",
+		}, http.StatusConflict,
+	},
+	{
+		"Add another question that already exists to drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "pencil",
+		}, http.StatusConflict,
+	},
+	{
+		"Add yet another question that already exists to drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "food fight",
+		}, http.StatusConflict,
+	},
+	{
+		"Add a question to fibbing it that already exists, round opinion new group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "do you love bikes?",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "questions",
+			},
+		}, http.StatusConflict,
+	},
+	{
+		"Add another question to fibbing it that already exists, round opinion new group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "how much does liam love bikes?",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "questions",
+			},
+		}, http.StatusConflict,
+	},
+	{
+		"Add an answer to fibbing it that already exists, round opinion existing group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+				Type: "answers",
+			},
+		}, http.StatusConflict,
+	},
+	{
+		"Add an answer to fibbing it that already exists, round free_form existing group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What is love?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+			},
+		}, http.StatusConflict,
+	},
+	{
+		"Add an answer to fibbing it that already exists, round free_form new group horse group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What is the fastest horse?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+			},
+		}, http.StatusConflict,
+	},
+	{
+		"Add an answer to fibbing it that already exists, round free_form existing group horse group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What is the second horse called?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+			},
+		}, http.StatusConflict,
+	},
+	{
+		"Add an answer to fibbing it tthat already exists, round likely",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "to never eat a vegetable again?",
+			Round:   "likely",
+		}, http.StatusConflict,
+	},
+	{
+		"Add a question to quibly and to round pair",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What do you think about horses?",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "questions",
+			},
+		}, http.StatusConflict,
+	},
+}
+
+// UpdateQuestion is the test data for adding translations to questions.
+var UpdateQuestion = []struct {
+	TestDescription string
+	GameType        string
+	Payload         interface{}
+	Expected        int
+}{
+	{
+		"Update question in quibly and round pair, new language fr",
+		"quibly",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content:      "this is a question?",
+				LanguageCode: "de",
+				Round:        "pair",
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "this is a question?",
+				LanguageCode: "fr",
+			},
+		},
+		http.StatusOK,
+	},
+	{
+		"Update question in quibly and round pair, replace exitsing language de",
+		"quibly",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "pink mustard",
+				Round:   "answers",
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "le german?",
+				LanguageCode: "de",
+			},
+		},
+		http.StatusOK,
+	},
+	{
+		"Update question in quibly and round group, add new language de",
+		"quibly",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content:      "this is a another question?",
+				LanguageCode: "fr",
+				Round:        "group",
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "Das ist eine andere Frage?",
+				LanguageCode: "de",
+			},
+		},
+		http.StatusOK,
+	},
+	{
+		"Update question in quibly and round group, add another new language ur",
+		"quibly",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content:      "this is a another question?",
+				LanguageCode: "fr",
+				Round:        "group",
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "Urdu question? Who knows?",
+				LanguageCode: "ur",
+			},
+		},
+		http.StatusOK,
+	},
+	{
+		"Update question in drawlosseum",
+		"drawlosseum",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "horse",
+				Round:   "group",
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "ऊंट",
+				LanguageCode: "hi",
+			},
+		},
+		http.StatusOK,
+	},
+	{
+		"Update question in drawlosseum, specify en (this should be default)",
+		"drawlosseum",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content:      "spoon",
+				LanguageCode: "en",
+				Round:        "group",
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "spoon",
+				LanguageCode: "hi",
+			},
+		},
+		http.StatusOK,
+	},
+	{
+		"Update question in fibbing it, round opinion",
+		"fibbing_it",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "What do you think about horses?",
+				Round:   "opinion",
+				Group: &serverModels.Group{
+					Name: "horse_group",
+					Type: "questions",
+				},
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "Cosa ne pensi dei cavalli?",
+				LanguageCode: "it",
+			},
+		},
+		http.StatusOK,
+	},
+	{
+		"Update question in fibbing it, round opinion and answers section",
+		"fibbing_it",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "cool",
+				Round:   "opinion",
+				Group: &serverModels.Group{
+					Name: "horse_group",
+					Type: "answers",
+				},
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "Liebe",
+				LanguageCode: "de",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Update question in fibbing it, round free_form, language fr",
+		"fibbing_it",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "Favourite bike colour?",
+				Round:   "free_form",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+				},
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "was ist Liebe?",
+				LanguageCode: "de",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Update question in quibly, invalid round",
+		"quibly",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "A question?",
+				Round:   "invalid",
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "was ist Liebe?",
+				LanguageCode: "de",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Update question in fibbing it, invalid round",
+		"fibbing_it",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "Favourite bike colour?",
+				Round:   "free_form2",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+				},
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "was ist Liebe?",
+				LanguageCode: "de",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Update question in fibbing it, invalid group type answer (should be answers)",
+		"fibbing_it",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "Favourite bike colour?",
+				Round:   "opinion",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+					Type: "answer",
+				},
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "was ist Liebe?",
+				LanguageCode: "de",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Missing content",
+		"quibly",
+		&serverModels.ReceiveQuestion{}, http.StatusBadRequest,
+	},
+	{
+		"Update question in fibbing it but invalid language code",
+		"fibbing_it",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "Favourite bike colour?",
+				Round:   "opinion",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+					Type: "answers",
+				},
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "was ist Liebe?",
+				LanguageCode: "ittt",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"game does not exist",
+		"quibly v3",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "Favourite bike colour?",
+				Round:   "free_form",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+				},
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "was ist Liebe?",
+				LanguageCode: "de",
+			},
+		}, http.StatusNotFound,
+	},
+	{
+		"Original question doesn't exist",
+		"fibbing_it",
+		&serverModels.QuestionTranslation{
+			OriginalQuestion: serverModels.ReceiveQuestion{
+				Content: "Favourite horse colour?",
+				Round:   "free_form",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+				},
+			},
+			NewQuestion: serverModels.NewQuestionTranslation{
+				Content:      "was ist Liebe?",
+				LanguageCode: "de",
+			},
+		}, http.StatusNotFound,
 	},
 }
 
@@ -119,67 +661,364 @@ var RemoveQuestion = []struct {
 	Expected        int
 }{
 	{
-		"Delete a question from round one",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
+		"Delete a question quibly from round pair",
+		"quibly",
+		&serverModels.ReceiveQuestion{
 			Content: "this is a question?",
-			Round:   "one",
+			Round:   "pair",
 		}, http.StatusOK,
 	},
 	{
-		"Try to remove non-existent question",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "what is the saddest thing ever told?",
-			Round:   "three",
-		}, http.StatusNotFound,
-	},
-	{
-		"Try to remove question that has already been removed",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "this is a question?",
-			Round:   "one",
-		}, http.StatusNotFound,
-	},
-	{
-		"Remove question from round three",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "this is another question?",
-			Round:   "three",
+		"Delete a question quibly from round pair, language ur",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content:      "this is a question?",
+			LanguageCode: "ur",
+			Round:        "pair",
 		}, http.StatusOK,
 	},
 	{
-		"Try remove question from wrong round (four)",
-		"new_totally_original_game",
-		&models.ReceiveQuestion{
-			Content: "what is the funniest thing ever told?",
-			Round:   "four",
+		"Delete a question quibly from round answers",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "pink mustard",
+			Round:   "answers",
+		}, http.StatusOK,
+	},
+	{
+		"Delete a question quibly from round group, language fr",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content:      "this is a another question?",
+			LanguageCode: "fr",
+			Round:        "group",
+		}, http.StatusOK,
+	},
+	{
+		"Delete a question drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "horse",
+		}, http.StatusOK,
+	},
+	{
+		"Delete another question drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "spoon",
+		}, http.StatusOK,
+	},
+	{
+		"Delete a question to fibbing it, round opinion from group horse group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What do you think about horses?",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "questions",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Delete a answer to fibbing it, round opinion from group horse group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "cool",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "answers",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Delete a answer to fibbing it, round free_form from group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "Favourite bike colour?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Delete a answer to fibbing it, round likely",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "to get arrested",
+			Round:   "likely",
+		}, http.StatusOK,
+	},
+	{
+		"Delete another answer to fibbing it, round likely",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "to eat ice-cream from the tub",
+			Round:   "likely",
+		}, http.StatusOK,
+	},
+	{
+		"Delete a question quibly from round invalid",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "this is a question?",
+			Round:   "invalid",
 		}, http.StatusBadRequest,
 	},
 	{
-		"Try remove question wrong Question field",
-		"new_totally_original_game",
-		struct{ Que, Round string }{
-			Que:   "quibly",
-			Round: "one",
+		"Delete a question quibly from round content missing",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Round: "group",
 		}, http.StatusBadRequest,
 	},
 	{
-		"Try remove question wrong Round field",
-		"new_totally_original_game",
-		struct{ Question, Rod string }{
-			Question: "quibly",
-			Rod:      "one",
+		"Delete a question quibly from round pair that was already deleted",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "this is a question?",
+			Round:   "pair",
+		}, http.StatusNotFound,
+	},
+	{
+		"Delete a question drawlosseum that was already deleted",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "horse",
+		}, http.StatusNotFound,
+	},
+	{
+		"Delete a question already removed from fibbing it, round free_form from group bike group",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "Favourite bike colour?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+			},
+		}, http.StatusNotFound,
+	},
+	{
+		"Delete a question already removed from fibbing it, round likely",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "to get arrested",
+			Round:   "likely",
+		}, http.StatusNotFound,
+	},
+	{
+		"Delete another  already removed from fibbing it, round likely",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "to eat ice-cream from the tub",
+			Round:   "likely",
+		}, http.StatusNotFound,
+	},
+}
+
+// EnableQuestion test data used to test enable endpoint
+var EnableQuestion = []struct {
+	TestDescription string
+	GameType        string
+	Payload         interface{}
+	Expected        int
+}{
+	{
+		"Enable a question, quibly and round pair",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "this is a question?",
+			Round:   "pair",
+		}, http.StatusOK,
+	},
+	{
+		"Enable a question, quibly and round answers",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content:      "this is a another question?",
+			LanguageCode: "fr",
+			Round:        "group",
+		}, http.StatusOK,
+	},
+	{
+		"Enable a question, fibbing_it and round opinion",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What do you think about camels?",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "questions",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Enable an answer, fibbing_it and round opinion",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "cool",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "answers",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Enable a question, fibbing_it and round free_form",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "Favourite bike colour?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Enable a question, fibbing_it and round likely",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "to get arrested",
+			Round:   "likely",
+		}, http.StatusOK,
+	},
+	{
+		"Enable a question, drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "spoon",
+		}, http.StatusOK,
+	},
+	{
+		"Enable an already enabled question, drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "spoon",
+		}, http.StatusOK,
+	},
+	{
+		"Bad request invalid round, fibbing_it",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "spoon",
+			Round:   "likely2",
 		}, http.StatusBadRequest,
 	},
 	{
-		"Try to remove question from not existent game",
-		"does_not_exist",
-		&models.ReceiveQuestion{
-			Content: "What is a question?",
-			Round:   "one",
+		"Bad request invalid content, fibbing_it",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{}, http.StatusBadRequest,
+	},
+	{
+		"Game does not exist",
+		"quibly v3",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
+		}, http.StatusNotFound,
+	},
+}
+
+// DisableQuestion test data used to test disable endpoint
+var DisableQuestion = []struct {
+	TestDescription string
+	GameType        string
+	Payload         interface{}
+	Expected        int
+}{
+	{
+		"Disable a question, quibly and round pair",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "this is a question?",
+			Round:   "pair",
+		}, http.StatusOK,
+	},
+	{
+		"Disable a question, quibly and round answers",
+		"quibly",
+		&serverModels.ReceiveQuestion{
+			Content: "pink mustard",
+			Round:   "answers",
+		}, http.StatusOK,
+	},
+	{
+		"Disable a question, fibbing_it and round opinion",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "What do you think about camels?",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "questions",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Disable an answer, fibbing_it and round opinion",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "lame",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "answers",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Disable anquestion, fibbing_it and round free_form",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "Favourite bike colour?",
+			Round:   "free_form",
+			Group: &serverModels.Group{
+				Name: "bike_group",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Disable a question, fibbing_it and round likely",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "to eat ice-cream from the tub",
+			Round:   "likely",
+		}, http.StatusOK,
+	},
+	{
+		"Disable a question, drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "spoon",
+		}, http.StatusOK,
+	},
+	{
+		"Disable a question, thats disabled drawlosseum",
+		"drawlosseum",
+		&serverModels.ReceiveQuestion{
+			Content: "spoon",
+		}, http.StatusOK,
+	},
+	{
+		"Bad request invalid round, fibbing_it",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{
+			Content: "spoon",
+			Round:   "likely2",
+		}, http.StatusBadRequest,
+	},
+	{
+		"Bad request invalid content, fibbing_it",
+		"fibbing_it",
+		&serverModels.ReceiveQuestion{}, http.StatusBadRequest,
+	},
+	{
+		"Game does not exist",
+		"quibly v3",
+		&serverModels.ReceiveQuestion{
+			Content: "super love",
 		}, http.StatusNotFound,
 	},
 }

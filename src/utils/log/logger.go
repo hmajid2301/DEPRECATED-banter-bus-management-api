@@ -1,4 +1,4 @@
-// Package logger is
+// Package logger is used to manage the logging in the project.
 package logger
 
 import (

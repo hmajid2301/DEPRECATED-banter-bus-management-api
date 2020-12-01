@@ -1,4 +1,4 @@
-// Package config ...
+// Package config is used to manage the configuration for the project
 package config
 
 import (

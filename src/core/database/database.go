@@ -167,8 +167,8 @@ func RemoveCollection(collectionName string) {
 	}
 }
 
-// UpdateEntry updates an existing entry in the database.
-func UpdateEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
+// UpsertEntry updates an existing entry in the database.
+func UpsertEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
 	log.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
@@ -178,7 +178,24 @@ func UpdateEntry(collectionName string, filter interface{}, update interface{}) 
 	updated, err := modifyEntry(collectionName, filter, update, "$set")
 
 	if err != nil {
+		log.Error("Failed to upsert entry", err)
+	}
+	return updated, nil
+}
+
+// RemoveEntry updates an existing entry in the database.
+func RemoveEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
+	log.WithFields(log.Fields{
+		"collection": collectionName,
+		"filter":     filter,
+		"update":     update,
+	}).Debug("Update item in database.")
+
+	updated, err := modifyEntry(collectionName, filter, update, "$unset")
+
+	if err != nil {
 		log.Error("Failed to update entry", err)
+		return false, err
 	}
 	return updated, nil
 }

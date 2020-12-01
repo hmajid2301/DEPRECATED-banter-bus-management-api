@@ -18,3 +18,7 @@ Three main ways to contribute to this project are;
 ## Getting help
 
 If you need any help please free feel to get in contact with me.
+
+## Documentation
+
+You can find the documentation for the project [here](https://gitlab.com/banter-bus/banter-bus-docs).

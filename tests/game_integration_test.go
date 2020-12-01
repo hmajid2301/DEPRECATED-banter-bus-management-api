@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"banter-bus-server/src/server/models"
+	serverModels "banter-bus-server/src/server/models"
 	"banter-bus-server/tests/data"
 
 	"github.com/gavv/httpexpect"
@@ -15,6 +15,15 @@ func (s *Tests) SubTestAddGame(t *testing.T) {
 	for _, tc := range data.AddGame {
 		testName := fmt.Sprintf("Add New Game: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
+			gameData, ok := tc.Payload.(*serverModels.ReceiveGame)
+
+			if ok && tc.ExpectedStatus == http.StatusCreated {
+				endpoint := fmt.Sprintf("/game/%s", gameData.Name)
+				s.httpExpect.DELETE(endpoint).
+					Expect().
+					Status(http.StatusOK)
+			}
+
 			s.httpExpect.POST("/game").
 				WithJSON(tc.Payload).
 				Expect().
@@ -28,7 +37,7 @@ func (s *Tests) SubTestAddGame(t *testing.T) {
 }
 
 func (s *Tests) SubTestGetAllGames(t *testing.T) {
-	for _, tc := range data.GetAllGame {
+	for _, tc := range data.GetAllGames {
 		testName := fmt.Sprintf("Get All Games: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
 			var response *httpexpect.Request
@@ -65,7 +74,7 @@ func (s *Tests) SubTestRemoveGame(t *testing.T) {
 				Status(tc.ExpectedStatus)
 
 			if tc.ExpectedStatus == http.StatusOK {
-				getGame(tc.Name, http.StatusNotFound, models.Game{}, s.httpExpect)
+				getGame(tc.Name, http.StatusNotFound, serverModels.Game{}, s.httpExpect)
 			}
 		})
 	}
@@ -103,7 +112,7 @@ func (s *Tests) SubTestDisableGame(t *testing.T) {
 	}
 }
 
-func getGame(game string, expectedStatus int, expectedResult models.Game, httpExpect *httpexpect.Expect) {
+func getGame(game string, expectedStatus int, expectedResult serverModels.Game, httpExpect *httpexpect.Expect) {
 	endpoint := fmt.Sprintf("/game/%s", game)
 	response := httpExpect.GET(endpoint).
 		Expect().
