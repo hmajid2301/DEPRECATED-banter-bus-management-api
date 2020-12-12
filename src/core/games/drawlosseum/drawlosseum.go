@@ -1,8 +1,12 @@
 package drawlosseum
 
 import (
+	"errors"
+
 	"banter-bus-server/src/core/database"
 	"banter-bus-server/src/core/models"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Drawlosseum type that implements PlayableGame.
@@ -34,9 +38,16 @@ func (d Drawlosseum) GetQuestionPath() string {
 
 // QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
 // a client.
-func (d Drawlosseum) QuestionPoolToGenericQuestions(questions interface{}) []models.GenericQuestion {
+func (d Drawlosseum) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
 	var newGenericQuestions []models.GenericQuestion
-	drawlosseumQuestions := questions.(models.DrawlosseumQuestionsPool)
+	drawlosseumQuestions, ok := questions.(models.DrawlosseumQuestionsPool)
+
+	if !ok {
+		errorMessage := "failed to convert type to DrawlosseumQuestionsPool"
+		log.Error(errorMessage)
+		return []models.GenericQuestion{}, errors.New(errorMessage)
+	}
+
 	for _, question := range drawlosseumQuestions.Drawings {
 		question := models.GenericQuestion{
 			Content: question,
@@ -44,5 +55,5 @@ func (d Drawlosseum) QuestionPoolToGenericQuestions(questions interface{}) []mod
 		newGenericQuestions = append(newGenericQuestions, question)
 	}
 
-	return newGenericQuestions
+	return newGenericQuestions, nil
 }

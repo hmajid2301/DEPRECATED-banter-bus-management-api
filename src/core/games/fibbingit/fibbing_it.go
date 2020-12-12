@@ -7,6 +7,7 @@ import (
 	"banter-bus-server/src/core/models"
 
 	"github.com/juju/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // FibbingIt type that implements PlayableGames.
@@ -67,10 +68,15 @@ func (f FibbingIt) ValidateQuestionInput() error {
 
 // QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
 // a client.
-func (f FibbingIt) QuestionPoolToGenericQuestions(questions interface{}) []models.GenericQuestion {
-	fibbingItQuestions := questions.(models.FibbingItQuestionsPool)
-	var newGenericQuestions []models.GenericQuestion
+func (f FibbingIt) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
+	fibbingItQuestions, ok := questions.(models.FibbingItQuestionsPool)
+	if !ok {
+		errorMessage := "Failed to convert type to FibbingItQuestionsPool."
+		log.Error(errorMessage)
+		return []models.GenericQuestion{}, errors.New(errorMessage)
+	}
 
+	var newGenericQuestions []models.GenericQuestion
 	likelyQuestions := likelyQuestionsToGenericQuestion(fibbingItQuestions.Likely)
 	newGenericQuestions = append(newGenericQuestions, likelyQuestions...)
 	freeFormQuestions := freeFormQuestionsToGenericQuestion(fibbingItQuestions.FreeForm)
@@ -78,7 +84,7 @@ func (f FibbingIt) QuestionPoolToGenericQuestions(questions interface{}) []model
 	opinionQuestions := opinionQuestionsToGenericQuestions(fibbingItQuestions.Opinion)
 	newGenericQuestions = append(newGenericQuestions, opinionQuestions...)
 
-	return newGenericQuestions
+	return newGenericQuestions, nil
 }
 
 func likelyQuestionsToGenericQuestion(likely []string) []models.GenericQuestion {

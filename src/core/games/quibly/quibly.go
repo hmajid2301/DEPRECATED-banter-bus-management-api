@@ -6,6 +6,8 @@ import (
 	"banter-bus-server/src/core/database"
 	"banter-bus-server/src/core/models"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/juju/errors"
 )
 
@@ -51,9 +53,15 @@ func (q Quibly) ValidateQuestionInput() error {
 
 // QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
 // a client.
-func (q Quibly) QuestionPoolToGenericQuestions(questions interface{}) []models.GenericQuestion {
+func (q Quibly) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
 	var newGenericQuestions []models.GenericQuestion
-	quiblyQuestions := questions.(models.QuiblyQuestionsPool)
+	quiblyQuestions, ok := questions.(models.QuiblyQuestionsPool)
+
+	if !ok {
+		errorMessage := "Failed to convert type to QuiblyQuestionsPool."
+		log.Error(errorMessage)
+		return []models.GenericQuestion{}, errors.New(errorMessage)
+	}
 
 	questionsGroup := map[string]interface{}{
 		"pair":    quiblyQuestions.Pair,
@@ -71,5 +79,5 @@ func (q Quibly) QuestionPoolToGenericQuestions(questions interface{}) []models.G
 		}
 	}
 
-	return newGenericQuestions
+	return newGenericQuestions, nil
 }

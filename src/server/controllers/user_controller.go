@@ -83,7 +83,6 @@ func GetUser(_ *gin.Context, params *serverModels.UserParams) (*serverModels.Use
 	userLogger.Debug("Trying to add new user type.")
 
 	userFromDB, err := core.GetUser(params.Username)
-
 	if err != nil {
 		userLogger.WithFields(log.Fields{
 			"err": err,
@@ -92,7 +91,6 @@ func GetUser(_ *gin.Context, params *serverModels.UserParams) (*serverModels.Use
 	}
 
 	returnedUser := newUser(userFromDB)
-
 	return returnedUser, nil
 }
 
@@ -117,7 +115,6 @@ func newUser(userFromDB *models.User) *serverModels.User {
 			LanguageCode: userFromDB.Preferences.LanguageCode,
 		},
 		Friends: extractUserFriends(userFromDB),
-		Stories: extractUserStories(userFromDB),
 	}
 
 	return returnedUser
@@ -134,32 +131,7 @@ func extractUserFriends(user *models.User) []serverModels.Friend {
 	return friends
 }
 
-func extractUserStories(user *models.User) []serverModels.Story {
-	var stories []serverModels.Story
-
-	for _, story := range user.Stories {
-		var answers []serverModels.StoryAnswer
-		for _, storyAnswer := range story.Answers {
-			returnableStoryAnswer := serverModels.StoryAnswer{
-				Answer: storyAnswer.Answer,
-				Votes:  storyAnswer.Votes,
-			}
-			answers = append(answers, returnableStoryAnswer)
-		}
-
-		returnableStory := serverModels.Story{
-			GameName: story.GameName,
-			Question: story.Question,
-			Answers:  answers,
-		}
-
-		stories = append(stories, returnableStory)
-	}
-
-	return stories
-}
-
-// GetUserPools returns all the users questions pool.
+// GetUserPools returns all the user's questions pool.
 func GetUserPools(_ *gin.Context, params *serverModels.UserParams) ([]serverModels.QuestionPool, error) {
 	userLogger := log.WithFields(log.Fields{
 		"username": params.Username,
@@ -222,4 +194,131 @@ func newQuestionPoolGenericQuestion(question models.GenericQuestion) serverModel
 	}
 
 	return newQuestion
+}
+
+// GetUserStories returns all the user's stories.
+func GetUserStories(_ *gin.Context, params *serverModels.UserParams) ([]serverModels.Story, error) {
+	userLogger := log.WithFields(log.Fields{
+		"username": params.Username,
+	})
+	userLogger.Debug("Trying to get user stories.")
+	userStories, err := core.GetUserStories(params.Username)
+	if err != nil {
+		userLogger.WithFields(log.Fields{
+			"err": err,
+		}).Warn(("User doesn't exists"))
+		return []serverModels.Story{}, errors.NotFoundf("The user %s", params.Username)
+	}
+
+	stories := getUserStories(userStories)
+	return stories, nil
+}
+
+func getUserStories(userStories []models.Story) []serverModels.Story {
+	stories := []serverModels.Story{}
+
+	for _, story := range userStories {
+		switch story.GameName {
+		case "quibly":
+			newStory := newQuiblyStory(story)
+			stories = append(stories, newStory)
+		case "fibbing_it":
+			newStory := newFibbingItStory(story)
+			stories = append(stories, newStory)
+		case "drawlosseum":
+			newStory := newDrawlosseumStory(story)
+			stories = append(stories, newStory)
+		}
+	}
+
+	return stories
+}
+
+func newQuiblyStory(story models.Story) serverModels.Story {
+	quiblyAnswers := newAnswersQuibly(story.Answers)
+	newQuiblyStory := serverModels.Story{
+		Question: story.Question,
+		Round:    story.Round,
+		StoryAnswers: serverModels.StoryAnswers{
+			Quibly: quiblyAnswers,
+		},
+	}
+	return newQuiblyStory
+}
+
+func newAnswersQuibly(answers interface{}) []serverModels.StoryQuibly {
+	quiblyAnswers := answers.([]models.StoryQuibly)
+
+	var newAnswersQuibly []serverModels.StoryQuibly
+	for _, answer := range quiblyAnswers {
+		newAnswer := serverModels.StoryQuibly{
+			Nickname: answer.Nickname,
+			Answer:   answer.Answer,
+			Votes:    answer.Votes,
+		}
+		newAnswersQuibly = append(newAnswersQuibly, newAnswer)
+	}
+
+	return newAnswersQuibly
+}
+
+func newFibbingItStory(story models.Story) serverModels.Story {
+	fibbingItAnswers := newAnswersFibbingIt(story.Answers)
+	newFibbingItStory := serverModels.Story{
+		Question: story.Question,
+		Round:    story.Round,
+		StoryAnswers: serverModels.StoryAnswers{
+			FibbingIt: fibbingItAnswers,
+		},
+	}
+	return newFibbingItStory
+}
+
+func newAnswersFibbingIt(answers interface{}) []serverModels.StoryFibbingIt {
+	fibbingItAnswers := answers.([]models.StoryFibbingIt)
+
+	var newAnswersFibbingIt []serverModels.StoryFibbingIt
+	for _, answer := range fibbingItAnswers {
+		newAnswer := serverModels.StoryFibbingIt{
+			Nickname: answer.Nickname,
+			Answer:   answer.Answer,
+		}
+		newAnswersFibbingIt = append(newAnswersFibbingIt, newAnswer)
+	}
+
+	return newAnswersFibbingIt
+}
+
+func newDrawlosseumStory(story models.Story) serverModels.Story {
+	drawlosseumAnswers := newAnswersDrawlosseum(story.Answers)
+	newDrawlosseumStory := serverModels.Story{
+		Question: story.Question,
+		Nickname: story.Nickname,
+		StoryAnswers: serverModels.StoryAnswers{
+			Drawlosseum: drawlosseumAnswers,
+		},
+	}
+	return newDrawlosseumStory
+}
+
+func newAnswersDrawlosseum(answers interface{}) []serverModels.StoryDrawlosseum {
+	drawlosseumAnswers := answers.([]models.StoryDrawlosseum)
+
+	var newAnswersDrawlosseum []serverModels.StoryDrawlosseum
+	for _, answer := range drawlosseumAnswers {
+		newAnswer := serverModels.StoryDrawlosseum{
+			Color: answer.Color,
+			Start: serverModels.DrawlosseumDrawingPoint{
+				X: answer.Start.X,
+				Y: answer.Start.Y,
+			},
+			End: serverModels.DrawlosseumDrawingPoint{
+				X: answer.End.X,
+				Y: answer.End.Y,
+			},
+		}
+		newAnswersDrawlosseum = append(newAnswersDrawlosseum, newAnswer)
+	}
+
+	return newAnswersDrawlosseum
 }

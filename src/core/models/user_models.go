@@ -13,22 +13,44 @@ type User struct {
 	Privacy       string           `bson:"privacy,omitempty"`
 	Membership    string           `bson:"membership,omitempty"`
 	Preferences   *UserPreferences `bson:"preferences,omitempty"`
-	Friends       []Friend         `bson:"friends,omitempty"`
-	Stories       []Story          `bson:"stories,omitempty"`
-	QuestionPools []QuestionPool   `bson:"question_pools,omitempty" json:"question_pools,omitempty"`
+	Friends       []Friend         `bson:"friends"`
+	Stories       []Story          `bson:"stories"`
+	QuestionPools []QuestionPool   `bson:"question_pools"        json:"question_pools"`
 }
 
 // Story struct to contain information about a user story
 type Story struct {
-	GameName string        `bson:"game_name" json:"game_name"`
-	Question string        `bson:"question"`
-	Answers  []StoryAnswer `bson:"answers"`
+	GameName string      `bson:"game_name"          json:"game_name"`
+	Question string      `bson:"question"`
+	Round    string      `bson:"round,omitempty"`
+	Nickname string      `bson:"nickname,omitempty"`
+	Answers  interface{} `bson:"answers"`
 }
 
-// StoryAnswer struct to contain information needed to store an answer for a player's story
-type StoryAnswer struct {
-	Answer string `bson:"answer"`
-	Votes  int    `bson:"votes"`
+// StoryFibbingIt contains information about the Fibbing It answers for user stories
+type StoryFibbingIt struct {
+	Nickname string `bson:"nickname"`
+	Answer   string `bson:"answer"`
+}
+
+// StoryQuibly contains information about the Quibly answers for user stories
+type StoryQuibly struct {
+	Nickname string `bson:"nickname"`
+	Answer   string `bson:"answer"`
+	Votes    int    `bson:"votes"`
+}
+
+// StoryDrawlosseum contains information about the Drawlosseum answers for user stories
+type StoryDrawlosseum struct {
+	Start DrawlosseumDrawingPoint `bson:"start"`
+	End   DrawlosseumDrawingPoint `bson:"end"`
+	Color string                  `bson:"color"`
+}
+
+// DrawlosseumDrawingPoint contains information about a point in a Drawlosseum drawing
+type DrawlosseumDrawingPoint struct {
+	X float32 `bson:"x"`
+	Y float32 `bson:"y"`
 }
 
 // UserPreferences struct to hold information on a user's preferences
@@ -69,37 +91,18 @@ type FibbingItQuestionsPool struct {
 }
 
 // UnmarshalBSONValue is a custom unmarshall function, that will unmarshall question pools differently, i.e. questions
-// field depending on the game name. As each has it's own question structure.
+// field depending on the game name. As each has it's own question structure. The main purpose is just to get
+// the raw BSON data for the `Questions` field.
 //
-// The first unmarshall gets the Raw BSON data. The Raw BSON data allows us to unmarshall sub-objects like `Questions`
-// field to a specific struct.
-//
-// The second unmarshall converts the raw BSON data into a `QuestionPool` struct, note the `Questions` field is type
-// `interface{}`. However we need it to be one of the types of the game.
-//
-// Next, we unmarshall the `Questions` field into raw BSON data. This way we only have raw BSON data related to
-// `Questions` field.
-//
-// Finally, we work out the type of game, using `GameName`. Depending on the game we unmarshall the data into different
+// Then, we work out the type of game, using `GameName`. Depending on the game we unmarshall the data into different
 // structs and assign that to the `Questions` field of that `questionPool` variable, which is of type `QuestionPool`.
 // The `questionPool`, is what is returned when we get the `QuestionPool` data from the database.
 func (questionPool *QuestionPool) UnmarshalBSONValue(t bsontype.Type, data []byte) error {
-	var rawData bson.Raw
-	err := bson.Unmarshal(data, &rawData)
-	if err != nil {
-		return err
-	}
-
-	err = rawData.Unmarshal(&questionPool)
-	if err != nil {
-		return err
-	}
-
 	var questions struct {
 		Questions bson.Raw
 	}
 
-	err = rawData.Unmarshal(&questions)
+	err := unmarshalBSONToStruct(data, &questionPool, &questions)
 	if err != nil {
 		return err
 	}
@@ -122,4 +125,75 @@ func (questionPool *QuestionPool) UnmarshalBSONValue(t bsontype.Type, data []byt
 	}
 
 	return err
+}
+
+// UnmarshalBSONValue is a custom unmarshall function, that will unmarshall question pools differently, i.e. answers
+// field depending on the game name. As each has it's own question structure. The main purpose is just to get
+// the raw BSON data for the `Answers` field.
+//
+// Then, we work out the type of game, using `GameName`. Depending on the game we unmarshall the data into different
+// structs and assign that to the `Questions` field of that `story` variable, which is of type `Story`.
+// The `story`, is what is returned when we get the `Story` data from the database.
+func (story *Story) UnmarshalBSONValue(t bsontype.Type, data []byte) error {
+	var answers struct {
+		Answers bson.Raw
+	}
+
+	err := unmarshalBSONToStruct(data, &story, &answers)
+	if err != nil {
+		return err
+	}
+
+	switch story.GameName {
+	case "drawlosseum":
+		storyStructure := []StoryDrawlosseum{}
+		err = answers.Answers.Unmarshal(&storyStructure)
+		story.Answers = storyStructure
+	case "quibly":
+		storyStructure := []StoryQuibly{}
+		err = answers.Answers.Unmarshal(&storyStructure)
+		story.Answers = storyStructure
+	case "fibbing_it":
+		storyStructure := []StoryFibbingIt{}
+		err = answers.Answers.Unmarshal(&storyStructure)
+		story.Answers = storyStructure
+	default:
+		return errors.Errorf("Unknown game name %s", story.GameName)
+	}
+
+	return err
+}
+
+// unmarshalBSONToStruct is a custom unmarshal function, that will unmarshal BSON to structs.
+// This function is to be used when a subfield can take multiple types i.e. storing question
+// data differently for different games. It will unmarshal that field (polymorphic one)
+// i.e. `Questions`, into BSON raw data. This can then be cast into the correct struct for
+// the polymorphic field.
+//
+// The first unmarshal gets the Raw BSON data. The Raw BSON data allows us to unmarshal sub-objects like `Questions`
+// field to a specific struct.
+//
+// The second unmarshal converts the raw BSON data into a struct i.e. `QuestionPool`, note in this example `Questions`
+//  field is type `interface{}`.
+//
+// Next, we unmarshal the subField into raw BSON data, in the example above this would be the `Questions` field.
+// This way we only have raw BSON data related to that field and can be cast appropriate.
+func unmarshalBSONToStruct(data []byte, structType interface{}, subField interface{}) error {
+	var rawData bson.Raw
+	err := bson.Unmarshal(data, &rawData)
+	if err != nil {
+		return err
+	}
+
+	err = rawData.Unmarshal(structType)
+	if err != nil {
+		return err
+	}
+
+	err = rawData.Unmarshal(subField)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

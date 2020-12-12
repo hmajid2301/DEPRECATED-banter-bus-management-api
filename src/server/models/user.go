@@ -8,7 +8,6 @@ type User struct {
 	Membership  string           `json:"membership"  description:"The level of membership the user has." example:"free"`
 	Preferences *UserPreferences `json:"preferences" description:"Collection of user preferences."`
 	Friends     []Friend         `json:"friends"     description:"List of friends the user has."`
-	Stories     []Story          `json:"stories"     description:"Details of stories the user has."`
 }
 
 // UserPreferences struct to hold information on a user's preferences

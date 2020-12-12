@@ -16,7 +16,7 @@ type PlayableGame interface {
 	AddGame(string) (bool, error)
 	GetQuestionPath() string
 	ValidateQuestionInput() error
-	QuestionPoolToGenericQuestions(interface{}) []GenericQuestion
+	QuestionPoolToGenericQuestions(interface{}) ([]GenericQuestion, error)
 }
 
 // More efficient way of storing strings for lookup than a slice

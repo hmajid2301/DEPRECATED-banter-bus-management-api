@@ -59,7 +59,7 @@ func GetAllUsers(adminFilter *bool, privacyFilter *string, membershipFilter *str
 // GetUser gets a user with a given username
 func GetUser(username string) (*models.User, error) {
 	var (
-		filter = models.User{Username: username}
+		filter = map[string]string{"username": username}
 		user   *models.User
 	)
 
@@ -95,7 +95,7 @@ func RemoveUser(username string) error {
 		return errors.NotFoundf("The user %s", username)
 	}
 
-	filter := &models.User{Username: username}
+	filter := map[string]string{"username": username}
 
 	deleted, err := database.Delete("user", filter)
 	if !deleted || err != nil {
@@ -112,11 +112,21 @@ func newGenericQuestions(name string, questions interface{}) ([]models.GenericQu
 		return nil, err
 	}
 
-	genericQuestions = gameType.QuestionPoolToGenericQuestions(questions)
-	return genericQuestions, nil
+	genericQuestions, err = gameType.QuestionPoolToGenericQuestions(questions)
+	return genericQuestions, err
 }
 
 func doesUserExist(username string) bool {
 	user, _ := GetUser(username)
 	return user.Username != ""
+}
+
+// GetUserStories gets a specific user's stories.
+func GetUserStories(username string) ([]models.Story, error) {
+	user, err := GetUser(username)
+	if err != nil {
+		return []models.Story{}, err
+	}
+
+	return user.Stories, nil
 }

@@ -73,6 +73,22 @@ func (s *Tests) SubTestRemoveUser(t *testing.T) {
 		})
 	}
 }
+
+func (s *Tests) SubTestGetUserStory(t *testing.T) {
+	for _, tc := range data.GetUserStories {
+		testName := fmt.Sprintf("Get User Stories: %s", tc.TestDescription)
+		t.Run(testName, func(t *testing.T) {
+			endpoint := fmt.Sprintf("/user/%s/story", tc.Username)
+			response := s.httpExpect.GET(endpoint).
+				Expect().
+				Status(tc.ExpectedStatus)
+
+			if tc.ExpectedStatus == http.StatusOK {
+				response.JSON().Array().Equal(tc.ExpectedResult)
+			}
+		})
+	}
+}
 func getUser(user string, expectedStatus int, expectedResult serverModels.User, httpExpect *httpexpect.Expect) {
 	endpoint := fmt.Sprintf("/user/%s", user)
 	response := httpExpect.GET(endpoint).
