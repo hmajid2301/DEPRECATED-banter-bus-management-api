@@ -1,0 +1,136 @@
+{
+  "users": [
+    {
+      "username": "virat_kohli",
+      "admin": false,
+      "privacy": "public",
+      "membership": "paid",
+      "preferences": {
+        "languagecode": "pa"
+      },
+      "friends": [
+        {
+          "username": "roh1t_sharma"
+        },
+        {
+          "username": "dhawanShikhar"
+        }
+      ],
+      "stories": [
+        {
+          "game_name": "quibly",
+          "question": "how many fish are there?",
+          "answers": [
+            {
+              "answer": "one",
+              "votes": 12341
+            },
+            {
+              "answer": "many",
+              "votes": 0
+            }
+          ]
+        }
+      ],
+      "question_pools": [
+        {
+          "pool_name": "my_pool",
+          "game_name": "fibbing_it",
+          "privacy": "public",
+          "questions": {
+            "opinion": {
+              "horse_group": {
+                "questions": [
+                  "What do you think about horses?",
+                  "What do you think about camels?"
+                ],
+                "answers": ["lame", "tasty"]
+              }
+            },
+            "free_form": {
+              "bike_group": ["Favourite bike colour?", "A funny question?"]
+            },
+            "likely": ["to eat ice-cream from the tub", "to get arrested"]
+          }
+        },
+        {
+          "pool_name": "my_pool2",
+          "game_name": "quibly",
+          "privacy": "private",
+          "questions": {
+            "pair": [
+              "What do you think about horses?",
+              "What do you think about camels?"
+            ],
+            "answers": ["Favourite bike colour?", "A funny question?"]
+          }
+        }
+      ]
+    },
+    {
+      "username": "roh1t_sharma",
+      "admin": true,
+      "privacy": "private",
+      "membership": "free",
+      "preferences": {
+        "languagecode": "mr"
+      },
+      "friends": [
+        {
+          "username": "virat_kohli"
+        }
+      ],
+      "stories": [],
+      "question_pools": []
+    },
+    {
+      "username": "dhawanShikhar",
+      "admin": false,
+      "privacy": "private",
+      "membership": "paid",
+      "preferences": {
+        "languagecode": "hi"
+      },
+      "friends": [
+        {
+          "username": "virat_kohli"
+        }
+      ],
+      "stories": [
+        {
+          "game_name": "quibly",
+          "question": "how many fish are there?",
+          "answers": [
+            {
+              "answer": "one",
+              "votes": 12341
+            },
+            {
+              "answer": "many",
+              "votes": 0
+            }
+          ]
+        }
+      ],
+      "question_pools": [
+        {
+          "pool_name": "draw_me",
+          "game_name": "drawlosseum",
+          "privacy": "friends",
+          "questions": { "drawings": ["horses", "camels"] }
+        },
+        {
+          "pool_name": "my_unique_pool2",
+          "game_name": "quibly",
+          "privacy": "public",
+          "questions": {
+            "group": [
+              "What do you think about horses?",
+              "What do you think about camels?"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

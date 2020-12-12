@@ -31,3 +31,18 @@ func (d Drawlosseum) ValidateQuestionInput() error {
 func (d Drawlosseum) GetQuestionPath() string {
 	return "questions.drawings"
 }
+
+// QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
+// a client.
+func (d Drawlosseum) QuestionPoolToGenericQuestions(questions interface{}) []models.GenericQuestion {
+	var newGenericQuestions []models.GenericQuestion
+	drawlosseumQuestions := questions.(models.DrawlosseumQuestionsPool)
+	for _, question := range drawlosseumQuestions.Drawings {
+		question := models.GenericQuestion{
+			Content: question,
+		}
+		newGenericQuestions = append(newGenericQuestions, question)
+	}
+
+	return newGenericQuestions
+}

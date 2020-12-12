@@ -11,10 +11,6 @@ import (
 	serverModels "banter-bus-server/src/server/models"
 )
 
-// TODO: Add New Question Content -> EN, default EN
-// TODO: Update with translation
-// TODO: Filter using Structs
-
 // AddQuestion adds a new question to a game.
 func AddQuestion(_ *gin.Context, questionInput *serverModels.ReceiveQuestionInput) error {
 	var (

@@ -44,6 +44,22 @@ func (s *Tests) SubTestGetAllUsers(t *testing.T) {
 	}
 }
 
+func (s *Tests) SubTestGetUserPools(t *testing.T) {
+	for _, tc := range data.GetUserPools {
+		testName := fmt.Sprintf("Get User Question Pools: %s", tc.TestDescription)
+		t.Run(testName, func(t *testing.T) {
+			endpoint := fmt.Sprintf("/user/%s/pool", tc.Username)
+			response := s.httpExpect.GET(endpoint).
+				Expect().
+				Status(tc.ExpectedStatus)
+
+			if tc.ExpectedStatus == http.StatusOK {
+				response.JSON().Array().Equal(tc.ExpectedResult)
+			}
+		})
+	}
+}
+
 func getUser(user string, expectedStatus int, expectedResult serverModels.User, httpExpect *httpexpect.Expect) {
 	endpoint := fmt.Sprintf("/user/%s", user)
 	response := httpExpect.GET(endpoint).

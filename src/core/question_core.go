@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"banter-bus-server/src/core/database"
-	"banter-bus-server/src/core/games"
 	"banter-bus-server/src/core/models"
 
 	"github.com/juju/errors"
@@ -134,7 +133,7 @@ func UpdateEnableQuestion(gameName string, enabled bool, question models.Generic
 	return updated, err
 }
 
-func validateAndGetGameType(gameName string, question models.GenericQuestion) (games.PlayableGame, error) {
+func validateAndGetGameType(gameName string, question models.GenericQuestion) (models.PlayableGame, error) {
 	game, _ := GetGame(gameName)
 	if game.Name == "" {
 		return nil, errors.NotFoundf("The game %s", gameName)

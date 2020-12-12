@@ -65,10 +65,39 @@ func GetUser(username string) (*models.User, error) {
 
 	err := database.Get("user", filter, &user)
 	if err != nil {
-		return &models.User{}, err
+		return &models.User{}, errors.NotFoundf("User %s", username)
 	}
 
 	return user, nil
+}
+
+// GetUserPools gets a specific user's question pools
+func GetUserPools(username string) ([]models.QuestionPool, error) {
+	user, err := GetUser(username)
+	if err != nil {
+		return []models.QuestionPool{}, err
+	}
+	pools := user.QuestionPools
+	for index, pool := range pools {
+		genericQuestions, err := newGenericQuestions(pool.GameName, pool.Questions)
+		if err != nil {
+			return []models.QuestionPool{}, err
+		}
+		pools[index].Questions = genericQuestions
+	}
+
+	return pools, nil
+}
+
+func newGenericQuestions(name string, questions interface{}) ([]models.GenericQuestion, error) {
+	var genericQuestions []models.GenericQuestion
+	gameType, err := getGameType(name, models.GenericQuestion{})
+	if err != nil {
+		return nil, err
+	}
+
+	genericQuestions = gameType.QuestionPoolToGenericQuestions(questions)
+	return genericQuestions, nil
 }
 
 func doesUserExist(username string) bool {

@@ -2,7 +2,6 @@ package core
 
 import (
 	"banter-bus-server/src/core/database"
-	"banter-bus-server/src/core/games"
 	"banter-bus-server/src/core/games/drawlosseum"
 	"banter-bus-server/src/core/games/fibbingit"
 	"banter-bus-server/src/core/games/quibly"
@@ -102,8 +101,8 @@ func doesGameExist(name string) bool {
 	return game.Name != ""
 }
 
-func getGameType(name string, question models.GenericQuestion) (games.PlayableGame, error) {
-	var game games.PlayableGame
+func getGameType(name string, question models.GenericQuestion) (models.PlayableGame, error) {
+	var game models.PlayableGame
 	switch name {
 	case "quibly":
 		game = quibly.Quibly{CurrentQuestion: question}
@@ -112,7 +111,7 @@ func getGameType(name string, question models.GenericQuestion) (games.PlayableGa
 	case "drawlosseum":
 		game = drawlosseum.Drawlosseum{}
 	default:
-		return nil, errors.BadRequestf("Invalid game: %s", name)
+		return nil, errors.BadRequestf("Invalid game %s", name)
 	}
 
 	return game, nil

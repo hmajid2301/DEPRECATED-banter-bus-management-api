@@ -287,3 +287,144 @@ var GetUser = []struct {
 		serverModels.User{},
 	},
 }
+
+// GetUserPools is the test data for getting users.
+var GetUserPools = []struct {
+	TestDescription string
+	Username        string
+	ExpectedStatus  int
+	ExpectedResult  []serverModels.QuestionPool
+}{
+	{
+		"Get user pool for a user",
+		"virat_kohli",
+		http.StatusOK,
+		[]serverModels.QuestionPool{
+			{
+				PoolName: "my_pool",
+				GameName: "fibbing_it",
+				Privacy:  "public",
+				Questions: []serverModels.GenericQuestion{
+					{
+						Content: "to eat ice-cream from the tub",
+						Round:   "likely",
+					},
+					{
+						Content: "to get arrested",
+						Round:   "likely",
+					},
+					{
+						Content: "Favourite bike colour?",
+						Round:   "free_form",
+						Group: &serverModels.GenericQuestionGroup{
+							Name: "bike_group",
+						},
+					},
+					{
+						Content: "A funny question?",
+						Round:   "free_form",
+						Group: &serverModels.GenericQuestionGroup{
+							Name: "bike_group",
+						},
+					},
+					{
+						Content: "What do you think about horses?",
+						Round:   "opinion",
+						Group: &serverModels.GenericQuestionGroup{
+							Name: "horse_group",
+							Type: "questions",
+						},
+					},
+					{
+						Content: "What do you think about camels?",
+						Round:   "opinion",
+						Group: &serverModels.GenericQuestionGroup{
+							Name: "horse_group",
+							Type: "questions",
+						},
+					},
+					{
+						Content: "lame",
+						Round:   "opinion",
+						Group: &serverModels.GenericQuestionGroup{
+							Name: "horse_group",
+							Type: "answers",
+						},
+					},
+					{
+						Content: "tasty",
+						Round:   "opinion",
+						Group: &serverModels.GenericQuestionGroup{
+							Name: "horse_group",
+							Type: "answers",
+						},
+					},
+				},
+			},
+			{
+				PoolName: "my_pool2",
+				GameName: "quibly",
+				Privacy:  "private",
+				Questions: []serverModels.GenericQuestion{
+					{
+						Content: "What do you think about horses?",
+						Round:   "pair",
+					},
+					{
+						Content: "What do you think about camels?",
+						Round:   "pair",
+					},
+					{
+						Content: "Favourite bike colour?",
+						Round:   "answers",
+					},
+					{
+						Content: "A funny question?",
+						Round:   "answers",
+					},
+				},
+			},
+		},
+	},
+	{
+		"Get another user pool",
+		"dhawanShikhar",
+		http.StatusOK,
+		[]serverModels.QuestionPool{
+			{
+				PoolName: "draw_me",
+				GameName: "drawlosseum",
+				Privacy:  "friends",
+				Questions: []serverModels.GenericQuestion{
+					{
+						Content: "horses",
+					},
+					{
+						Content: "camels",
+					},
+				},
+			},
+			{
+				PoolName: "my_unique_pool2",
+				GameName: "quibly",
+				Privacy:  "public",
+				Questions: []serverModels.GenericQuestion{
+					{
+						Content: "What do you think about horses?",
+						Round:   "group",
+					},
+					{
+						Content: "What do you think about camels?",
+						Round:   "group",
+					},
+				},
+			},
+		},
+	},
+	{
+		"Get a user pool for a user that doesn't exists",
+		"azharAli",
+		http.StatusNotFound,
+		[]serverModels.QuestionPool{},
+	},
+}

@@ -22,9 +22,9 @@ func (q Quibly) AddGame(rulesURL string) (bool, error) {
 		RulesURL: rulesURL,
 		Enabled:  &t,
 		Questions: &models.QuiblyQuestions{
-			Pair:   []models.Question{},
-			Answer: []models.Question{},
-			Group:  []models.Question{},
+			Pair:    []models.Question{},
+			Answers: []models.Question{},
+			Group:   []models.Question{},
 		},
 	}
 
@@ -47,4 +47,29 @@ func (q Quibly) ValidateQuestionInput() error {
 		return errors.BadRequestf("Invalid round %s", question.Round)
 	}
 	return nil
+}
+
+// QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
+// a client.
+func (q Quibly) QuestionPoolToGenericQuestions(questions interface{}) []models.GenericQuestion {
+	var newGenericQuestions []models.GenericQuestion
+	quiblyQuestions := questions.(models.QuiblyQuestionsPool)
+
+	questionsGroup := map[string]interface{}{
+		"pair":    quiblyQuestions.Pair,
+		"answers": quiblyQuestions.Answers,
+		"group":   quiblyQuestions.Group,
+	}
+
+	for round, group := range questionsGroup {
+		for _, content := range group.([]string) {
+			question := models.GenericQuestion{
+				Content: content,
+				Round:   round,
+			}
+			newGenericQuestions = append(newGenericQuestions, question)
+		}
+	}
+
+	return newGenericQuestions
 }

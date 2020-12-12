@@ -22,16 +22,8 @@ type Tests struct {
 	httpExpect *httpexpect.Expect
 }
 
-type GameData struct {
-	Name      string                 `bson:"name"`
-	RulesURL  string                 `bson:"rules_url,omitempty" json:"rules_url,omitempty"`
-	Type      string                 `bson:"type,omitempty"`
-	Enabled   *bool                  `bson:"enabled,omitempty"`
-	Questions map[string]interface{} `bson:"questions"`
-}
-
 type TestData struct {
-	Games []GameData    `json:"games"`
+	Games []models.Game `json:"games"`
 	Users []models.User `json:"users"`
 }
 
@@ -68,8 +60,8 @@ func (s *Tests) Setup(t *testing.T) {
 func (s *Tests) Teardown(t *testing.T) {}
 
 func (s *Tests) BeforeEach(t *testing.T) {
-	InsertData("data/game_collection.json", "game")
-	InsertData("data/user_collection.json", "user")
+	InsertData("data/json/game_collection.json", "game")
+	InsertData("data/json/user_collection.json", "user")
 }
 
 func (s *Tests) AfterEach(t *testing.T) {
@@ -83,6 +75,7 @@ func TestSampleTests(t *testing.T) {
 
 func InsertData(dataFilePath string, collection string) {
 	data, _ := ioutil.ReadFile(dataFilePath)
+
 	var (
 		docs     *TestData
 		dataList []interface{}

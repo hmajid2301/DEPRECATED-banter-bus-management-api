@@ -15,7 +15,7 @@ func CreateUser(_ *gin.Context, user *serverModels.NewUser) error {
 	userLogger := log.WithFields(log.Fields{
 		"username": user.Username,
 	})
-	userLogger.Debug("Trying to add new user type.")
+	userLogger.Debug("Trying to add new user.")
 	err := core.AddUser(user.Username, user.Membership, user.Admin)
 
 	if err != nil {
@@ -105,9 +105,8 @@ func newUser(userFromDB *models.User) *serverModels.User {
 		Preferences: &serverModels.UserPreferences{
 			LanguageCode: userFromDB.Preferences.LanguageCode,
 		},
-		Friends:       extractUserFriends(userFromDB),
-		Stories:       extractUserStories(userFromDB),
-		QuestionPools: extractUserQuestionPools(userFromDB),
+		Friends: extractUserFriends(userFromDB),
+		Stories: extractUserStories(userFromDB),
 	}
 
 	return returnedUser
@@ -149,12 +148,67 @@ func extractUserStories(user *models.User) []serverModels.Story {
 	return stories
 }
 
-func extractUserQuestionPools(user *models.User) []serverModels.QuestionPool {
+// GetUserPools returns all the users questions pool.
+func GetUserPools(_ *gin.Context, params *serverModels.UserParams) ([]serverModels.QuestionPool, error) {
+	userLogger := log.WithFields(log.Fields{
+		"username": params.Username,
+	})
+	userLogger.Debug("Trying to get user pools.")
+	pools, err := core.GetUserPools(params.Username)
+
+	if err != nil {
+		userLogger.WithFields(log.Fields{
+			"err": err,
+		}).Warn(("User doesn't exists"))
+		return []serverModels.QuestionPool{}, errors.NotFoundf("The user %s", params.Username)
+	}
+
+	userPools := getUserPools(pools)
+	return userPools, nil
+}
+
+func getUserPools(questionPools []models.QuestionPool) []serverModels.QuestionPool {
 	var pools []serverModels.QuestionPool
 
-	for range user.QuestionPools {
-		// TODO implement properly when question pools are implemented properly
-		pools = append(pools, serverModels.QuestionPool{})
+	for _, pool := range questionPools {
+		newQuestionsList := newQuestionPoolGenericQuestionList(pool.Questions.([]models.GenericQuestion))
+		newPool := serverModels.QuestionPool{
+			PoolName:  pool.PoolName,
+			GameName:  pool.GameName,
+			Privacy:   pool.Privacy,
+			Questions: newQuestionsList,
+		}
+		pools = append(pools, newPool)
 	}
+
 	return pools
+}
+
+func newQuestionPoolGenericQuestionList(questions []models.GenericQuestion) []serverModels.GenericQuestion {
+	var newQuestionsList []serverModels.GenericQuestion
+
+	for _, question := range questions {
+		newGenericQuestion := newQuestionPoolGenericQuestion(question)
+		newQuestionsList = append(newQuestionsList, newGenericQuestion)
+	}
+
+	return newQuestionsList
+}
+
+func newQuestionPoolGenericQuestion(question models.GenericQuestion) serverModels.GenericQuestion {
+	var group *serverModels.GenericQuestionGroup
+	if question.Group != nil {
+		group = &serverModels.GenericQuestionGroup{
+			Name: question.Group.Name,
+			Type: question.Group.Type,
+		}
+	}
+
+	newQuestion := serverModels.GenericQuestion{
+		Content: question.Content,
+		Round:   question.Round,
+		Group:   group,
+	}
+
+	return newQuestion
 }
