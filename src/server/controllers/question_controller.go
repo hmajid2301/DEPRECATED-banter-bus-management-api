@@ -105,6 +105,20 @@ func DisableQuestion(_ *gin.Context, questionInput *serverModels.ReceiveQuestion
 	return updateEnableQuestionState(questionInput, false)
 }
 
+// GetAllGroups gets all group names from a certain round in a certain game
+func GetAllGroups(_ *gin.Context, groupInput *serverModels.GroupInput) ([]string, error) {
+	log.Debug("Trying to get all groups")
+	groups, err := core.GetGroups(groupInput.GameName, groupInput.Round)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Error("Failed to get groups")
+		return []string{}, err
+	}
+	return groups, nil
+}
+
 func updateEnableQuestionState(questionInput *serverModels.ReceiveQuestionInput, enable bool) (struct{}, error) {
 	var (
 		question = questionInput.ReceiveQuestion

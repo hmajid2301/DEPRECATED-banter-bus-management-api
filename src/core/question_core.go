@@ -1,13 +1,16 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
+	"sort"
 
 	"banter-bus-server/src/core/database"
 	"banter-bus-server/src/core/models"
 
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/text/language"
 )
 
@@ -99,7 +102,7 @@ func RemoveQuestion(gameName string, question models.GenericQuestion) error {
 		return err
 	}
 
-	questionToRemove := newEmtpyQuestion(questionPath, question.LanguageCode)
+	questionToRemove := newEmptyQuestion(questionPath, question.LanguageCode)
 	filter := newQuestionFilter(questionPath, gameName, question.Content, question.LanguageCode)
 
 	updated, err := database.RemoveEntry("game", filter, questionToRemove)
@@ -131,6 +134,44 @@ func UpdateEnableQuestion(gameName string, enabled bool, question models.Generic
 		return false, errors.Errorf("Failed to update question.")
 	}
 	return updated, err
+}
+
+// GetGroups gets all question group names for a given game type and round.
+func GetGroups(gameName string, round string) ([]string, error) {
+	game, err := GetGame(gameName)
+	if err != nil {
+		return nil, err
+	}
+
+	if !game.HasGroups(round) {
+		return nil, errors.NotFoundf("Cannot get question groups from round %s of game %s:", round, gameName)
+	}
+
+	bytesData, err := bson.MarshalExtJSON(game.Questions, true, true)
+	if err != nil {
+		return nil, err
+	}
+
+	var questions map[string]interface{}
+
+	err = json.Unmarshal(bytesData, &questions)
+	if err != nil {
+		return nil, err
+	}
+
+	groupInterface, roundPresent := questions[round]
+	if !roundPresent {
+		return nil, errors.NotFoundf("Cannot find round: %s", round)
+	}
+
+	groups := groupInterface.(map[string]interface{})
+
+	var groupList []string
+	for group := range groups {
+		groupList = append(groupList, group)
+	}
+	sort.Strings(groupList)
+	return groupList, nil
 }
 
 func validateAndGetGameType(gameName string, question models.GenericQuestion) (models.PlayableGame, error) {
@@ -203,7 +244,7 @@ func newQuestionFilter(
 	return filter
 }
 
-func newEmtpyQuestion(questionPath string, languageCode string) map[string]interface{} {
+func newEmptyQuestion(questionPath string, languageCode string) map[string]interface{} {
 	languagePath := fmt.Sprintf("content.%s", languageCode)
 	emptyObject := map[string]string{}
 	emptyQuestion := newQuestion(questionPath, languagePath, emptyObject)

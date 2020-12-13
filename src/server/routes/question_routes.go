@@ -50,12 +50,17 @@ func QuestionRoutes(grp *fizz.RouterGroup) {
 	grp.PUT("/enable", []fizz.OperationOption{
 		fizz.Summary("Enables a question."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil),
-		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game or question do not exist", serverModels.APIError{}, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game or question does not exist", serverModels.APIError{}, nil),
 	}, tonic.Handler(controllers.EnableQuestion, http.StatusOK))
 
 	grp.PUT("/disable", []fizz.OperationOption{
 		fizz.Summary("Disabled a question."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil),
-		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game or question do not exist", serverModels.APIError{}, nil),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game or question does not exist", serverModels.APIError{}, nil),
 	}, tonic.Handler(controllers.DisableQuestion, http.StatusOK))
+
+	grp.GET("/group", []fizz.OperationOption{
+		fizz.Summary("Get a list of question groups."),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game or round does not exist", serverModels.APIError{}, nil),
+	}, tonic.Handler(controllers.GetAllGroups, http.StatusOK))
 }

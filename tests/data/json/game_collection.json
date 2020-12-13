@@ -99,6 +99,14 @@
                 "en": "A funny question?"
               }
             }
+          ],
+          "cat_group": [
+            {
+              "enabled": true,
+              "content": {
+                "it": "Perché sono superiori i gatti di Liam?"
+              }
+            }
           ]
         },
         "likely": [
