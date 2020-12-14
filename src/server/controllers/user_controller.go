@@ -96,6 +96,17 @@ func GetUser(_ *gin.Context, params *serverModels.UserParams) (*serverModels.Use
 	return returnedUser, nil
 }
 
+// RemoveUser removes a user
+func RemoveUser(_ *gin.Context, user *serverModels.UserParams) error {
+	userLogger := log.WithFields(log.Fields{
+		"username": user.Username,
+	})
+	userLogger.Debug("Trying to add new user type.")
+
+	err := core.RemoveUser(user.Username)
+	return err
+}
+
 func newUser(userFromDB *models.User) *serverModels.User {
 	returnedUser := &serverModels.User{
 		Username:   userFromDB.Username,

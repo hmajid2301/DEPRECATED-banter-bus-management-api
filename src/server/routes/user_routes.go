@@ -25,6 +25,10 @@ func UserRoutes(grp *fizz.RouterGroup) {
 		fizz.Summary("Get a user."),
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "User not found", serverModels.APIError{}, nil),
 	}, tonic.Handler(controllers.GetUser, http.StatusOK))
+	grp.DELETE("/:name", []fizz.OperationOption{
+		fizz.Summary("Remove a user."),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "User not found", serverModels.APIError{}, nil),
+	}, tonic.Handler(controllers.RemoveUser, http.StatusOK))
 	grp.GET("/:name/pool", []fizz.OperationOption{
 		fizz.Summary("Get a user's question pools."),
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "User not found", serverModels.APIError{}, nil),

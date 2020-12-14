@@ -89,6 +89,22 @@ func GetUserPools(username string) ([]models.QuestionPool, error) {
 	return pools, nil
 }
 
+// RemoveUser removes a user from the database
+func RemoveUser(username string) error {
+	if !doesUserExist(username) {
+		return errors.NotFoundf("The user %s", username)
+	}
+
+	filter := &models.User{Username: username}
+
+	deleted, err := database.Delete("user", filter)
+	if !deleted || err != nil {
+		return errors.Errorf("Failed to remove user %s", username)
+	}
+
+	return nil
+}
+
 func newGenericQuestions(name string, questions interface{}) ([]models.GenericQuestion, error) {
 	var genericQuestions []models.GenericQuestion
 	gameType, err := getGameType(name, models.GenericQuestion{})

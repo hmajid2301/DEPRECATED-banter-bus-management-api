@@ -60,6 +60,19 @@ func (s *Tests) SubTestGetUserPools(t *testing.T) {
 	}
 }
 
+func (s *Tests) SubTestRemoveUser(t *testing.T) {
+	for _, tc := range data.RemoveUser {
+		testName := fmt.Sprintf("Remove User: %s", tc.TestDescription)
+		t.Run(testName, func(t *testing.T) {
+			endpoint := fmt.Sprintf("/user/%s", tc.Username)
+			s.httpExpect.DELETE(endpoint).Expect().Status(tc.ExpectedStatus)
+
+			if tc.ExpectedStatus == http.StatusOK {
+				getUser(tc.Username, http.StatusNotFound, serverModels.User{}, s.httpExpect)
+			}
+		})
+	}
+}
 func getUser(user string, expectedStatus int, expectedResult serverModels.User, httpExpect *httpexpect.Expect) {
 	endpoint := fmt.Sprintf("/user/%s", user)
 	response := httpExpect.GET(endpoint).

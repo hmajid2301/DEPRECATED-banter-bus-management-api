@@ -428,3 +428,31 @@ var GetUserPools = []struct {
 		[]serverModels.QuestionPool{},
 	},
 }
+
+// RemoveUser is the data for testing removing users
+var RemoveUser = []struct {
+	TestDescription string
+	Username        string
+	ExpectedStatus  int
+}{
+	{
+		"Remove an existing user",
+		"virat_kohli",
+		http.StatusOK,
+	},
+	{
+		"Remove a user that's already been removed",
+		"virat_kohli",
+		http.StatusNotFound,
+	},
+	{
+		"Remove another existing user",
+		"roh1t_sharma",
+		http.StatusOK,
+	},
+	{
+		"Try to remove a non-existent user",
+		"NaseemShah",
+		http.StatusNotFound,
+	},
+}
