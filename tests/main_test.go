@@ -8,43 +8,55 @@ import (
 	"os"
 	"testing"
 
-	"banter-bus-server/src/core/database"
-	"banter-bus-server/src/core/models"
-	"banter-bus-server/src/server"
-	"banter-bus-server/src/utils/config"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/repository"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/server"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/controllers"
 
 	"github.com/gavv/httpexpect"
 	"github.com/houqp/gtest"
-	"github.com/sirupsen/logrus"
 )
 
 type Tests struct {
 	httpExpect *httpexpect.Expect
+	DB         core.Repository
 }
 
 type TestData struct {
-	Games []models.Game `json:"games"`
-	Users []models.User `json:"users"`
+	Games []models.GameInfo `json:"games"`
+	Users []models.User     `json:"users"`
 }
 
 func (s *Tests) Setup(t *testing.T) {
 	os.Setenv("BANTER_BUS_CONFIG_PATH", "config.test.yml")
-	logrus.SetOutput(ioutil.Discard)
-	config := config.GetConfig()
-	dbConfig := database.Config{
-		Username:     config.Database.Username,
-		Password:     config.Database.Password,
-		DatabaseName: config.Database.DatabaseName,
-		Host:         config.Database.Host,
-		Port:         config.Database.Port,
+	config, err := core.NewConfig()
+	if err != nil {
+		fmt.Printf("Failed to load config %s", err)
 	}
-	database.InitialiseDatabase(dbConfig)
-	router, err := server.NewRouter()
+	logger := core.SetupLogger(ioutil.Discard)
+	core.UpdateLogLevel(logger, "DEBUG")
+	db, err := repository.NewRepository(logger,
+		config.Database.Host,
+		config.Database.Port,
+		config.Database.Username,
+		config.Database.Password,
+		config.Database.DatabaseName,
+		config.Database.MaxConns,
+		config.Database.Timeout)
 
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
+	env := &controllers.Env{Logger: logger, Config: config, DB: db}
+	router, err := server.SetupWebServer(env)
+	if err != nil {
+		fmt.Printf("Failed to setup web server %s", err)
+	}
+
+	s.DB = db
 	s.httpExpect = httpexpect.WithConfig(httpexpect.Config{
 		Client: &http.Client{
 			Transport: httpexpect.NewBinder(router.Engine()),
@@ -60,20 +72,27 @@ func (s *Tests) Setup(t *testing.T) {
 func (s *Tests) Teardown(t *testing.T) {}
 
 func (s *Tests) BeforeEach(t *testing.T) {
-	InsertData("data/json/game_collection.json", "game")
-	InsertData("data/json/user_collection.json", "user")
+	InsertData(s.DB, "data/json/game_collection.json", "game")
+	InsertData(s.DB, "data/json/user_collection.json", "user")
 }
 
 func (s *Tests) AfterEach(t *testing.T) {
-	database.RemoveCollection("game")
-	database.RemoveCollection("user")
+	err := s.DB.RemoveCollection("game")
+	if err != nil {
+		fmt.Printf("Failed to remove collection game %s", err)
+	}
+
+	err = s.DB.RemoveCollection("user")
+	if err != nil {
+		fmt.Printf("Failed to remove collection user %s", err)
+	}
 }
 
 func TestSampleTests(t *testing.T) {
 	gtest.RunSubTests(t, &Tests{})
 }
 
-func InsertData(dataFilePath string, collection string) {
+func InsertData(db core.Repository, dataFilePath string, collection string) {
 	data, _ := ioutil.ReadFile(dataFilePath)
 
 	var (
@@ -94,7 +113,7 @@ func InsertData(dataFilePath string, collection string) {
 		dataList = append(dataList, t)
 	}
 
-	err = database.InsertMultiple(collection, dataList)
+	err = db.InsertMultiple(collection, dataList)
 	if err != nil {
 		fmt.Println(err)
 	}

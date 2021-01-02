@@ -2,6 +2,7 @@ ARG GO_VERSION=1.15.2
 
 FROM golang:${GO_VERSION}-alpine
 
+# TODO: Fix Path no src/
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"banter-bus-server/tests/data"
+	"gitlab.com/banter-bus/banter-bus-management-api/tests/data"
 )
 
 func (s *Tests) SubTestAddQuestionToGame(t *testing.T) {

@@ -53,3 +53,7 @@
 
 # End of https://www.toptal.com/developers/gitignore/api/go,linux,visualstudiocode
 node_modules
+
+# Project specific
+bin/banter-bus-server
+config.yml

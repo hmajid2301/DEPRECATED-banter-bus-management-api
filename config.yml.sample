@@ -1,9 +1,12 @@
+app:
+  logLevel: DEBUG
+  environment: development
 database:
-  host: localhost
+  host: banter-bus-database
   port: 27017
   user: banterbus
   password: banterbus
   name: banterbus
 webserver:
-  host: 0.0.0.0
+  host: 127.0.0.1
   port: 8080

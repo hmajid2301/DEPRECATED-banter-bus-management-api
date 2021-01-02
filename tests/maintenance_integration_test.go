@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"banter-bus-server/tests/data"
+	"gitlab.com/banter-bus/banter-bus-management-api/tests/data"
 )
 
 func (s *Tests) SubTestHealthcheck(t *testing.T) {

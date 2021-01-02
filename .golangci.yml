@@ -1,7 +1,7 @@
 run:
   skip-dirs:
     - tests/data
-    - src/server/models
+    - internal/server/models
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
@@ -44,4 +44,4 @@ linters:
     - whitespace
 
 service:
-  golangci-lint-version: 1.32.2 
+  golangci-lint-version: 1.32.2

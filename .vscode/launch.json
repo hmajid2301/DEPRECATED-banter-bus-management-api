@@ -9,9 +9,10 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${workspaceRoot}/src/main.go",
+      "program": "${workspaceRoot}/cmd/banter-bus-management-api/main.go",
       "env": {
-        "BANTER_BUS_DB_HOST": "localhost"
+        "BANTER_BUS_DB_HOST": "localhost",
+        "BANTER_BUS_CONFIG_PATH": "${workspaceRoot}/config.yml"
       },
       "args": []
     },
@@ -23,7 +24,8 @@
       "remotePath": "",
       "program": "${workspaceRoot}/tests",
       "env": {
-        "BANTER_BUS_DB_HOST": "localhost"
+        "BANTER_BUS_DB_HOST": "localhost",
+        "BANTER_BUS_CONFIG_PATH": "${workspaceRoot}/config.yml"
       },
       "args": [],
       "showLog": true

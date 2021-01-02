@@ -3,7 +3,7 @@ package data
 import (
 	"net/http"
 
-	serverModels "banter-bus-server/src/server/models"
+	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
 )
 
 // AddQuestion is the test data for add questions to a game types.

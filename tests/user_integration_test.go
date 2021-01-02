@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	serverModels "banter-bus-server/src/server/models"
-	"banter-bus-server/tests/data"
+	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/tests/data"
 
 	"github.com/gavv/httpexpect"
 )
