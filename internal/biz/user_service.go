@@ -83,14 +83,6 @@ func (u *UserService) GetPools(username string) ([]models.QuestionPool, error) {
 		return []models.QuestionPool{}, err
 	}
 	pools := user.QuestionPools
-	for index, pool := range pools {
-		genericQuestions, err := u.newGenericQuestions(pool.GameName, pool.Questions)
-		if err != nil {
-			return []models.QuestionPool{}, err
-		}
-		pools[index].Questions = genericQuestions
-	}
-
 	return pools, nil
 }
 
@@ -108,17 +100,6 @@ func (u *UserService) Remove(username string) error {
 	}
 
 	return nil
-}
-
-func (u *UserService) newGenericQuestions(name string, questions interface{}) ([]models.GenericQuestion, error) {
-	var genericQuestions []models.GenericQuestion
-	gameType, err := getGameType(name, models.GenericQuestion{}, u.DB)
-	if err != nil {
-		return nil, err
-	}
-
-	genericQuestions, err = gameType.QuestionPoolToGenericQuestions(questions)
-	return genericQuestions, err
 }
 
 func (u *UserService) doesUserExist(username string) bool {

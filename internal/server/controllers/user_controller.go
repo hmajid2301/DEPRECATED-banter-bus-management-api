@@ -151,54 +151,70 @@ func (env *Env) GetUserPools(_ *gin.Context, params *serverModels.UserParams) ([
 		return []serverModels.QuestionPool{}, errors.NotFoundf("The user %s", params.Username)
 	}
 
-	userPools := getUserPools(pools)
+	userPools := env.getUserPools(pools)
 	return userPools, nil
 }
 
-func getUserPools(questionPools []models.QuestionPool) []serverModels.QuestionPool {
+func (env *Env) getUserPools(questionPools []models.QuestionPool) []serverModels.QuestionPool {
 	var pools []serverModels.QuestionPool
 
 	for _, pool := range questionPools {
-		newQuestionsList := newQuestionPoolGenericQuestionList(pool.Questions.([]models.GenericQuestion))
+		questionPoolQuestions := env.newQuestionPoolQuestions(pool.GameName, pool.Questions)
 		newPool := serverModels.QuestionPool{
 			PoolName:  pool.PoolName,
 			GameName:  pool.GameName,
 			Privacy:   pool.Privacy,
-			Questions: newQuestionsList,
+			Questions: questionPoolQuestions,
 		}
+
 		pools = append(pools, newPool)
 	}
 
 	return pools
 }
 
-func newQuestionPoolGenericQuestionList(questions []models.GenericQuestion) []serverModels.GenericQuestion {
-	var newQuestionsList []serverModels.GenericQuestion
-
-	for _, question := range questions {
-		newGenericQuestion := newQuestionPoolGenericQuestion(question)
-		newQuestionsList = append(newQuestionsList, newGenericQuestion)
+func (env *Env) newQuestionPoolQuestions(gameName string, questions interface{}) serverModels.QuestionPoolQuestions {
+	var questionPool serverModels.QuestionPoolQuestions
+	switch gameName {
+	case "quibly":
+		questionPool = newQuiblyQuestionPool(questions)
+	case "fibbing_it":
+		questionPool = newFibbingItQuestionPool(questions)
+	case "drawlosseum":
+		questionPool = newDrawlosseumQuestionPool(questions)
+	default:
+		env.Logger.Warnf("Invalid game %s", gameName)
 	}
 
-	return newQuestionsList
+	return questionPool
 }
 
-func newQuestionPoolGenericQuestion(question models.GenericQuestion) serverModels.GenericQuestion {
-	var group *serverModels.GenericQuestionGroup
-	if question.Group != nil {
-		group = &serverModels.GenericQuestionGroup{
-			Name: question.Group.Name,
-			Type: question.Group.Type,
-		}
-	}
+func newQuiblyQuestionPool(questions interface{}) serverModels.QuestionPoolQuestions {
+	quiblyQuestions := questions.(models.QuiblyQuestionsPool)
 
-	newQuestion := serverModels.GenericQuestion{
-		Content: question.Content,
-		Round:   question.Round,
-		Group:   group,
-	}
+	var newQuiblyQuestionPool serverModels.QuiblyQuestionsPool
+	newQuiblyQuestionPool.Pair = quiblyQuestions.Pair
+	newQuiblyQuestionPool.Group = quiblyQuestions.Group
+	newQuiblyQuestionPool.Answers = quiblyQuestions.Answers
+	return serverModels.QuestionPoolQuestions{Quibly: newQuiblyQuestionPool}
+}
 
-	return newQuestion
+func newFibbingItQuestionPool(questions interface{}) serverModels.QuestionPoolQuestions {
+	fibbingItQuestions := questions.(models.FibbingItQuestionsPool)
+
+	var newFibbingItQuestionPool serverModels.FibbingItQuestionsPool
+	newFibbingItQuestionPool.Opinion = fibbingItQuestions.Opinion
+	newFibbingItQuestionPool.Likely = fibbingItQuestions.Likely
+	newFibbingItQuestionPool.FreeForm = fibbingItQuestions.FreeForm
+	return serverModels.QuestionPoolQuestions{FibbingIt: newFibbingItQuestionPool}
+}
+
+func newDrawlosseumQuestionPool(questions interface{}) serverModels.QuestionPoolQuestions {
+	drawlosseumQuestions := questions.(models.DrawlosseumQuestionsPool)
+
+	var newDrawlosseumQuestionPool serverModels.DrawlosseumQuestionsPool
+	newDrawlosseumQuestionPool.Drawings = drawlosseumQuestions.Drawings
+	return serverModels.QuestionPoolQuestions{Drawlosseum: newDrawlosseumQuestionPool}
 }
 
 // GetUserStories returns all the user's stories.

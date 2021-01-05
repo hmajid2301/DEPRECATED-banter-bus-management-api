@@ -1,12 +1,8 @@
 package games
 
 import (
-	"errors"
-
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // Drawlosseum type that implements PlayableGame.
@@ -36,26 +32,4 @@ func (d Drawlosseum) ValidateQuestionInput() error {
 // GetQuestionPath gets the path to get a specific question in MongoDB. Using string concat i.e. "question.drawings".
 func (d Drawlosseum) GetQuestionPath() string {
 	return "questions.drawings"
-}
-
-// QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
-// a client.
-func (d Drawlosseum) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
-	var newGenericQuestions []models.GenericQuestion
-	drawlosseumQuestions, ok := questions.(models.DrawlosseumQuestionsPool)
-
-	if !ok {
-		errorMessage := "failed to convert type to DrawlosseumQuestionsPool"
-		log.Error(errorMessage)
-		return []models.GenericQuestion{}, errors.New(errorMessage)
-	}
-
-	for _, question := range drawlosseumQuestions.Drawings {
-		question := models.GenericQuestion{
-			Content: question,
-		}
-		newGenericQuestions = append(newGenericQuestions, question)
-	}
-
-	return newGenericQuestions, nil
 }

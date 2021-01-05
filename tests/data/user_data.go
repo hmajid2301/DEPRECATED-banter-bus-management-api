@@ -288,59 +288,26 @@ var GetUserPools = []struct {
 				PoolName: "my_pool",
 				GameName: "fibbing_it",
 				Privacy:  "public",
-				Questions: []serverModels.GenericQuestion{
-					{
-						Content: "to eat ice-cream from the tub",
-						Round:   "likely",
-					},
-					{
-						Content: "to get arrested",
-						Round:   "likely",
-					},
-					{
-						Content: "Favourite bike colour?",
-						Round:   "free_form",
-						Group: &serverModels.GenericQuestionGroup{
-							Name: "bike_group",
+				Questions: serverModels.QuestionPoolQuestions{
+					FibbingIt: serverModels.FibbingItQuestionsPool{
+						Likely: []string{
+							"to eat ice-cream from the tub",
+							"to get arrested",
 						},
-					},
-					{
-						Content: "A funny question?",
-						Round:   "free_form",
-						Group: &serverModels.GenericQuestionGroup{
-							Name: "bike_group",
+						FreeForm: map[string][]string{
+							"bike_group": []string{
+								"Favourite bike colour?",
+								"A funny question?",
+							},
 						},
-					},
-					{
-						Content: "What do you think about horses?",
-						Round:   "opinion",
-						Group: &serverModels.GenericQuestionGroup{
-							Name: "horse_group",
-							Type: "questions",
-						},
-					},
-					{
-						Content: "What do you think about camels?",
-						Round:   "opinion",
-						Group: &serverModels.GenericQuestionGroup{
-							Name: "horse_group",
-							Type: "questions",
-						},
-					},
-					{
-						Content: "lame",
-						Round:   "opinion",
-						Group: &serverModels.GenericQuestionGroup{
-							Name: "horse_group",
-							Type: "answers",
-						},
-					},
-					{
-						Content: "tasty",
-						Round:   "opinion",
-						Group: &serverModels.GenericQuestionGroup{
-							Name: "horse_group",
-							Type: "answers",
+						Opinion: map[string]map[string][]string{
+							"horse_group": {
+								"questions": []string{
+									"What do you think about horses?",
+									"What do you think about camels?",
+								},
+								"answers": []string{"lame", "tasty"},
+							},
 						},
 					},
 				},
@@ -349,22 +316,16 @@ var GetUserPools = []struct {
 				PoolName: "my_pool2",
 				GameName: "quibly",
 				Privacy:  "private",
-				Questions: []serverModels.GenericQuestion{
-					{
-						Content: "What do you think about horses?",
-						Round:   "pair",
-					},
-					{
-						Content: "What do you think about camels?",
-						Round:   "pair",
-					},
-					{
-						Content: "Favourite bike colour?",
-						Round:   "answers",
-					},
-					{
-						Content: "A funny question?",
-						Round:   "answers",
+				Questions: serverModels.QuestionPoolQuestions{
+					Quibly: serverModels.QuiblyQuestionsPool{
+						Pair: []string{
+							"What do you think about horses?",
+							"What do you think about camels?",
+						},
+						Answers: []string{
+							"Favourite bike colour?",
+							"A funny question?",
+						},
 					},
 				},
 			},
@@ -379,12 +340,12 @@ var GetUserPools = []struct {
 				PoolName: "draw_me",
 				GameName: "drawlosseum",
 				Privacy:  "friends",
-				Questions: []serverModels.GenericQuestion{
-					{
-						Content: "horses",
-					},
-					{
-						Content: "camels",
+				Questions: serverModels.QuestionPoolQuestions{
+					Drawlosseum: serverModels.DrawlosseumQuestionsPool{
+						Drawings: []string{
+							"horses",
+							"camels",
+						},
 					},
 				},
 			},
@@ -392,14 +353,12 @@ var GetUserPools = []struct {
 				PoolName: "my_unique_pool2",
 				GameName: "quibly",
 				Privacy:  "public",
-				Questions: []serverModels.GenericQuestion{
-					{
-						Content: "What do you think about horses?",
-						Round:   "group",
-					},
-					{
-						Content: "What do you think about camels?",
-						Round:   "group",
+				Questions: serverModels.QuestionPoolQuestions{
+					Quibly: serverModels.QuiblyQuestionsPool{
+						Group: []string{
+							"What do you think about horses?",
+							"What do you think about camels?",
+						},
 					},
 				},
 			},
