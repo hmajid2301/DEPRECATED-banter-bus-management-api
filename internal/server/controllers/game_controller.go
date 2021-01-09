@@ -78,7 +78,7 @@ func (env *Env) GetGame(_ *gin.Context, params *serverModels.GameParams) (*serve
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
-		}).Warn("Game doesn't exists.")
+		}).Warn("Game does not exist.")
 		return &serverModels.Game{}, errors.NotFoundf("The game %s", params.Name)
 	}
 
@@ -104,7 +104,7 @@ func (env *Env) RemoveGame(_ *gin.Context, params *serverModels.GameParams) (str
 	if errors.IsNotFound(err) {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
-		}).Warn("Game doesn't exists.")
+		}).Warn("Game does not exist.")
 
 		return emptyResponse, err
 	} else if err != nil {
@@ -132,9 +132,7 @@ func (env *Env) updateEnableGameState(name string, enable bool) (struct{}, error
 		"game_name": name,
 		"enable":    enable,
 	})
-	log.WithFields(log.Fields{
-		"game_name": name,
-	}).Info("Trying to update enable state.")
+	log.Debug("Trying to update enable state.")
 
 	var emptyResponse struct{}
 

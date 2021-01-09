@@ -52,6 +52,10 @@ func (env *Env) UpdateQuestion(_ *gin.Context, questionInput *serverModels.Updat
 	newQuestionLanguage := question.NewQuestion.LanguageCode
 	_, err := language.Parse(newQuestionLanguage)
 	if err != nil {
+		questionLogger.WithFields(log.Fields{
+			"err":           err,
+			"language_code": newQuestionLanguage,
+		}).Warn("Bad language code.")
 		return errors.BadRequestf("Invalid language %s", newQuestionLanguage)
 	}
 
@@ -92,7 +96,6 @@ func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.Quest
 		questionLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Failed to remove question.")
-
 		return err
 	}
 
@@ -118,7 +121,7 @@ func (env *Env) GetAllGroups(_ *gin.Context, groupInput *serverModels.GroupInput
 	if err != nil {
 		log.WithFields(log.Fields{
 			"err": err,
-		}).Error("Failed to get groups")
+		}).Error("Failed to get groups.")
 		return []string{}, err
 	}
 	return groups, nil

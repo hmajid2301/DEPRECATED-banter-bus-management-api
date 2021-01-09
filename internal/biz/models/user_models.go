@@ -4,6 +4,8 @@ import (
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"gopkg.in/mgo.v2/bson"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // User struct to hold a database entry for a user, i.e a player with an account
@@ -104,6 +106,9 @@ func (questionPool *QuestionPool) UnmarshalBSONValue(t bsontype.Type, data []byt
 
 	err := unmarshalBSONToStruct(data, &questionPool, &questions)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Warn("Failed to unmarshal QuestionPool struct.")
 		return err
 	}
 
@@ -141,6 +146,9 @@ func (story *Story) UnmarshalBSONValue(t bsontype.Type, data []byte) error {
 
 	err := unmarshalBSONToStruct(data, &story, &answers)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"err": err,
+		}).Warn("Failed to unmarshal Story struct.")
 		return err
 	}
 

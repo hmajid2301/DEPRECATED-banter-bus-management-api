@@ -48,11 +48,11 @@ func NewMongoDB(
 		MaxConns:     maxConns,
 		Timeout:      timeout}
 
-	logger.Info("connecting to database")
+	logger.Info("Connecting to database.")
 
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/", username, password, host, port)
 
-	logger.Debug("database connection string: " + uri)
+	logger.Debugf("Database connection string: %s", uri)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
@@ -62,10 +62,10 @@ func NewMongoDB(
 	clientOptions = clientOptions.SetConnectTimeout(time.Duration(timeout) * time.Second)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		return &MongoDB{}, fmt.Errorf("error while connecting to database, %w", err)
+		return &MongoDB{}, fmt.Errorf("error while connecting to database: %w", err)
 	}
 
-	logger.Info("connected to database")
+	logger.Info("Connected to database.")
 	db.client = client
 	db.database = client.Database(databaseName)
 	return db, nil
@@ -78,7 +78,7 @@ func (db *MongoDB) CloseDB() {
 
 	err := db.client.Disconnect(ctx)
 	if err != nil {
-		db.logger.Errorf("error failed to disconnect from database, %s", err)
+		db.logger.Errorf("Failed to disconnect from database, %s.", err)
 	}
 }
 
@@ -99,7 +99,7 @@ func (db *MongoDB) Insert(collectionName string, object interface{}) (bool, erro
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"object":     object,
-	}).Debug("inserting object into database")
+	}).Debug("Inserting object into database.")
 	collection := db.database.Collection(collectionName)
 
 	ok, err := collection.InsertOne(ctx, object)
@@ -110,7 +110,7 @@ func (db *MongoDB) Insert(collectionName string, object interface{}) (bool, erro
 
 	var inserted = true
 	if ok.InsertedID == nil {
-		db.logger.Error("no elements inserted")
+		db.logger.Error("No elements inserted.")
 		inserted = false
 	}
 
@@ -125,7 +125,7 @@ func (db *MongoDB) InsertMultiple(collectionName string, object []interface{}) e
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"object":     object,
-	}).Debug("inserting multiple objects into database")
+	}).Debug("Inserting multiple objects into database.")
 
 	collection := db.database.Collection(collectionName)
 	_, err := collection.InsertMany(ctx, object)
@@ -147,7 +147,7 @@ func (db *MongoDB) Get(collectionName string, filter interface{}, model interfac
 		"collection": collectionName,
 		"filter":     filter,
 		"model":      model,
-	}).Debug("getting object from database")
+	}).Debug("Getting object from database.")
 	collection := db.database.Collection(collectionName)
 	encodedFilter, marshalErr := bson.Marshal(filter)
 	if marshalErr != nil {
@@ -166,16 +166,16 @@ func (db *MongoDB) GetAll(collectionName string, model interface{}) error {
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"model":      model,
-	}).Debug("getting multiple objects from database")
+	}).Debug("Getting multiple objects from database.")
 	collection := db.database.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		db.logger.Error("failed to get object", err)
+		db.logger.Errorf("Failed to get object: %v.", err)
 	}
 
 	if err = cursor.All(ctx, model); err != nil {
-		db.logger.Error("failed to transform object", err)
+		db.logger.Errorf("Failed to transform object: %v.", err)
 	}
 
 	return err
@@ -189,7 +189,7 @@ func (db *MongoDB) Delete(collectionName string, filter interface{}) (bool, erro
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-	}).Debug("deleting object from database")
+	}).Debug("Deleting object from database.")
 	collection := db.database.Collection(collectionName)
 
 	ok, err := collection.DeleteOne(ctx, filter)
@@ -200,7 +200,7 @@ func (db *MongoDB) Delete(collectionName string, filter interface{}) (bool, erro
 
 	var deleted = true
 	if ok.DeletedCount == 0 {
-		db.logger.Error("no elements deleted")
+		db.logger.Error("No elements deleted.")
 		deleted = false
 	}
 
@@ -214,7 +214,7 @@ func (db *MongoDB) RemoveCollection(collectionName string) error {
 
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
-	}).Warn("deleting collection from database")
+	}).Warn("Deleting collection from database.")
 	err := db.database.Collection(collectionName).Drop(ctx)
 	if err != nil {
 		return err
@@ -229,7 +229,7 @@ func (db *MongoDB) UpdateEntry(collectionName string, filter interface{}, update
 		"collection": collectionName,
 		"filter":     filter,
 		"update":     update,
-	}).Debug("update item in database")
+	}).Debug("Update item in the database.")
 
 	updated, err := db.modifyEntry(collectionName, filter, update, "$set")
 	return updated, err
@@ -241,7 +241,7 @@ func (db *MongoDB) RemoveEntry(collectionName string, filter interface{}, update
 		"collection": collectionName,
 		"filter":     filter,
 		"update":     update,
-	}).Debug("update item in database")
+	}).Debug("Updating item in the database.")
 
 	updated, err := db.modifyEntry(collectionName, filter, update, "$unset")
 	return updated, err
@@ -253,7 +253,7 @@ func (db *MongoDB) AppendToEntry(collectionName string, filter interface{}, add 
 		"collection": collectionName,
 		"filter":     filter,
 		"add":        add,
-	}).Debug("adding item to existing entry in database")
+	}).Debug("Adding item to existing entry in the database.")
 
 	updated, err := db.modifyEntry(collectionName, filter, add, "$push")
 	return updated, err
@@ -265,7 +265,7 @@ func (db *MongoDB) RemoveFromEntry(collectionName string, filter interface{}, re
 		"collection": collectionName,
 		"filter":     filter,
 		"remove":     remove,
-	}).Debug("removing item from existing entry in database")
+	}).Debug("Removing item from existing entry in the database.")
 
 	updated, err := db.modifyEntry(collectionName, filter, remove, "$pull")
 	return updated, err

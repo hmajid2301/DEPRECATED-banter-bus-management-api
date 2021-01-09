@@ -62,7 +62,7 @@ func (env *Env) GetAllUsers(_ *gin.Context, params *serverModels.ListUserParams)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"err": err,
-		}).Error("Failed to get user types.")
+		}).Error("Failed to get user.")
 		return []string{}, err
 	}
 
@@ -82,14 +82,14 @@ func (env *Env) GetUser(_ *gin.Context, params *serverModels.UserParams) (*serve
 	userLogger := log.WithFields(log.Fields{
 		"username": params.Username,
 	})
-	userLogger.Debug("Trying to add new user type.")
+	userLogger.Debug("Trying to add new user.")
 
 	userService := biz.UserService{DB: env.DB}
 	userFromDB, err := userService.Get(params.Username)
 	if err != nil {
 		userLogger.WithFields(log.Fields{
 			"err": err,
-		}).Warn(("User doesn't exists"))
+		}).Warn(("User does not exist."))
 		return &serverModels.User{}, errors.NotFoundf("The user %s", params.Username)
 	}
 
@@ -102,7 +102,7 @@ func (env *Env) RemoveUser(_ *gin.Context, user *serverModels.UserParams) error 
 	userLogger := log.WithFields(log.Fields{
 		"username": user.Username,
 	})
-	userLogger.Debug("Trying to add new user type.")
+	userLogger.Debug("Trying to add new user.")
 
 	userService := biz.UserService{DB: env.DB}
 	err := userService.Remove(user.Username)
@@ -147,7 +147,7 @@ func (env *Env) GetUserPools(_ *gin.Context, params *serverModels.UserParams) ([
 	if err != nil {
 		userLogger.WithFields(log.Fields{
 			"err": err,
-		}).Warn(("User doesn't exists"))
+		}).Warn(("User does not exist."))
 		return []serverModels.QuestionPool{}, errors.NotFoundf("The user %s", params.Username)
 	}
 
@@ -229,7 +229,7 @@ func (env *Env) GetUserStories(_ *gin.Context, params *serverModels.UserParams) 
 	if err != nil {
 		userLogger.WithFields(log.Fields{
 			"err": err,
-		}).Warn(("User doesn't exists"))
+		}).Warn(("User does not exist."))
 		return []serverModels.Story{}, errors.NotFoundf("The user %s", params.Username)
 	}
 

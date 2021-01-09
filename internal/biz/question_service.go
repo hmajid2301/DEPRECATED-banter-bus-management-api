@@ -46,7 +46,6 @@ func (q *QuestionService) Add(gameName string, question models.GenericQuestion) 
 	updated, err := q.DB.AppendToEntry("game", filter, questionToAdd)
 	if !updated || err != nil {
 		errorMessage := "Failed to add a new question."
-		log.Error(errorMessage)
 		return errors.Errorf(errorMessage)
 	}
 
@@ -203,7 +202,7 @@ func (q *QuestionService) validateAndGetGameType(
 
 	_, err = language.Parse(question.LanguageCode)
 	if err != nil {
-		log.Error(fmt.Sprintf("Failed to parse language code: %s", question.LanguageCode), err)
+		log.Error(fmt.Sprintf("Failed to parse language code %s", question.LanguageCode), err)
 		return nil, errors.BadRequestf("Invalid language code: %s", question.LanguageCode)
 	}
 

@@ -9,8 +9,6 @@ import (
 
 // Healthcheck checks if the API is healthy.
 func (env *Env) Healthcheck(_ *gin.Context) (*serverModels.Healthcheck, error) {
-	var err error
-
 	healthy := env.DB.Ping()
 
 	if !healthy {
@@ -19,5 +17,5 @@ func (env *Env) Healthcheck(_ *gin.Context) (*serverModels.Healthcheck, error) {
 
 	return &serverModels.Healthcheck{
 		Message: "The API is healthy.",
-	}, err
+	}, nil
 }

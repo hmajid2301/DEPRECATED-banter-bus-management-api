@@ -49,7 +49,7 @@ func mainLogic() int {
 	env := &controllers.Env{Logger: logger, Config: config, DB: db}
 	router, err := server.SetupWebServer(env)
 	if err != nil {
-		logger.Error("failed to load router", err)
+		logger.Errorf("Failed to load router: %v.", err)
 		return 1
 	}
 
@@ -60,13 +60,13 @@ func mainLogic() int {
 
 	go terminateHandler(logger, &srv, config.Database.Timeout)
 
-	logger.Info("webservice ready to serve requests")
+	logger.Info("The webservice is ready to serve requests.")
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		logger.Error(fmt.Sprintf("unexpected error while serving HTTP: %s", err))
+		logger.Errorf("An Unexpected error while serving HTTP: %v.", err)
 		return 1
 	}
 
-	logger.Info("APP gracefully terminated")
+	logger.Info("The Banter Bus API has been gracefully terminated.")
 	return 0
 }
 
@@ -80,11 +80,11 @@ func terminateHandler(logger *log.Logger, srv *http.Server, timeout int) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	logger.Info("shutting down HTTP server")
+	logger.Info("Shutting down HTTP server.")
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		logger.Error(fmt.Sprintf("unexpected error while shutting down server: %s", err))
+		logger.Errorf("Unexpected error while shutting down server: %s", err)
 	}
 }
