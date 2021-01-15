@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/text/language"
 
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/games"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 )
@@ -26,7 +27,7 @@ func (q *QuestionService) Add(gameName string, question models.GenericQuestion) 
 		return err
 	}
 
-	questionPath := gameType.GetQuestionPath()
+	questionPath := gameType.GetQuestionPath(question)
 	err = q.validateQuestionNotFound(gameName, questionPath, question.LanguageCode, question.Content)
 	if err != nil {
 		return err
@@ -64,7 +65,7 @@ func (q *QuestionService) Update(
 		return err
 	}
 
-	questionPath := gameType.GetQuestionPath()
+	questionPath := gameType.GetQuestionPath(existingQuestion)
 
 	originalQuestionExistsErr := q.validateQuestionFound(
 		gameName,
@@ -105,7 +106,7 @@ func (q *QuestionService) Remove(gameName string, question models.GenericQuestio
 		return err
 	}
 
-	questionPath := gameType.GetQuestionPath()
+	questionPath := gameType.GetQuestionPath(question)
 	err = q.validateQuestionFound(gameName, questionPath, question.LanguageCode, question.Content)
 	if err != nil {
 		return err
@@ -133,7 +134,7 @@ func (q *QuestionService) UpdateEnable(
 		return false, err
 	}
 
-	questionPath := gameType.GetQuestionPath()
+	questionPath := gameType.GetQuestionPath(question)
 	err = q.validateQuestionFound(gameName, questionPath, question.LanguageCode, question.Content)
 	if err != nil {
 		return false, err
@@ -191,7 +192,7 @@ func (q *QuestionService) GetGroups(gameName string, round string) ([]string, er
 func (q *QuestionService) validateAndGetGameType(
 	gameName string,
 	question models.GenericQuestion,
-) (models.PlayableGame, error) {
+) (models.Game, error) {
 	gameService := GameService{DB: q.DB}
 	game, err := gameService.Get(gameName)
 	if game.Name == "" {
@@ -206,12 +207,12 @@ func (q *QuestionService) validateAndGetGameType(
 		return nil, errors.BadRequestf("Invalid language code: %s", question.LanguageCode)
 	}
 
-	gameType, err := getGameType(gameName, question, q.DB)
+	gameType, err := games.GetGame(gameName)
 	if err != nil {
 		return nil, err
 	}
 
-	err = gameType.ValidateQuestionInput()
+	err = gameType.ValidateQuestionInput(question)
 	if err != nil {
 		return nil, err
 	}

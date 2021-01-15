@@ -6,19 +6,15 @@ import (
 	"github.com/juju/errors"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 )
 
 // Quibly type that implements PlayableGame.
-type Quibly struct {
-	CurrentQuestion models.GenericQuestion
-	DB              core.Repository
-}
+type Quibly struct{}
 
-// AddGame is used to add new games of type `quibly`.
-func (q Quibly) AddGame(rulesURL string) (bool, error) {
+// GetInfo is used to add new games of type `quibly`.
+func (q Quibly) GetInfo(rulesURL string) models.GameInfo {
 	t := true
-	var newGame = &models.GameInfo{
+	return models.GameInfo{
 		Name:     "quibly",
 		RulesURL: rulesURL,
 		Enabled:  &t,
@@ -28,21 +24,16 @@ func (q Quibly) AddGame(rulesURL string) (bool, error) {
 			Group:   []models.Question{},
 		},
 	}
-
-	inserted, err := q.DB.Insert("game", newGame)
-	return inserted, err
 }
 
 // GetQuestionPath gets the path to get a specific question in MongoDB. Using string concat i.e. "question.pair".
-func (q Quibly) GetQuestionPath() string {
-	question := q.CurrentQuestion
+func (q Quibly) GetQuestionPath(question models.GenericQuestion) string {
 	questionPath := fmt.Sprintf("questions.%s", question.Round)
 	return questionPath
 }
 
 // ValidateQuestionInput is used to validate input for interacting with questions.
-func (q Quibly) ValidateQuestionInput() error {
-	question := q.CurrentQuestion
+func (q Quibly) ValidateQuestionInput(question models.GenericQuestion) error {
 	validRounds := map[string]bool{"pair": true, "group": true, "answers": true}
 	if !validRounds[question.Round] {
 		return errors.BadRequestf("Invalid round %s", question.Round)

@@ -7,6 +7,7 @@ import (
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/factories"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
 )
 
@@ -151,70 +152,33 @@ func (env *Env) GetUserPools(_ *gin.Context, params *serverModels.UserParams) ([
 		return []serverModels.QuestionPool{}, errors.NotFoundf("The user %s", params.Username)
 	}
 
-	userPools := env.getUserPools(pools)
-	return userPools, nil
+	userPools, err := env.getUserPools(pools)
+	return userPools, err
 }
 
-func (env *Env) getUserPools(questionPools []models.QuestionPool) []serverModels.QuestionPool {
+func (env *Env) getUserPools(questionPools []models.QuestionPool) ([]serverModels.QuestionPool, error) {
 	var pools []serverModels.QuestionPool
 
 	for _, pool := range questionPools {
-		questionPoolQuestions := env.newQuestionPoolQuestions(pool.GameName, pool.Questions)
+		game, err := factories.GetGame(pool.GameName)
+		if err != nil {
+			env.Logger.Errorf("Unknown game type %s", pool.GameName)
+		}
+
+		questionPoolQuestions, err := game.NewQuestionPool(pool.Questions)
+		if err != nil {
+			return []serverModels.QuestionPool{}, err
+		}
 		newPool := serverModels.QuestionPool{
 			PoolName:  pool.PoolName,
 			GameName:  pool.GameName,
 			Privacy:   pool.Privacy,
 			Questions: questionPoolQuestions,
 		}
-
 		pools = append(pools, newPool)
 	}
 
-	return pools
-}
-
-func (env *Env) newQuestionPoolQuestions(gameName string, questions interface{}) serverModels.QuestionPoolQuestions {
-	var questionPool serverModels.QuestionPoolQuestions
-	switch gameName {
-	case "quibly":
-		questionPool = newQuiblyQuestionPool(questions)
-	case "fibbing_it":
-		questionPool = newFibbingItQuestionPool(questions)
-	case "drawlosseum":
-		questionPool = newDrawlosseumQuestionPool(questions)
-	default:
-		env.Logger.Warnf("Invalid game %s", gameName)
-	}
-
-	return questionPool
-}
-
-func newQuiblyQuestionPool(questions interface{}) serverModels.QuestionPoolQuestions {
-	quiblyQuestions := questions.(models.QuiblyQuestionsPool)
-
-	var newQuiblyQuestionPool serverModels.QuiblyQuestionsPool
-	newQuiblyQuestionPool.Pair = quiblyQuestions.Pair
-	newQuiblyQuestionPool.Group = quiblyQuestions.Group
-	newQuiblyQuestionPool.Answers = quiblyQuestions.Answers
-	return serverModels.QuestionPoolQuestions{Quibly: newQuiblyQuestionPool}
-}
-
-func newFibbingItQuestionPool(questions interface{}) serverModels.QuestionPoolQuestions {
-	fibbingItQuestions := questions.(models.FibbingItQuestionsPool)
-
-	var newFibbingItQuestionPool serverModels.FibbingItQuestionsPool
-	newFibbingItQuestionPool.Opinion = fibbingItQuestions.Opinion
-	newFibbingItQuestionPool.Likely = fibbingItQuestions.Likely
-	newFibbingItQuestionPool.FreeForm = fibbingItQuestions.FreeForm
-	return serverModels.QuestionPoolQuestions{FibbingIt: newFibbingItQuestionPool}
-}
-
-func newDrawlosseumQuestionPool(questions interface{}) serverModels.QuestionPoolQuestions {
-	drawlosseumQuestions := questions.(models.DrawlosseumQuestionsPool)
-
-	var newDrawlosseumQuestionPool serverModels.DrawlosseumQuestionsPool
-	newDrawlosseumQuestionPool.Drawings = drawlosseumQuestions.Drawings
-	return serverModels.QuestionPoolQuestions{Drawlosseum: newDrawlosseumQuestionPool}
+	return pools, nil
 }
 
 // GetUserStories returns all the user's stories.
@@ -233,115 +197,21 @@ func (env *Env) GetUserStories(_ *gin.Context, params *serverModels.UserParams) 
 		return []serverModels.Story{}, errors.NotFoundf("The user %s", params.Username)
 	}
 
-	stories := getUserStories(userStories)
+	stories := env.getUserStories(userStories)
 	return stories, nil
 }
 
-func getUserStories(userStories []models.Story) []serverModels.Story {
+func (env *Env) getUserStories(userStories []models.Story) []serverModels.Story {
 	stories := []serverModels.Story{}
 
 	for _, story := range userStories {
-		switch story.GameName {
-		case "quibly":
-			newStory := newQuiblyStory(story)
-			stories = append(stories, newStory)
-		case "fibbing_it":
-			newStory := newFibbingItStory(story)
-			stories = append(stories, newStory)
-		case "drawlosseum":
-			newStory := newDrawlosseumStory(story)
-			stories = append(stories, newStory)
+		game, err := factories.GetGame(story.GameName)
+		if err != nil {
+			env.Logger.Errorf("Unknown game type %s", story.GameName)
 		}
+		newStory := game.NewStory(story)
+		stories = append(stories, newStory)
 	}
 
 	return stories
-}
-
-func newQuiblyStory(story models.Story) serverModels.Story {
-	quiblyAnswers := newAnswersQuibly(story.Answers)
-	newQuiblyStory := serverModels.Story{
-		Question: story.Question,
-		Round:    story.Round,
-		StoryAnswers: serverModels.StoryAnswers{
-			Quibly: quiblyAnswers,
-		},
-	}
-	return newQuiblyStory
-}
-
-func newAnswersQuibly(answers interface{}) []serverModels.StoryQuibly {
-	quiblyAnswers := answers.([]models.StoryQuibly)
-
-	var newAnswersQuibly []serverModels.StoryQuibly
-	for _, answer := range quiblyAnswers {
-		newAnswer := serverModels.StoryQuibly{
-			Nickname: answer.Nickname,
-			Answer:   answer.Answer,
-			Votes:    answer.Votes,
-		}
-		newAnswersQuibly = append(newAnswersQuibly, newAnswer)
-	}
-
-	return newAnswersQuibly
-}
-
-func newFibbingItStory(story models.Story) serverModels.Story {
-	fibbingItAnswers := newAnswersFibbingIt(story.Answers)
-	newFibbingItStory := serverModels.Story{
-		Question: story.Question,
-		Round:    story.Round,
-		StoryAnswers: serverModels.StoryAnswers{
-			FibbingIt: fibbingItAnswers,
-		},
-	}
-	return newFibbingItStory
-}
-
-func newAnswersFibbingIt(answers interface{}) []serverModels.StoryFibbingIt {
-	fibbingItAnswers := answers.([]models.StoryFibbingIt)
-
-	var newAnswersFibbingIt []serverModels.StoryFibbingIt
-	for _, answer := range fibbingItAnswers {
-		newAnswer := serverModels.StoryFibbingIt{
-			Nickname: answer.Nickname,
-			Answer:   answer.Answer,
-		}
-		newAnswersFibbingIt = append(newAnswersFibbingIt, newAnswer)
-	}
-
-	return newAnswersFibbingIt
-}
-
-func newDrawlosseumStory(story models.Story) serverModels.Story {
-	drawlosseumAnswers := newAnswersDrawlosseum(story.Answers)
-	newDrawlosseumStory := serverModels.Story{
-		Question: story.Question,
-		Nickname: story.Nickname,
-		StoryAnswers: serverModels.StoryAnswers{
-			Drawlosseum: drawlosseumAnswers,
-		},
-	}
-	return newDrawlosseumStory
-}
-
-func newAnswersDrawlosseum(answers interface{}) []serverModels.StoryDrawlosseum {
-	drawlosseumAnswers := answers.([]models.StoryDrawlosseum)
-
-	var newAnswersDrawlosseum []serverModels.StoryDrawlosseum
-	for _, answer := range drawlosseumAnswers {
-		newAnswer := serverModels.StoryDrawlosseum{
-			Color: answer.Color,
-			Start: serverModels.DrawlosseumDrawingPoint{
-				X: answer.Start.X,
-				Y: answer.Start.Y,
-			},
-			End: serverModels.DrawlosseumDrawingPoint{
-				X: answer.End.X,
-				Y: answer.End.Y,
-			},
-		}
-		newAnswersDrawlosseum = append(newAnswersDrawlosseum, newAnswer)
-	}
-
-	return newAnswersDrawlosseum
 }

@@ -18,11 +18,11 @@ func (gameInfo *GameInfo) HasGroups(round string) bool {
 	return isPresent
 }
 
-// PlayableGame interface for all game types.
-type PlayableGame interface {
-	AddGame(string) (bool, error)
-	GetQuestionPath() string
-	ValidateQuestionInput() error
+// Game is the interface for all game types.
+type Game interface {
+	GetInfo(rulesURL string) GameInfo
+	GetQuestionPath(question GenericQuestion) string
+	ValidateQuestionInput(question GenericQuestion) error
 }
 
 // More efficient way of storing strings for lookup than a slice

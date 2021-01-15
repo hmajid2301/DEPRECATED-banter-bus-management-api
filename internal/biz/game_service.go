@@ -20,12 +20,12 @@ func (game *GameService) Add(name string, rulesURL string) error {
 		return errors.AlreadyExistsf("The game %s", name)
 	}
 
-	gameInfo, err := getGameType(name, models.GenericQuestion{}, game.DB)
+	gameType, err := games.GetGame(name)
 	if err != nil {
 		return err
 	}
-
-	inserted, err := gameInfo.AddGame(rulesURL)
+	gameInfo := gameType.GetInfo(rulesURL)
+	inserted, err := game.DB.Insert("game", gameInfo)
 	if !inserted {
 		return errors.Errorf("Failed to add the new game %s", name)
 	}
@@ -106,20 +106,4 @@ func (game *GameService) doesItExist(name string) bool {
 	}
 
 	return gameInfo.Name != ""
-}
-
-func getGameType(name string, question models.GenericQuestion, db core.Repository) (models.PlayableGame, error) {
-	var playableGame models.PlayableGame
-	switch name {
-	case "quibly":
-		playableGame = games.Quibly{CurrentQuestion: question, DB: db}
-	case "fibbing_it":
-		playableGame = games.FibbingIt{CurrentQuestion: question, DB: db}
-	case "drawlosseum":
-		playableGame = games.Drawlosseum{DB: db}
-	default:
-		return nil, errors.BadRequestf("Invalid game %s", name)
-	}
-
-	return playableGame, nil
 }

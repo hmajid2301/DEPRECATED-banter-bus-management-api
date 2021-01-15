@@ -3,22 +3,18 @@ package games
 import (
 	"fmt"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
-
 	"github.com/juju/errors"
+
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 )
 
-// FibbingIt type that implements PlayableGames.
-type FibbingIt struct {
-	DB              core.Repository
-	CurrentQuestion models.GenericQuestion
-}
+// FibbingIt is the concrete type for the the game interface.
+type FibbingIt struct{}
 
-// AddGame is used to add new games of type `fibbing_it`.
-func (f FibbingIt) AddGame(rulesURL string) (bool, error) {
+// GetInfo is used to add new games of type `fibbing_it`.
+func (f FibbingIt) GetInfo(rulesURL string) models.GameInfo {
 	t := true
-	var newGame = &models.GameInfo{
+	return models.GameInfo{
 		Name:     "fibbing_it",
 		RulesURL: rulesURL,
 		Enabled:  &t,
@@ -28,14 +24,10 @@ func (f FibbingIt) AddGame(rulesURL string) (bool, error) {
 			Likely:   []models.Question{},
 		},
 	}
-
-	inserted, err := f.DB.Insert("game", newGame)
-	return inserted, err
 }
 
 // GetQuestionPath gets the path to get a specific question in MongoDB. Using string concat i.e. "question.likely".
-func (f FibbingIt) GetQuestionPath() string {
-	question := f.CurrentQuestion
+func (f FibbingIt) GetQuestionPath(question models.GenericQuestion) string {
 	questionPath := fmt.Sprintf("questions.%s", question.Round)
 
 	if question.Group.Name != "" {
@@ -48,8 +40,7 @@ func (f FibbingIt) GetQuestionPath() string {
 }
 
 // ValidateQuestionInput is used to validate input for interacting with questions.
-func (f FibbingIt) ValidateQuestionInput() error {
-	question := f.CurrentQuestion
+func (f FibbingIt) ValidateQuestionInput(question models.GenericQuestion) error {
 	validRounds := map[string]bool{"opinion": true, "likely": true, "free_form": true}
 	validTypes := map[string]bool{"answers": true, "questions": true}
 
