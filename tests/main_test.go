@@ -36,7 +36,7 @@ func (s *Tests) Setup(t *testing.T) {
 	}
 	logger := core.SetupLogger(ioutil.Discard)
 	core.UpdateLogLevel(logger, "DEBUG")
-	db, err := repository.NewRepository(logger,
+	db, err := repository.NewMongoDB(logger,
 		config.Database.Host,
 		config.Database.Port,
 		config.Database.Username,

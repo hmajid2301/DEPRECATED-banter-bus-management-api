@@ -30,8 +30,9 @@ test: ## Run all tests.
 	@go test -v ./tests/...
 
 .PHONY: coverage
-coverage: ## Run tests with coverage data
+coverage: ### Run tests with missing coverage data
 	@go test -v ./tests/... -coverprofile=coverage.out -coverpkg=./internal/... -covermode count
+	@go tool cover -html=coverage.out
 
 .PHONY: tests-local
 tests-local: start-db test down ### Run tests locally.

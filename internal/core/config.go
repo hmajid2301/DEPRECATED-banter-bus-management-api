@@ -75,11 +75,14 @@ func (config *Config) validateConfig() (err error) {
 		return fmt.Errorf("invalid host ip address %s", config.Webserver.Host)
 	}
 
-	if config.Webserver.Port < 1024 || config.Webserver.Port > 65535 {
+	const maxPortRange = 65535
+	const minPortRange = 1024
+
+	if config.Webserver.Port > maxPortRange {
 		return fmt.Errorf("invalid host port %v", config.Webserver.Port)
 	}
 
-	if config.Database.Port < 1024 || config.Database.Port > 65535 {
+	if config.Database.Port < minPortRange || config.Database.Port > maxPortRange {
 		return fmt.Errorf("invalid database port %v", config.Webserver.Port)
 	}
 

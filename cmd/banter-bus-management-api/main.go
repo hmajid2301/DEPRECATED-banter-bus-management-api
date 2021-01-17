@@ -31,7 +31,7 @@ func mainLogic() int {
 	core.UpdateFormatter(logger, config.App.Environment)
 	core.UpdateLogLevel(logger, config.App.LogLevel)
 
-	db, err := repository.NewRepository(logger,
+	db, err := repository.NewMongoDB(logger,
 		config.Database.Host,
 		config.Database.Port,
 		config.Database.Username,
