@@ -16,7 +16,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to quibly and to round pair",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "this is another question?",
 			Round:   "pair",
 		}, http.StatusCreated,
@@ -24,7 +24,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to quibly and to round answer, language de",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content:      "what is the funniest thing ever told?",
 			LanguageCode: "de",
 			Round:        "answers",
@@ -33,7 +33,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to quibly and to round group",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "what does ATGM stand for?",
 			Round:   "group",
 		}, http.StatusCreated,
@@ -41,7 +41,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to drawlosseum, language ur",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content:      "camel",
 			LanguageCode: "ur",
 		}, http.StatusCreated,
@@ -49,21 +49,21 @@ var AddQuestion = []struct {
 	{
 		"Add another question to drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "pencil",
 		}, http.StatusCreated,
 	},
 	{
 		"Add yet another question to drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "food fight",
 		}, http.StatusCreated,
 	},
 	{
 		"Add a question to fibbing it, round opinion new group bike group, language en",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content:      "do you love bikes?",
 			LanguageCode: "en",
 			Round:        "opinion",
@@ -76,7 +76,7 @@ var AddQuestion = []struct {
 	{
 		"Add another question to fibbing it, round opinion new group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "how much does liam love bikes?",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -88,7 +88,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion existing group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -100,7 +100,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round free_form existing group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What is love?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -111,7 +111,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round free_form new group horse group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What is the fastest horse?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -122,7 +122,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round free_form existing group horse group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What is the second horse called?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -133,7 +133,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round likely",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "to never eat a vegetable again?",
 			Round:   "likely",
 		}, http.StatusCreated,
@@ -141,7 +141,7 @@ var AddQuestion = []struct {
 	{
 		"Add question to quibly, invalid round",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "This is another question?",
 			Round:   "invalid",
 		}, http.StatusBadRequest,
@@ -149,7 +149,7 @@ var AddQuestion = []struct {
 	{
 		"Add question to quibly, invalid2 round",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "This is another question?",
 			Round:   "invalid2",
 		}, http.StatusBadRequest,
@@ -157,7 +157,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, invalid round free_form",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What is the fastest horse?",
 			Round:   "invalid_free_form",
 			Group: &serverModels.Group{
@@ -168,7 +168,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, invalid language code",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content:      "What is the fastest horse?",
 			LanguageCode: "deed",
 			Round:        "opinion",
@@ -181,7 +181,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion invalid type",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -193,7 +193,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion invalid answer type",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -205,7 +205,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion invalid question type",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -217,7 +217,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion invalid type",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -229,26 +229,26 @@ var AddQuestion = []struct {
 	{
 		"game does not exist but missing content",
 		"quibly v3",
-		&serverModels.ReceiveQuestion{}, http.StatusBadRequest,
+		&serverModels.NewQuestion{}, http.StatusBadRequest,
 	},
 	{
 		"game does not exist",
 		"quibly_v2",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 		}, http.StatusNotFound,
 	},
 	{
 		"another game does not exist",
 		"quibly v3",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 		}, http.StatusNotFound,
 	},
 	{
 		"Add a question that already exists to quibly and to round pair",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "this is another question?",
 			Round:   "pair",
 		}, http.StatusConflict,
@@ -256,7 +256,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question that already exists to quibly and to round answer",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "pink mustard",
 			Round:   "answers",
 		}, http.StatusConflict,
@@ -264,7 +264,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question that already exists to quibly and to round answer",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content:      "german",
 			LanguageCode: "de",
 			Round:        "answers",
@@ -273,7 +273,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question that already exists to quibly and to round group",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "what does ATGM stand for?",
 			Round:   "group",
 		}, http.StatusConflict,
@@ -281,28 +281,28 @@ var AddQuestion = []struct {
 	{
 		"Add a question that already exists to drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "horse",
 		}, http.StatusConflict,
 	},
 	{
 		"Add another question that already exists to drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "pencil",
 		}, http.StatusConflict,
 	},
 	{
 		"Add yet another question that already exists to drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "food fight",
 		}, http.StatusConflict,
 	},
 	{
 		"Add a question to fibbing it that already exists, round opinion new group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "do you love bikes?",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -314,7 +314,7 @@ var AddQuestion = []struct {
 	{
 		"Add another question to fibbing it that already exists, round opinion new group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "how much does liam love bikes?",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -326,7 +326,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it that already exists, round opinion existing group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -338,7 +338,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it that already exists, round free_form existing group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What is love?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -349,7 +349,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it that already exists, round free_form new group horse group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What is the fastest horse?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -360,7 +360,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it that already exists, round free_form existing group horse group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What is the second horse called?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -371,7 +371,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it tthat already exists, round likely",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "to never eat a vegetable again?",
 			Round:   "likely",
 		}, http.StatusConflict,
@@ -379,7 +379,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to quibly and to round pair",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What do you think about horses?",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -401,7 +401,7 @@ var UpdateQuestion = []struct {
 		"Update question in quibly and round pair, new language fr",
 		"quibly",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "this is a question?",
 				LanguageCode: "de",
 				Round:        "pair",
@@ -417,7 +417,7 @@ var UpdateQuestion = []struct {
 		"Update question in quibly and round pair, replace exitsing language de",
 		"quibly",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "pink mustard",
 				Round:   "answers",
 			},
@@ -432,7 +432,7 @@ var UpdateQuestion = []struct {
 		"Update question in quibly and round group, add new language de",
 		"quibly",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "this is a another question?",
 				LanguageCode: "fr",
 				Round:        "group",
@@ -448,7 +448,7 @@ var UpdateQuestion = []struct {
 		"Update question in quibly and round group, add another new language ur",
 		"quibly",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "this is a another question?",
 				LanguageCode: "fr",
 				Round:        "group",
@@ -464,7 +464,7 @@ var UpdateQuestion = []struct {
 		"Update question in drawlosseum",
 		"drawlosseum",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "horse",
 				Round:   "group",
 			},
@@ -479,7 +479,7 @@ var UpdateQuestion = []struct {
 		"Update question in drawlosseum, specify en (this should be default)",
 		"drawlosseum",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "spoon",
 				LanguageCode: "en",
 				Round:        "group",
@@ -495,7 +495,7 @@ var UpdateQuestion = []struct {
 		"Update question in fibbing it, round opinion",
 		"fibbing_it",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "What do you think about horses?",
 				Round:   "opinion",
 				Group: &serverModels.Group{
@@ -514,7 +514,7 @@ var UpdateQuestion = []struct {
 		"Update question in fibbing it, round opinion and answers section",
 		"fibbing_it",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "cool",
 				Round:   "opinion",
 				Group: &serverModels.Group{
@@ -532,7 +532,7 @@ var UpdateQuestion = []struct {
 		"Update question in fibbing it, round free_form, language fr",
 		"fibbing_it",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
 				Round:   "free_form",
 				Group: &serverModels.Group{
@@ -549,7 +549,7 @@ var UpdateQuestion = []struct {
 		"Update question in quibly, invalid round",
 		"quibly",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "A question?",
 				Round:   "invalid",
 			},
@@ -563,7 +563,7 @@ var UpdateQuestion = []struct {
 		"Update question in fibbing it, invalid round",
 		"fibbing_it",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
 				Round:   "free_form2",
 				Group: &serverModels.Group{
@@ -580,7 +580,7 @@ var UpdateQuestion = []struct {
 		"Update question in fibbing it, invalid group type answer (should be answers)",
 		"fibbing_it",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
 				Round:   "opinion",
 				Group: &serverModels.Group{
@@ -597,13 +597,13 @@ var UpdateQuestion = []struct {
 	{
 		"Missing content",
 		"quibly",
-		&serverModels.ReceiveQuestion{}, http.StatusBadRequest,
+		&serverModels.NewQuestion{}, http.StatusBadRequest,
 	},
 	{
 		"Update question in fibbing it but invalid language code",
 		"fibbing_it",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
 				Round:   "opinion",
 				Group: &serverModels.Group{
@@ -621,7 +621,7 @@ var UpdateQuestion = []struct {
 		"game does not exist",
 		"quibly v3",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
 				Round:   "free_form",
 				Group: &serverModels.Group{
@@ -638,7 +638,7 @@ var UpdateQuestion = []struct {
 		"Original question doesn't exist",
 		"fibbing_it",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.ReceiveQuestion{
+			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite horse colour?",
 				Round:   "free_form",
 				Group: &serverModels.Group{
@@ -663,7 +663,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round pair",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "this is a question?",
 			Round:   "pair",
 		}, http.StatusOK,
@@ -671,7 +671,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round pair, language ur",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content:      "this is a question?",
 			LanguageCode: "ur",
 			Round:        "pair",
@@ -680,7 +680,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round answers",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "pink mustard",
 			Round:   "answers",
 		}, http.StatusOK,
@@ -688,7 +688,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round group, language fr",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content:      "this is a another question?",
 			LanguageCode: "fr",
 			Round:        "group",
@@ -697,21 +697,21 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "horse",
 		}, http.StatusOK,
 	},
 	{
 		"Delete another question drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "spoon",
 		}, http.StatusOK,
 	},
 	{
 		"Delete a question to fibbing it, round opinion from group horse group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What do you think about horses?",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -723,7 +723,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a answer to fibbing it, round opinion from group horse group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "cool",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -735,7 +735,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a answer to fibbing it, round free_form from group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "Favourite bike colour?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -746,7 +746,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a answer to fibbing it, round likely",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "to get arrested",
 			Round:   "likely",
 		}, http.StatusOK,
@@ -754,7 +754,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete another answer to fibbing it, round likely",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "to eat ice-cream from the tub",
 			Round:   "likely",
 		}, http.StatusOK,
@@ -762,7 +762,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round invalid",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "this is a question?",
 			Round:   "invalid",
 		}, http.StatusBadRequest,
@@ -770,14 +770,14 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round content missing",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Round: "group",
 		}, http.StatusBadRequest,
 	},
 	{
 		"Delete a question quibly from round pair that was already deleted",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "this is a question?",
 			Round:   "pair",
 		}, http.StatusNotFound,
@@ -785,14 +785,14 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question drawlosseum that was already deleted",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "horse",
 		}, http.StatusNotFound,
 	},
 	{
 		"Delete a question already removed from fibbing it, round free_form from group bike group",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "Favourite bike colour?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -803,7 +803,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question already removed from fibbing it, round likely",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "to get arrested",
 			Round:   "likely",
 		}, http.StatusNotFound,
@@ -811,7 +811,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete another  already removed from fibbing it, round likely",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "to eat ice-cream from the tub",
 			Round:   "likely",
 		}, http.StatusNotFound,
@@ -828,7 +828,7 @@ var EnableQuestion = []struct {
 	{
 		"Enable a question, quibly and round pair",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "this is a question?",
 			Round:   "pair",
 		}, http.StatusOK,
@@ -836,7 +836,7 @@ var EnableQuestion = []struct {
 	{
 		"Enable a question, quibly and round answers",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content:      "this is a another question?",
 			LanguageCode: "fr",
 			Round:        "group",
@@ -845,7 +845,7 @@ var EnableQuestion = []struct {
 	{
 		"Enable a question, fibbing_it and round opinion",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What do you think about camels?",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -857,7 +857,7 @@ var EnableQuestion = []struct {
 	{
 		"Enable an answer, fibbing_it and round opinion",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "cool",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -869,7 +869,7 @@ var EnableQuestion = []struct {
 	{
 		"Enable a question, fibbing_it and round free_form",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "Favourite bike colour?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -880,7 +880,7 @@ var EnableQuestion = []struct {
 	{
 		"Enable a question, fibbing_it and round likely",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "to get arrested",
 			Round:   "likely",
 		}, http.StatusOK,
@@ -888,21 +888,21 @@ var EnableQuestion = []struct {
 	{
 		"Enable a question, drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "spoon",
 		}, http.StatusOK,
 	},
 	{
 		"Enable an already enabled question, drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "spoon",
 		}, http.StatusOK,
 	},
 	{
 		"Bad request invalid round, fibbing_it",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "spoon",
 			Round:   "likely2",
 		}, http.StatusBadRequest,
@@ -910,12 +910,12 @@ var EnableQuestion = []struct {
 	{
 		"Bad request invalid content, fibbing_it",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{}, http.StatusBadRequest,
+		&serverModels.NewQuestion{}, http.StatusBadRequest,
 	},
 	{
 		"Game does not exist",
 		"quibly v3",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 		}, http.StatusNotFound,
 	},
@@ -931,7 +931,7 @@ var DisableQuestion = []struct {
 	{
 		"Disable a question, quibly and round pair",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "this is a question?",
 			Round:   "pair",
 		}, http.StatusOK,
@@ -939,7 +939,7 @@ var DisableQuestion = []struct {
 	{
 		"Disable a question, quibly and round answers",
 		"quibly",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "pink mustard",
 			Round:   "answers",
 		}, http.StatusOK,
@@ -947,7 +947,7 @@ var DisableQuestion = []struct {
 	{
 		"Disable a question, fibbing_it and round opinion",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "What do you think about camels?",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -959,7 +959,7 @@ var DisableQuestion = []struct {
 	{
 		"Disable an answer, fibbing_it and round opinion",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "lame",
 			Round:   "opinion",
 			Group: &serverModels.Group{
@@ -971,7 +971,7 @@ var DisableQuestion = []struct {
 	{
 		"Disable anquestion, fibbing_it and round free_form",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "Favourite bike colour?",
 			Round:   "free_form",
 			Group: &serverModels.Group{
@@ -982,7 +982,7 @@ var DisableQuestion = []struct {
 	{
 		"Disable a question, fibbing_it and round likely",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "to eat ice-cream from the tub",
 			Round:   "likely",
 		}, http.StatusOK,
@@ -990,21 +990,21 @@ var DisableQuestion = []struct {
 	{
 		"Disable a question, drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "spoon",
 		}, http.StatusOK,
 	},
 	{
 		"Disable a question, thats disabled drawlosseum",
 		"drawlosseum",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "spoon",
 		}, http.StatusOK,
 	},
 	{
 		"Bad request invalid round, fibbing_it",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "spoon",
 			Round:   "likely2",
 		}, http.StatusBadRequest,
@@ -1012,12 +1012,12 @@ var DisableQuestion = []struct {
 	{
 		"Bad request invalid content, fibbing_it",
 		"fibbing_it",
-		&serverModels.ReceiveQuestion{}, http.StatusBadRequest,
+		&serverModels.NewQuestion{}, http.StatusBadRequest,
 	},
 	{
 		"Game does not exist",
 		"quibly v3",
-		&serverModels.ReceiveQuestion{
+		&serverModels.NewQuestion{
 			Content: "super love",
 		}, http.StatusNotFound,
 	},

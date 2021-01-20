@@ -43,7 +43,7 @@ services:
     depends_on:
       - mongodb
     environment:
-      - MONGOCLIENT_DEFAULT_CONNECTION_URL=mongodb://banterbus:banterbus@banter-bus-database:27017/
+      - MONGOCLIENT_DEFAULT_CONNECTION_URL=mongodb://banterbus:banterbus@banter-bus-database:27017
     volumes:
       - /data/db mongoclient/mongoclient
     ports:

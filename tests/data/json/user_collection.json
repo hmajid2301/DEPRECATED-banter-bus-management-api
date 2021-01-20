@@ -68,6 +68,7 @@
         {
           "pool_name": "my_pool",
           "game_name": "fibbing_it",
+          "language_code": "en",
           "privacy": "public",
           "questions": {
             "opinion": {
@@ -88,13 +89,15 @@
         {
           "pool_name": "my_pool2",
           "game_name": "quibly",
+          "language_code": "fr",
           "privacy": "private",
           "questions": {
             "pair": [
               "What do you think about horses?",
               "What do you think about camels?"
             ],
-            "answers": ["Favourite bike colour?", "A funny question?"]
+            "answers": ["Favourite bike colour?", "A funny question?"],
+            "group": []
           }
         }
       ]
@@ -157,11 +160,13 @@
           "pool_name": "draw_me",
           "game_name": "drawlosseum",
           "privacy": "friends",
+          "language_code": "en",
           "questions": { "drawings": ["horses", "camels"] }
         },
         {
           "pool_name": "my_unique_pool2",
           "game_name": "quibly",
+          "language_code": "en",
           "privacy": "public",
           "questions": {
             "group": [

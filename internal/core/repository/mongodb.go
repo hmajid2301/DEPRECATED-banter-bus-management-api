@@ -158,6 +158,65 @@ func (db *MongoDB) Get(collectionName string, filter interface{}, model interfac
 	return err
 }
 
+// GetSubObject retrieves a subdocument from the database.
+// This method should be used to retrieve a single subdocument from an array element.
+// The filter is what to use to filter to that subdocument i.e. `{"username": "virat_kohli"}`.
+// The parentField being the first field you want to see i.e. `question_pools`.
+// The condition is which of the array elements to get from the parentField i.e. `{$$this.pool_name", "my_pool"}`.
+// The model must be a slice/array where to unmarshal the BSON to i.e. `[]models.QuestionPool`.
+// This method will return the first element the matches the condition.
+func (db *MongoDB) GetSubObject(
+	collectionName string,
+	filter interface{},
+	parentField string,
+	condition []string,
+	model interface{},
+) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
+	defer cancel()
+
+	db.logger.WithFields(log.Fields{
+		"collection": collectionName,
+		"filter":     filter,
+		"model":      model,
+	}).Debug("Getting sub-object from database.")
+	collection := db.database.Collection(collectionName)
+
+	pipeline := mongo.Pipeline{
+		{
+			{Key: "$match", Value: filter},
+		},
+		{
+			{
+				Key: "$replaceRoot",
+				Value: bson.M{
+					"newRoot": bson.M{
+						"$arrayElemAt": []interface{}{
+							bson.M{
+								"$filter": bson.M{
+									"input": fmt.Sprintf("$%s", parentField),
+									"cond": bson.M{
+										"$eq": condition,
+									},
+								},
+							},
+							0,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	aggregate, err := collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return err
+	}
+
+	err = aggregate.All(ctx, model)
+	return err
+}
+
 // GetAll entries from the database.
 func (db *MongoDB) GetAll(collectionName string, model interface{}) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)

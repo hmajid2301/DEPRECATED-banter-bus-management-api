@@ -6,6 +6,13 @@ type Repository interface {
 	Insert(collectionName string, objectToInsert interface{}) (bool, error)
 	InsertMultiple(collectionName string, objectToInsert []interface{}) error
 	Get(collectionName string, filter interface{}, unmarshalModel interface{}) error
+	GetSubObject(
+		collectionName string,
+		filter interface{},
+		parentField string,
+		condition []string,
+		model interface{},
+	) error
 	GetAll(collectionName string, unmarshalModel interface{}) error
 	Delete(collectionName string, filter interface{}) (bool, error)
 	RemoveCollection(collectionName string) error

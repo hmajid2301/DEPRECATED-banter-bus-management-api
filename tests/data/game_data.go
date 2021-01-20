@@ -15,7 +15,7 @@ var AddGame = []struct {
 }{
 	{
 		"Add a new game",
-		&serverModels.ReceiveGame{
+		&serverModels.NewGame{
 			Name:     "quibly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 		},
@@ -45,7 +45,7 @@ var AddGame = []struct {
 	},
 	{
 		"Try to add a game that already exists.",
-		&serverModels.ReceiveGame{
+		&serverModels.NewGame{
 			Name:     "quibly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 		}, http.StatusConflict,

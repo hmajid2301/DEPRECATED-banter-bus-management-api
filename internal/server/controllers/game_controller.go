@@ -10,7 +10,7 @@ import (
 )
 
 // CreateGame adds a new game.
-func (env *Env) CreateGame(_ *gin.Context, game *serverModels.ReceiveGame) (struct{}, error) {
+func (env *Env) CreateGame(_ *gin.Context, game *serverModels.NewGame) (struct{}, error) {
 	gameLogger := env.Logger.WithFields(log.Fields{
 		"game_name": game.Name,
 	})

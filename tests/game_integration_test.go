@@ -15,7 +15,7 @@ func (s *Tests) SubTestAddGame(t *testing.T) {
 	for _, tc := range data.AddGame {
 		testName := fmt.Sprintf("Add New Game: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			gameData, ok := tc.Payload.(*serverModels.ReceiveGame)
+			gameData, ok := tc.Payload.(*serverModels.NewGame)
 
 			if ok && tc.ExpectedStatus == http.StatusCreated {
 				endpoint := fmt.Sprintf("/game/%s", gameData.Name)

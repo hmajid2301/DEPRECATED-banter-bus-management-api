@@ -285,9 +285,10 @@ var GetUserPools = []struct {
 		http.StatusOK,
 		[]serverModels.QuestionPool{
 			{
-				PoolName: "my_pool",
-				GameName: "fibbing_it",
-				Privacy:  "public",
+				PoolName:     "my_pool",
+				GameName:     "fibbing_it",
+				LanguageCode: "en",
+				Privacy:      "public",
 				Questions: serverModels.QuestionPoolQuestions{
 					FibbingIt: serverModels.FibbingItQuestionsPool{
 						Likely: []string{
@@ -295,7 +296,7 @@ var GetUserPools = []struct {
 							"to get arrested",
 						},
 						FreeForm: map[string][]string{
-							"bike_group": []string{
+							"bike_group": {
 								"Favourite bike colour?",
 								"A funny question?",
 							},
@@ -313,9 +314,10 @@ var GetUserPools = []struct {
 				},
 			},
 			{
-				PoolName: "my_pool2",
-				GameName: "quibly",
-				Privacy:  "private",
+				PoolName:     "my_pool2",
+				GameName:     "quibly",
+				LanguageCode: "fr",
+				Privacy:      "private",
 				Questions: serverModels.QuestionPoolQuestions{
 					Quibly: serverModels.QuiblyQuestionsPool{
 						Pair: []string{
@@ -337,9 +339,10 @@ var GetUserPools = []struct {
 		http.StatusOK,
 		[]serverModels.QuestionPool{
 			{
-				PoolName: "draw_me",
-				GameName: "drawlosseum",
-				Privacy:  "friends",
+				PoolName:     "draw_me",
+				GameName:     "drawlosseum",
+				LanguageCode: "en",
+				Privacy:      "friends",
 				Questions: serverModels.QuestionPoolQuestions{
 					Drawlosseum: serverModels.DrawlosseumQuestionsPool{
 						Drawings: []string{
@@ -350,9 +353,10 @@ var GetUserPools = []struct {
 				},
 			},
 			{
-				PoolName: "my_unique_pool2",
-				GameName: "quibly",
-				Privacy:  "public",
+				PoolName:     "my_unique_pool2",
+				GameName:     "quibly",
+				LanguageCode: "en",
+				Privacy:      "public",
 				Questions: serverModels.QuestionPoolQuestions{
 					Quibly: serverModels.QuiblyQuestionsPool{
 						Group: []string{
@@ -369,6 +373,85 @@ var GetUserPools = []struct {
 		"azharAli",
 		http.StatusNotFound,
 		[]serverModels.QuestionPool{},
+	},
+}
+
+// GetSingleUserPool is the data for testing a single pool returned from a user.
+var GetSingleUserPool = []struct {
+	TestDescription string
+	Username        string
+	PoolName        string
+	ExpectedStatus  int
+	ExpectedResult  serverModels.QuestionPool
+}{
+	{
+		"Get user pool for a user",
+		"virat_kohli",
+		"my_pool",
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			GameName:     "fibbing_it",
+			LanguageCode: "en",
+			Privacy:      "public",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": {
+							"Favourite bike colour?",
+							"A funny question?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about horses?",
+								"What do you think about camels?",
+							},
+							"answers": []string{"lame", "tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Get another user pool",
+		"dhawanShikhar",
+		"draw_me",
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "draw_me",
+			GameName:     "drawlosseum",
+			LanguageCode: "en",
+			Privacy:      "friends",
+			Questions: serverModels.QuestionPoolQuestions{
+				Drawlosseum: serverModels.DrawlosseumQuestionsPool{
+					Drawings: []string{
+						"horses",
+						"camels",
+					},
+				},
+			},
+		},
+	},
+	{
+		"Get a user pool that doesn't exist",
+		"dhawanShikhar",
+		"draw_me1",
+		http.StatusNotFound,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Get a user pool for a user that doesn't exists",
+		"azharAli",
+		"a_pool",
+		http.StatusNotFound,
+		serverModels.QuestionPool{},
 	},
 }
 
@@ -529,5 +612,697 @@ var GetUserStories = []struct {
 		"azharAli",
 		http.StatusNotFound,
 		[]serverModels.Story{},
+	},
+}
+
+// AddNewPool is the data for testing adding new pools to users.
+var AddNewPool = []struct {
+	TestDescription string
+	Username        string
+	NewPool         interface{}
+	ExpectedStatus  int
+	ExpectedResult  serverModels.QuestionPool
+}{
+	{
+		"Add new user pool",
+		"virat_kohli",
+		serverModels.NewQuestionPool{
+			PoolName: "another_pool",
+			GameName: "fibbing_it",
+			Privacy:  "public",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "another_pool",
+			GameName:     "fibbing_it",
+			Privacy:      "public",
+			LanguageCode: "en",
+		},
+	},
+	{
+		"Add new user pool to another user",
+		"roh1t_sharma",
+		serverModels.NewQuestionPool{
+			PoolName:     "first_pool",
+			GameName:     "fibbing_it",
+			LanguageCode: "fr",
+			Privacy:      "private",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "first_pool",
+			GameName:     "fibbing_it",
+			LanguageCode: "fr",
+			Privacy:      "private",
+		},
+	},
+	{
+		"Add new user pool, wrong privacy setting",
+		"virat_kohli",
+		serverModels.NewQuestionPool{
+			PoolName: "another_pool2",
+			GameName: "fibbing_it",
+			Privacy:  "wrong",
+		},
+		http.StatusBadRequest,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Add new user pool, wrong language code",
+		"virat_kohli",
+		serverModels.NewQuestionPool{
+			PoolName:     "another_pool2",
+			GameName:     "fibbing_it",
+			LanguageCode: "papa",
+			Privacy:      "private",
+		},
+		http.StatusBadRequest,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Add new user pool, wrong privacy setting",
+		"virat_kohli",
+		serverModels.NewQuestionPool{
+			PoolName: "another_pool2",
+			GameName: "fibbing_it",
+			Privacy:  "wrong",
+		},
+		http.StatusBadRequest,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Add new user pool, game doesn't exist",
+		"virat_kohli",
+		serverModels.NewQuestionPool{
+			PoolName: "another_pool2",
+			GameName: "fibbing2_it",
+			Privacy:  "public",
+		},
+		http.StatusBadRequest,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Add new user pool incorrect field PoolName",
+		"virat_kohli",
+		struct{ PoolNam, GameName, Privacy string }{
+			PoolNam:  "another_pool2",
+			GameName: "fibbing_it",
+			Privacy:  "public",
+		},
+		http.StatusBadRequest,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Add new user pool incorrect field PoolName",
+		"virat_kohli",
+		struct{ PoolName, GameNam, Privacy string }{
+			PoolName: "another_pool4",
+			GameNam:  "fibbing_it",
+			Privacy:  "public",
+		},
+		http.StatusBadRequest,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Add new user pool, user doesn't exist",
+		"virat",
+		serverModels.NewQuestionPool{
+			PoolName: "another_pool4",
+			GameName: "fibbing_it",
+			Privacy:  "public",
+		},
+		http.StatusNotFound,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Add existing pool",
+		"virat_kohli",
+		serverModels.NewQuestionPool{
+			PoolName: "another_pool",
+			GameName: "fibbing_it",
+			Privacy:  "public",
+		},
+		http.StatusConflict,
+		serverModels.QuestionPool{},
+	},
+}
+
+// RemovePool is the data for testing removing pools from users.
+var RemovePool = []struct {
+	TestDescription string
+	Username        string
+	PoolName        interface{}
+	ExpectedStatus  int
+}{
+	{
+		"Remove user pool",
+		"virat_kohli",
+		"my_pool",
+		http.StatusOK,
+	},
+	{
+		"Remove pool from another user",
+		"dhawanShikhar",
+		"draw_me",
+		http.StatusOK,
+	},
+	{
+		"Remove user pool, user doesn't exist",
+		"virat",
+		"another_pool4",
+		http.StatusNotFound,
+	},
+	{
+		"Remove an already deleted pool",
+		"virat_kohli",
+		"another_pool",
+		http.StatusNotFound,
+	},
+}
+
+// UpdatePool is the data for testing adding new pools to users.
+var UpdatePool = []struct {
+	TestDescription string
+	Username        string
+	PoolName        string
+	UpdatePool      interface{}
+	ExpectedStatus  int
+	ExpectedResult  serverModels.QuestionPool
+}{
+	{
+		"Add question to user pool",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "do you love bikes?",
+				Round:   "opinion",
+				Group: &serverModels.Group{
+					Name: "horse_group",
+					Type: "questions",
+				},
+			},
+			Operation: "add",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			LanguageCode: "en",
+			GameName:     "fibbing_it",
+			Privacy:      "public",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": {
+							"Favourite bike colour?",
+							"A funny question?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about horses?",
+								"What do you think about camels?",
+								"do you love bikes?",
+							},
+							"answers": []string{"lame", "tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Add another question to user pool",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "super tasty",
+				Round:   "opinion",
+				Group: &serverModels.Group{
+					Name: "horse_group",
+					Type: "answers",
+				},
+			},
+			Operation: "add",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			GameName:     "fibbing_it",
+			LanguageCode: "en",
+			Privacy:      "public",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": {
+							"Favourite bike colour?",
+							"A funny question?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about horses?",
+								"What do you think about camels?",
+								"do you love bikes?",
+							},
+							"answers": []string{"lame", "tasty", "super tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Add question to user pool different round",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "what is the tastiest horse?",
+				Round:   "free_form",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+				},
+			},
+			Operation: "add",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			GameName:     "fibbing_it",
+			LanguageCode: "en",
+			Privacy:      "public",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": {
+							"Favourite bike colour?",
+							"A funny question?",
+							"what is the tastiest horse?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about horses?",
+								"What do you think about camels?",
+								"do you love bikes?",
+							},
+							"answers": []string{"lame", "tasty", "super tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Add question to user pool another different round",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "to eat a fruit",
+				Round:   "likely",
+				Group:   nil,
+			},
+			Operation: "add",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			GameName:     "fibbing_it",
+			LanguageCode: "en",
+			Privacy:      "public",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+						"to eat a fruit",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": {
+							"Favourite bike colour?",
+							"A funny question?",
+							"what is the tastiest horse?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about horses?",
+								"What do you think about camels?",
+								"do you love bikes?",
+							},
+							"answers": []string{"lame", "tasty", "super tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Add question to another user pool",
+		"virat_kohli",
+		"my_pool2",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "what do you think about donkeys?",
+				Round:   "pair",
+				Group:   nil,
+			},
+			Operation: "add",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool2",
+			GameName:     "quibly",
+			LanguageCode: "fr",
+			Privacy:      "private",
+			Questions: serverModels.QuestionPoolQuestions{
+				Quibly: serverModels.QuiblyQuestionsPool{
+					Pair: []string{
+						"What do you think about horses?",
+						"What do you think about camels?",
+						"what do you think about donkeys?",
+					},
+					Answers: []string{
+						"Favourite bike colour?",
+						"A funny question?",
+					},
+					Group: []string{},
+				},
+			},
+		},
+	},
+	{
+		"Add another question to another user pool",
+		"virat_kohli",
+		"my_pool2",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "a question?",
+				Round:   "group",
+				Group:   nil,
+			},
+			Operation: "add",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool2",
+			GameName:     "quibly",
+			LanguageCode: "fr",
+			Privacy:      "private",
+			Questions: serverModels.QuestionPoolQuestions{
+				Quibly: serverModels.QuiblyQuestionsPool{
+					Pair: []string{
+						"What do you think about horses?",
+						"What do you think about camels?",
+						"what do you think about donkeys?",
+					},
+					Answers: []string{
+						"Favourite bike colour?",
+						"A funny question?",
+					},
+					Group: []string{
+						"a question?",
+					},
+				},
+			},
+		},
+	},
+	{
+		"Add another question to another user theit pool",
+		"dhawanShikhar",
+		"draw_me",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "chicken",
+			},
+			Operation: "add",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "draw_me",
+			GameName:     "drawlosseum",
+			LanguageCode: "en",
+			Privacy:      "friends",
+			Questions: serverModels.QuestionPoolQuestions{
+				Drawlosseum: serverModels.DrawlosseumQuestionsPool{
+					Drawings: []string{
+						"horses",
+						"camels",
+						"chicken",
+					},
+				},
+			},
+		},
+	},
+	{
+		"Remove question from user pool",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "What do you think about horses?",
+				Round:   "opinion",
+				Group: &serverModels.Group{
+					Name: "horse_group",
+					Type: "questions",
+				},
+			},
+			Operation: "remove",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			GameName:     "fibbing_it",
+			LanguageCode: "en",
+			Privacy:      "public",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+						"to eat a fruit",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": []string{
+							"Favourite bike colour?",
+							"A funny question?",
+							"what is the tastiest horse?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about camels?",
+								"do you love bikes?",
+							},
+							"answers": []string{"lame", "tasty", "super tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Remove another question from user pool",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "super tasty",
+				Round:   "opinion",
+				Group: &serverModels.Group{
+					Name: "horse_group",
+					Type: "answers",
+				},
+			},
+			Operation: "remove",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			GameName:     "fibbing_it",
+			Privacy:      "public",
+			LanguageCode: "en",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+						"to eat a fruit",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": {
+							"Favourite bike colour?",
+							"A funny question?",
+							"what is the tastiest horse?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about camels?",
+								"do you love bikes?",
+							},
+							"answers": []string{"lame", "tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Remove question from user pool different round",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "what is the tastiest horse?",
+				Round:   "free_form",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+				},
+			},
+			Operation: "remove",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			GameName:     "fibbing_it",
+			Privacy:      "public",
+			LanguageCode: "en",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+						"to eat a fruit",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": {
+							"Favourite bike colour?",
+							"A funny question?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about camels?",
+								"do you love bikes?",
+							},
+							"answers": []string{"lame", "tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Remove question from user pool another different round",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "to eat a fruit",
+				Round:   "likely",
+				Group:   nil,
+			},
+			Operation: "remove",
+		},
+		http.StatusOK,
+		serverModels.QuestionPool{
+			PoolName:     "my_pool",
+			GameName:     "fibbing_it",
+			Privacy:      "public",
+			LanguageCode: "en",
+			Questions: serverModels.QuestionPoolQuestions{
+				FibbingIt: serverModels.FibbingItQuestionsPool{
+					Likely: []string{
+						"to eat ice-cream from the tub",
+						"to get arrested",
+					},
+					FreeForm: map[string][]string{
+						"bike_group": []string{
+							"Favourite bike colour?",
+							"A funny question?",
+						},
+					},
+					Opinion: map[string]map[string][]string{
+						"horse_group": {
+							"questions": []string{
+								"What do you think about camels?",
+								"do you love bikes?",
+							},
+							"answers": []string{"lame", "tasty"},
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		"Remove question from user pool that was already removed",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "to eat a fruit",
+				Round:   "likely",
+				Group:   nil,
+			},
+			Operation: "remove",
+		},
+		http.StatusNotFound,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Remove another question from user pool that was already removed",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "what is the tastiest horse?",
+				Round:   "free_form",
+				Group: &serverModels.Group{
+					Name: "bike_group",
+				},
+			},
+			Operation: "remove",
+		},
+		http.StatusNotFound,
+		serverModels.QuestionPool{},
+	},
+	{
+		"Add question to user pool that already exists",
+		"virat_kohli",
+		"my_pool",
+		serverModels.UpdateQuestionPool{
+			NewQuestion: serverModels.NewQuestion{
+				Content: "to eat ice-cream from the tub",
+				Round:   "likely",
+				Group:   nil,
+			},
+			Operation: "add",
+		},
+		http.StatusConflict,
+		serverModels.QuestionPool{},
 	},
 }

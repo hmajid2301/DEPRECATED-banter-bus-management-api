@@ -14,7 +14,7 @@ import (
 // AddQuestion adds a new question to a game.
 func (env *Env) AddQuestion(_ *gin.Context, questionInput *serverModels.QuestionInput) error {
 	var (
-		question = questionInput.ReceiveQuestion
+		question = questionInput.NewQuestion
 		game     = questionInput.GameParams
 	)
 	questionLogger := log.WithFields(log.Fields{
@@ -80,7 +80,7 @@ func (env *Env) UpdateQuestion(_ *gin.Context, questionInput *serverModels.Updat
 // RemoveQuestion removes a question from a game.
 func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.QuestionInput) error {
 	var (
-		question = questionInput.ReceiveQuestion
+		question = questionInput.NewQuestion
 		game     = questionInput.GameParams
 	)
 	questionLogger := log.WithFields(log.Fields{
@@ -132,7 +132,7 @@ func (env *Env) updateEnableQuestionState(
 	enable bool,
 ) (struct{}, error) {
 	var (
-		question = questionInput.ReceiveQuestion
+		question = questionInput.NewQuestion
 		game     = questionInput.GameParams
 	)
 	questionLogger := log.WithFields(log.Fields{
@@ -157,7 +157,7 @@ func (env *Env) updateEnableQuestionState(
 	return emptyResponse, nil
 }
 
-func (env *Env) newGenericQuestion(question serverModels.ReceiveQuestion) models.GenericQuestion {
+func (env *Env) newGenericQuestion(question serverModels.NewQuestion) models.GenericQuestion {
 	var group *models.GenericQuestionGroup
 	if question.Group == nil {
 		group = &models.GenericQuestionGroup{

@@ -65,10 +65,11 @@ type Friend struct {
 
 // QuestionPool struct holds the data for all their own questions
 type QuestionPool struct {
-	PoolName  string      `bson:"pool_name" json:"pool_name"`
-	GameName  string      `bson:"game_name" json:"game_name"`
-	Privacy   string      `bson:"privacy"`
-	Questions interface{} `bson:"questions"`
+	PoolName     string      `bson:"pool_name"     json:"pool_name"`
+	GameName     string      `bson:"game_name"     json:"game_name"`
+	LanguageCode string      `bson:"language_code" json:"language_code"`
+	Privacy      string      `bson:"privacy"`
+	Questions    interface{} `bson:"questions"`
 }
 
 // DrawlosseumQuestionsPool is the question pool data for drawlosseum.

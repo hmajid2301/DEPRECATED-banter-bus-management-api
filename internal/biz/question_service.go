@@ -46,8 +46,7 @@ func (q *QuestionService) Add(gameName string, question models.GenericQuestion) 
 	filter := &models.GameInfo{Name: gameName}
 	updated, err := q.DB.AppendToEntry("game", filter, questionToAdd)
 	if !updated || err != nil {
-		errorMessage := "Failed to add a new question."
-		return errors.Errorf(errorMessage)
+		return errors.Errorf("failed to add a new question")
 	}
 
 	return nil
@@ -66,7 +65,6 @@ func (q *QuestionService) Update(
 	}
 
 	questionPath := gameType.GetQuestionPath(existingQuestion)
-
 	originalQuestionExistsErr := q.validateQuestionFound(
 		gameName,
 		questionPath,
@@ -93,7 +91,7 @@ func (q *QuestionService) Update(
 
 	updated, err := q.DB.UpdateEntry("game", filter, questionToUpdate)
 	if !updated || err != nil {
-		return errors.Errorf("Failed to update existing question.")
+		return errors.Errorf("failed to update existing question")
 	}
 
 	return nil
@@ -117,7 +115,7 @@ func (q *QuestionService) Remove(gameName string, question models.GenericQuestio
 
 	updated, err := q.DB.RemoveEntry("game", filter, questionToRemove)
 	if !updated || err != nil {
-		return errors.Errorf("Failed to remove question.")
+		return errors.Errorf("failed to remove question")
 	}
 
 	return nil
@@ -145,7 +143,7 @@ func (q *QuestionService) UpdateEnable(
 
 	updated, err := q.DB.UpdateEntry("game", filter, update)
 	if err != nil {
-		return false, errors.Errorf("Failed to update question.")
+		return false, errors.Errorf("failed to update question")
 	}
 	return updated, err
 }
@@ -159,7 +157,7 @@ func (q *QuestionService) GetGroups(gameName string, round string) ([]string, er
 	}
 
 	if !game.HasGroups(round) {
-		return nil, errors.NotFoundf("Cannot get question groups from round %s of game %s:", round, gameName)
+		return nil, errors.NotFoundf("cannot get question groups from round %s of game %s:", round, gameName)
 	}
 
 	bytesData, err := bson.MarshalExtJSON(game.Questions, true, true)

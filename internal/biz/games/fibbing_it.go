@@ -56,3 +56,82 @@ func (f FibbingIt) ValidateQuestionInput(question models.GenericQuestion) error 
 
 	return nil
 }
+
+// GetQuestionPool gets the question pool structure for the Fibbing It game.
+func (f FibbingIt) GetQuestionPool() interface{} {
+	return models.FibbingItQuestionsPool{
+		Opinion:  map[string]map[string][]string{},
+		FreeForm: map[string][]string{},
+		Likely:   []string{},
+	}
+}
+
+// QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
+// a client.
+func (f FibbingIt) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
+	fibbingItQuestions, ok := questions.(models.FibbingItQuestionsPool)
+	if !ok {
+		errorMessage := "Failed to convert type to FibbingItQuestionsPool."
+		return []models.GenericQuestion{}, errors.New(errorMessage)
+	}
+
+	var newGenericQuestions []models.GenericQuestion
+	likelyQuestions := likelyQuestionsToGenericQuestion(fibbingItQuestions.Likely)
+	newGenericQuestions = append(newGenericQuestions, likelyQuestions...)
+	freeFormQuestions := freeFormQuestionsToGenericQuestion(fibbingItQuestions.FreeForm)
+	newGenericQuestions = append(newGenericQuestions, freeFormQuestions...)
+	opinionQuestions := opinionQuestionsToGenericQuestions(fibbingItQuestions.Opinion)
+	newGenericQuestions = append(newGenericQuestions, opinionQuestions...)
+
+	return newGenericQuestions, nil
+}
+
+func likelyQuestionsToGenericQuestion(likely []string) []models.GenericQuestion {
+	var newGenericQuestions []models.GenericQuestion
+	for _, content := range likely {
+		question := models.GenericQuestion{
+			Content: content,
+			Round:   "likely",
+		}
+		newGenericQuestions = append(newGenericQuestions, question)
+	}
+
+	return newGenericQuestions
+}
+
+func freeFormQuestionsToGenericQuestion(freeform map[string][]string) []models.GenericQuestion {
+	var newGenericQuestions []models.GenericQuestion
+	for groupName, questionGroup := range freeform {
+		for _, content := range questionGroup {
+			question := models.GenericQuestion{
+				Content: content,
+				Round:   "free_form",
+				Group: &models.GenericQuestionGroup{
+					Name: groupName,
+				},
+			}
+			newGenericQuestions = append(newGenericQuestions, question)
+		}
+	}
+	return newGenericQuestions
+}
+
+func opinionQuestionsToGenericQuestions(opinion map[string]map[string][]string) []models.GenericQuestion {
+	var newGenericQuestions []models.GenericQuestion
+	for groupName, questionGroup := range opinion {
+		for groupType, questions := range questionGroup {
+			for _, content := range questions {
+				question := models.GenericQuestion{
+					Content: content,
+					Round:   "opinion",
+					Group: &models.GenericQuestionGroup{
+						Name: groupName,
+						Type: groupType,
+					},
+				}
+				newGenericQuestions = append(newGenericQuestions, question)
+			}
+		}
+	}
+	return newGenericQuestions
+}

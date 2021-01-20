@@ -27,12 +27,47 @@ type Friend struct {
 	Username string `json:"username" description:"The screen name of the friend" example:"seeb123"`
 }
 
+// QuestionPoolInput is the combined data to create a new question pool.
+type QuestionPoolInput struct {
+	UserParams
+	NewQuestionPool
+}
+
+// ExistingQuestionPoolParams data about existing pool for a specific user.
+type ExistingQuestionPoolParams struct {
+	UserParams
+	PoolParams
+}
+
+// NewQuestionPool is the data required to create a new question pool.
+type NewQuestionPool struct {
+	PoolName     string `json:"pool_name"     description:"The unique name of the question pool."                                                                          example:"my_pool" validate:"required"`
+	GameName     string `json:"game_name"     description:"The type of game the question pool pertains to"                                                                 example:"quibly"  validate:"required,oneof=quibly fibbing_it drawlosseum" enum:"quibly,fibbing_it,drawlosseum"`
+	LanguageCode string `json:"language_code" description:"Details of the user's preferred display and question language stored using ISO 2-letter language abbreviations" example:"en"                                                                                                   default:"en"`
+	Privacy      string `json:"privacy"       description:"The privacy setting for this question pool"                                                                                       validate:"required,oneof=public private friends"        enum:"public,private,friends"`
+}
+
+// UpdateQuestionPoolInput is the combined data (params + body) required to update an existing question pool.
+// Such as adding or removing a new question.
+type UpdateQuestionPoolInput struct {
+	UserParams
+	PoolParams
+	UpdateQuestionPool
+}
+
+// UpdateQuestionPool is the http body data required to update a question i.e. add/remove a question from the pool.
+type UpdateQuestionPool struct {
+	NewQuestion
+	Operation string `json:"operation" description:"The update operation type." validate:"required,oneof=add remove" example:"add" enum:"add,remove"`
+}
+
 // QuestionPool is the list of custom questions for different game.
 type QuestionPool struct {
-	PoolName  string                `json:"pool_name" description:"The unique name of the question pool."      example:"my_pool"`
-	GameName  string                `json:"game_name" description:"The type of game the story pertains to"     example:"quibly"`
-	Privacy   string                `json:"privacy"   description:"The privacy setting for this question pool"                   enum:"public,private,friends"`
-	Questions QuestionPoolQuestions `json:"questions" description:"List of questions in this pool."`
+	PoolName     string                `json:"pool_name"     description:"The unique name of the question pool."                                                                          example:"my_pool"`
+	GameName     string                `json:"game_name"     description:"The type of game the story pertains to"                                                                         example:"quibly"`
+	LanguageCode string                `json:"language_code" description:"Details of the user's preferred display and question language stored using ISO 2-letter language abbreviations" example:"en"`
+	Privacy      string                `json:"privacy"       description:"The privacy setting for this question pool"                                                                                       enum:"public,private,friends"`
+	Questions    QuestionPoolQuestions `json:"questions"     description:"List of questions in this pool."`
 }
 
 // QuestionPoolQuestions contains the user's questions (only one game type).

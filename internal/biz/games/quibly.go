@@ -40,3 +40,42 @@ func (q Quibly) ValidateQuestionInput(question models.GenericQuestion) error {
 	}
 	return nil
 }
+
+// GetQuestionPool gets the question pool structure for the Quibly game.
+func (q Quibly) GetQuestionPool() interface{} {
+	return models.QuiblyQuestionsPool{
+		Pair:    []string{},
+		Answers: []string{},
+		Group:   []string{},
+	}
+}
+
+// QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
+// a client.
+func (q Quibly) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
+	var newGenericQuestions []models.GenericQuestion
+	quiblyQuestions, ok := questions.(models.QuiblyQuestionsPool)
+
+	if !ok {
+		errorMessage := "Failed to convert type to QuiblyQuestionsPool."
+		return []models.GenericQuestion{}, errors.New(errorMessage)
+	}
+
+	questionsGroup := map[string]interface{}{
+		"pair":    quiblyQuestions.Pair,
+		"answers": quiblyQuestions.Answers,
+		"group":   quiblyQuestions.Group,
+	}
+
+	for round, group := range questionsGroup {
+		for _, content := range group.([]string) {
+			question := models.GenericQuestion{
+				Content: content,
+				Round:   round,
+			}
+			newGenericQuestions = append(newGenericQuestions, question)
+		}
+	}
+
+	return newGenericQuestions, nil
+}
