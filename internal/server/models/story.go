@@ -8,7 +8,7 @@ type Story struct {
 	StoryAnswers
 }
 
-// StoryAnswers contains all the different stories answers that are supported, for different game types.
+// StoryAnswers contains all the different stories answers that are supported, for different game.
 type StoryAnswers struct {
 	Drawlosseum []StoryDrawlosseum `json:"drawlosseum,omitempty"`
 	Quibly      []StoryQuibly      `json:"quibly,omitempty"`

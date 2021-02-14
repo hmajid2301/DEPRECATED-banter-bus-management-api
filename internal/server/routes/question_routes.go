@@ -63,7 +63,7 @@ func updateRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 			nil,
 			nil,
 		),
-	}, tonic.Handler(env.UpdateQuestion, http.StatusOK))
+	}, tonic.Handler(env.AddTranslation, http.StatusOK))
 
 	grp.PUT("/enable", []fizz.OperationOption{
 		fizz.Summary("Enables a question."),

@@ -9,12 +9,11 @@ import (
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/games"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 )
 
 // UserService is struct data required by all user service functions.
 type UserService struct {
-	DB core.Repository
+	DB models.Repository
 }
 
 // Add is used to add a new user type
@@ -22,7 +21,8 @@ func (u *UserService) Add(username string, membership string, admin *bool) error
 	if u.doesUserExist(username) {
 		return errors.AlreadyExistsf("The user %s", username)
 	}
-	var newUser = models.User{
+
+	var user = models.User{
 		Username:      username,
 		Admin:         admin,
 		Privacy:       "public",
@@ -33,23 +33,23 @@ func (u *UserService) Add(username string, membership string, admin *bool) error
 		QuestionPools: []models.QuestionPool{},
 	}
 
-	inserted, err := u.DB.Insert("user", newUser)
+	inserted, err := user.Add(u.DB)
 	if !inserted {
 		logger := log.WithFields(log.Fields{
 			"username": username,
 			"err":      err,
 		})
-		logger.Error("Error: failed to add user.")
-		return errors.Errorf("Failed to add new user %s", username)
+		logger.Errorf("Failed to add new user %s", username)
+		return errors.Errorf("failed to add new user %s", username)
 	}
 	return err
 }
 
 // GetAll is used to get usernames of all users
 func (u *UserService) GetAll(adminFilter *bool, privacyFilter *string, membershipFilter *string) ([]string, error) {
-	users := []models.User{}
+	users := models.Users{}
 
-	err := u.DB.GetAll("user", &users)
+	err := users.Get(u.DB)
 	if err != nil {
 		return []string{}, err
 	}
@@ -69,10 +69,10 @@ func (u *UserService) GetAll(adminFilter *bool, privacyFilter *string, membershi
 func (u *UserService) Get(username string) (*models.User, error) {
 	var (
 		filter = map[string]string{"username": username}
-		user   *models.User
+		user   = &models.User{}
 	)
 
-	err := u.DB.Get("user", filter, &user)
+	err := user.Get(u.DB, filter)
 	if err != nil {
 		return &models.User{}, errors.NotFoundf("user %s, %s", username, err)
 	}
@@ -95,11 +95,11 @@ func (u *UserService) GetPool(username string, poolName string) (models.Question
 	var (
 		filter       = map[string]string{"username": username}
 		parentField  = "question_pools"
-		questionPool []models.QuestionPool
+		questionPool models.QuestionPools
 		condition    = []string{"$$this.pool_name", poolName}
 	)
 
-	err := u.DB.GetSubObject("user", filter, parentField, condition, &questionPool)
+	err := questionPool.Get(u.DB, filter, parentField, condition)
 	if (err != nil) || (len(questionPool) < 1) {
 		return models.QuestionPool{}, errors.NotFoundf("user %s and pool %s", username, poolName)
 	}
@@ -125,13 +125,13 @@ func (u *UserService) AddPool(
 		return errors.AlreadyExistsf("pool %s", poolName)
 	}
 
-	gameType, err := games.GetGame(gameName)
+	game, err := games.GetGame(gameName)
 	if err != nil {
 		return err
 	}
 
-	questionPoolType := gameType.GetQuestionPool()
-	newPool := map[string]models.QuestionPool{
+	questionPoolType := game.NewQuestionPool()
+	newPool := models.NewQuestionPool{
 		"question_pools": {
 			PoolName:     poolName,
 			GameName:     gameName,
@@ -142,7 +142,7 @@ func (u *UserService) AddPool(
 	}
 
 	filter := map[string]string{"username": username}
-	inserted, err := u.DB.AppendToEntry("user", filter, newPool)
+	inserted, err := newPool.AddToList(u.DB, filter)
 
 	if !inserted && err == nil {
 		return errors.Errorf("failed to add new pool %s", poolName)
@@ -162,17 +162,17 @@ func (u *UserService) RemovePool(username string, poolName string) error {
 		return err
 	}
 
-	poolToRemove := map[string]map[string]string{
-		"question_pools": {
+	poolToRemove := models.UpdateUserObject{
+		"question_pools": map[string]string{
 			"pool_name": poolName,
 		},
 	}
 
 	filter := map[string]string{"username": username}
-	removed, err := u.DB.RemoveFromEntry("user", filter, poolToRemove)
+	removed, err := poolToRemove.RemoveFromList(u.DB, filter)
 
 	if !removed {
-		return errors.Errorf("Failed to remove new pool %s", poolName)
+		return errors.Errorf("failed to remove new pool %s", poolName)
 	}
 	return err
 }
@@ -192,30 +192,30 @@ func (u *UserService) UpdatePool(
 	}
 
 	var updated bool
+	game, err := games.GetGame(poolToUpdate.GameName)
+	if err != nil {
+		return err
+	}
+
+	err = game.ValidateQuestionInput(questionToUpdate)
+	if err != nil {
+		return err
+	}
+
+	genericQuestions, err := game.QuestionPoolToGenericQuestions(poolToUpdate.Questions)
+	if err != nil {
+		return err
+	}
+
+	partialUpdateQuestionPath := game.GetQuestionPath(questionToUpdate)
+	fullQuestionPath := fmt.Sprintf("question_pools.$.%s", partialUpdateQuestionPath)
+	updateQuestion := models.UpdateUserObject{
+		fullQuestionPath: questionToUpdate.Content,
+	}
+
 	filter := map[string]string{
 		"username":                 username,
 		"question_pools.pool_name": poolName,
-	}
-
-	gameType, err := games.GetGame(poolToUpdate.GameName)
-	if err != nil {
-		return err
-	}
-
-	err = gameType.ValidateQuestionInput(questionToUpdate)
-	if err != nil {
-		return err
-	}
-
-	genericQuestions, err := gameType.QuestionPoolToGenericQuestions(poolToUpdate.Questions)
-	if err != nil {
-		return err
-	}
-
-	partialUpdateQuestionPath := gameType.GetQuestionPath(questionToUpdate)
-	fullQuestionPath := fmt.Sprintf("question_pools.$.%s", partialUpdateQuestionPath)
-	updateQuestion := map[string]string{
-		fullQuestionPath: questionToUpdate.Content,
 	}
 
 	exists := doesQuestionExist(genericQuestions, questionToUpdate)
@@ -235,12 +235,12 @@ func (u *UserService) addQuestionToPool(
 	exists bool,
 	content string,
 	filter map[string]string,
-	updateQuestion map[string]string,
+	newQuestion models.UpdateUserObject,
 ) (bool, error) {
 	if exists {
 		return false, errors.AlreadyExistsf("question '%s'", content)
 	}
-	updated, err := u.DB.AppendToEntry("user", filter, updateQuestion)
+	updated, err := newQuestion.AddToList(u.DB, filter)
 	return updated, err
 }
 
@@ -248,12 +248,12 @@ func (u *UserService) removeQuestionFromPool(
 	exists bool,
 	content string,
 	filter map[string]string,
-	updateQuestion map[string]string,
+	questionToRemove models.UpdateUserObject,
 ) (bool, error) {
 	if !exists {
 		return false, errors.NotFoundf("question '%s'", content)
 	}
-	updated, err := u.DB.RemoveFromEntry("user", filter, updateQuestion)
+	updated, err := questionToRemove.RemoveFromList(u.DB, filter)
 	return updated, err
 }
 

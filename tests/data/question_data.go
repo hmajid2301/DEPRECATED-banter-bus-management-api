@@ -6,10 +6,10 @@ import (
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
 )
 
-// AddQuestion is the test data for add questions to a game types.
+// AddQuestion is the test data for add questions to a game
 var AddQuestion = []struct {
 	TestDescription string
-	GameType        string
+	Game            string
 	Payload         interface{}
 	Expected        int
 }{
@@ -393,7 +393,7 @@ var AddQuestion = []struct {
 // UpdateQuestion is the test data for adding translations to questions.
 var UpdateQuestion = []struct {
 	TestDescription string
-	GameType        string
+	Game            string
 	Payload         interface{}
 	Expected        int
 }{
@@ -653,10 +653,10 @@ var UpdateQuestion = []struct {
 	},
 }
 
-// RemoveQuestion is the test data for removing questions from game types.
+// RemoveQuestion is the test data for removing questions from game.
 var RemoveQuestion = []struct {
 	TestDescription string
-	GameType        string
+	Game            string
 	Payload         interface{}
 	Expected        int
 }{
@@ -821,7 +821,7 @@ var RemoveQuestion = []struct {
 // EnableQuestion test data used to test enable endpoint
 var EnableQuestion = []struct {
 	TestDescription string
-	GameType        string
+	Game            string
 	Payload         interface{}
 	Expected        int
 }{
@@ -924,7 +924,7 @@ var EnableQuestion = []struct {
 // DisableQuestion test data used to test disable endpoint
 var DisableQuestion = []struct {
 	TestDescription string
-	GameType        string
+	Game            string
 	Payload         interface{}
 	Expected        int
 }{

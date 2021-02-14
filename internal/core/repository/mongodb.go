@@ -10,6 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 )
 
 // MongoDB is a representation of the MongoDB server to connect to
@@ -92,17 +94,17 @@ func (db *MongoDB) Ping() bool {
 }
 
 // Insert adds a new entry to the database.
-func (db *MongoDB) Insert(collectionName string, object interface{}) (bool, error) {
+func (db *MongoDB) Insert(collectionName string, objectToInsert models.Document) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
-		"object":     object,
+		"object":     objectToInsert,
 	}).Debug("Inserting object into database.")
 	collection := db.database.Collection(collectionName)
 
-	ok, err := collection.InsertOne(ctx, object)
+	ok, err := collection.InsertOne(ctx, objectToInsert)
 	if err != nil {
 		db.logger.Error(err, ok)
 		return false, err
@@ -118,7 +120,7 @@ func (db *MongoDB) Insert(collectionName string, object interface{}) (bool, erro
 }
 
 // InsertMultiple adds multiple entries to the database at once.
-func (db *MongoDB) InsertMultiple(collectionName string, object []interface{}) error {
+func (db *MongoDB) InsertMultiple(collectionName string, object models.Documents) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -127,11 +129,11 @@ func (db *MongoDB) InsertMultiple(collectionName string, object []interface{}) e
 		"object":     object,
 	}).Debug("Inserting multiple objects into database.")
 
+	objectsToInsert := object.ToInterface()
 	collection := db.database.Collection(collectionName)
-	_, err := collection.InsertMany(ctx, object)
+	_, err := collection.InsertMany(ctx, objectsToInsert)
 	if err != nil {
 		db.logger.Error(err)
-		fmt.Println(err)
 		return err
 	}
 
@@ -139,7 +141,7 @@ func (db *MongoDB) InsertMultiple(collectionName string, object []interface{}) e
 }
 
 // Get retrieves an entry from the database.
-func (db *MongoDB) Get(collectionName string, filter interface{}, model interface{}) error {
+func (db *MongoDB) Get(collectionName string, filter map[string]string, model models.Document) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -158,6 +160,31 @@ func (db *MongoDB) Get(collectionName string, filter interface{}, model interfac
 	return err
 }
 
+// GetAll entries from the database.
+func (db *MongoDB) GetAll(collectionName string, model models.Documents) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
+	defer cancel()
+
+	db.logger.WithFields(log.Fields{
+		"collection": collectionName,
+		"model":      model,
+	}).Debug("Getting all objects from database.")
+	collection := db.database.Collection(collectionName)
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		db.logger.Errorf("failed to get objects: %v", err)
+		return err
+	}
+
+	err = cursor.All(ctx, model)
+	if err != nil {
+		db.logger.Errorf("failed to transform object: %v", err)
+	}
+
+	return err
+}
+
 // GetSubObject retrieves a subdocument from the database.
 // This method should be used to retrieve a single subdocument from an array element.
 // The filter is what to use to filter to that subdocument i.e. `{"username": "virat_kohli"}`.
@@ -167,10 +194,10 @@ func (db *MongoDB) Get(collectionName string, filter interface{}, model interfac
 // This method will return the first element the matches the condition.
 func (db *MongoDB) GetSubObject(
 	collectionName string,
-	filter interface{},
+	filter map[string]string,
 	parentField string,
 	condition []string,
-	model interface{},
+	model models.SubDocuments,
 ) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
@@ -217,31 +244,8 @@ func (db *MongoDB) GetSubObject(
 	return err
 }
 
-// GetAll entries from the database.
-func (db *MongoDB) GetAll(collectionName string, model interface{}) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
-	defer cancel()
-
-	db.logger.WithFields(log.Fields{
-		"collection": collectionName,
-		"model":      model,
-	}).Debug("Getting multiple objects from database.")
-	collection := db.database.Collection(collectionName)
-
-	cursor, err := collection.Find(ctx, bson.M{})
-	if err != nil {
-		db.logger.Errorf("Failed to get object: %v.", err)
-	}
-
-	if err = cursor.All(ctx, model); err != nil {
-		db.logger.Errorf("Failed to transform object: %v.", err)
-	}
-
-	return err
-}
-
 // Delete removes an entry from the database.
-func (db *MongoDB) Delete(collectionName string, filter interface{}) (bool, error) {
+func (db *MongoDB) Delete(collectionName string, filter map[string]string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -282,32 +286,61 @@ func (db *MongoDB) RemoveCollection(collectionName string) error {
 	return nil
 }
 
-// UpdateEntry updates an existing entry in the database.
-func (db *MongoDB) UpdateEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
+// Update updates an existing "top-level" object in the database i.e. a user or a game.
+func (db *MongoDB) Update(
+	collectionName string,
+	filter map[string]string,
+	objectToUpdate models.Document,
+) (bool, error) {
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-		"update":     update,
-	}).Debug("Update item in the database.")
-
-	updated, err := db.modifyEntry(collectionName, filter, update, "$set")
-	return updated, err
-}
-
-// RemoveEntry updates an existing entry in the database.
-func (db *MongoDB) RemoveEntry(collectionName string, filter interface{}, update interface{}) (bool, error) {
-	db.logger.WithFields(log.Fields{
-		"collection": collectionName,
-		"filter":     filter,
-		"update":     update,
+		"update":     objectToUpdate,
 	}).Debug("Updating item in the database.")
 
-	updated, err := db.modifyEntry(collectionName, filter, update, "$unset")
+	updated, err := db.modifyEntry(collectionName, filter, objectToUpdate, "$set")
 	return updated, err
 }
 
-// AppendToEntry appends an new entry to an array in the database.
-func (db *MongoDB) AppendToEntry(collectionName string, filter interface{}, add interface{}) (bool, error) {
+// UpdateObject updates an existing "sub" object in the database i.e. a question inside a game.
+// It is used to add fields to an object.
+func (db *MongoDB) UpdateObject(
+	collectionName string,
+	filter map[string]string,
+	objectToAdd map[string]interface{},
+) (bool, error) {
+	db.logger.WithFields(log.Fields{
+		"collection": collectionName,
+		"filter":     filter,
+		"update":     objectToAdd,
+	}).Debug("Adding new item to object in the database.")
+
+	updated, err := db.modifyEntry(collectionName, filter, objectToAdd, "$set")
+	return updated, err
+}
+
+// RemoveObject updates an existing sub object in the database i.e. a question inside a game.
+func (db *MongoDB) RemoveObject(
+	collectionName string,
+	filter map[string]string,
+	remove map[string]interface{},
+) (bool, error) {
+	db.logger.WithFields(log.Fields{
+		"collection": collectionName,
+		"filter":     filter,
+		"update":     remove,
+	}).Debug("Removing object in the database.")
+
+	updated, err := db.modifyEntry(collectionName, filter, remove, "$unset")
+	return updated, err
+}
+
+// AppendToList appends an new entry to an array in the database.
+func (db *MongoDB) AppendToList(
+	collectionName string,
+	filter map[string]string,
+	add models.NewSubDocument,
+) (bool, error) {
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
@@ -318,8 +351,12 @@ func (db *MongoDB) AppendToEntry(collectionName string, filter interface{}, add 
 	return updated, err
 }
 
-// RemoveFromEntry appends an new entry to an array in the database.
-func (db *MongoDB) RemoveFromEntry(collectionName string, filter interface{}, remove interface{}) (bool, error) {
+// RemoveFromList appends an new entry to an array in the database.
+func (db *MongoDB) RemoveFromList(
+	collectionName string,
+	filter map[string]string,
+	remove models.SubDocument,
+) (bool, error) {
 	db.logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
@@ -332,7 +369,7 @@ func (db *MongoDB) RemoveFromEntry(collectionName string, filter interface{}, re
 
 func (db *MongoDB) modifyEntry(
 	collectionName string,
-	filter interface{},
+	filter map[string]string,
 	modify interface{},
 	operation string,
 ) (bool, error) {

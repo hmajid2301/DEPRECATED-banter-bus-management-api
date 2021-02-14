@@ -11,10 +11,10 @@ import (
 // FibbingIt is the concrete type for the the game interface.
 type FibbingIt struct{}
 
-// GetInfo is used to add new games of type `fibbing_it`.
-func (f FibbingIt) GetInfo(rulesURL string) models.GameInfo {
+// NewGame is gets the data for an empty/new `fibbing_it` game.
+func (f FibbingIt) NewGame(rulesURL string) models.Game {
 	t := true
-	return models.GameInfo{
+	return models.Game{
 		Name:     "fibbing_it",
 		RulesURL: rulesURL,
 		Enabled:  &t,
@@ -57,30 +57,27 @@ func (f FibbingIt) ValidateQuestionInput(question models.GenericQuestion) error 
 	return nil
 }
 
-// GetQuestionPool gets the question pool structure for the Fibbing It game.
-func (f FibbingIt) GetQuestionPool() interface{} {
-	return models.FibbingItQuestionsPool{
-		Opinion:  map[string]map[string][]string{},
-		FreeForm: map[string][]string{},
-		Likely:   []string{},
-	}
+// NewQuestionPool gets the question pool structure for the Fibbing It game.
+func (f FibbingIt) NewQuestionPool() models.QuestionPoolType {
+	fibbingItQuestionPool := &models.FibbingItQuestionsPool{}
+	fibbingItQuestionPool.EmptyPoolQuestions()
+	return fibbingItQuestionPool
 }
 
 // QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
 // a client.
-func (f FibbingIt) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
-	fibbingItQuestions, ok := questions.(models.FibbingItQuestionsPool)
+func (f FibbingIt) QuestionPoolToGenericQuestions(questions models.QuestionPoolType) ([]models.GenericQuestion, error) {
+	fibbingIt, ok := questions.(*models.FibbingItQuestionsPool)
 	if !ok {
-		errorMessage := "Failed to convert type to FibbingItQuestionsPool."
-		return []models.GenericQuestion{}, errors.New(errorMessage)
+		return nil, errors.Errorf("invalid question type for game fibbing_it")
 	}
-
 	var newGenericQuestions []models.GenericQuestion
-	likelyQuestions := likelyQuestionsToGenericQuestion(fibbingItQuestions.Likely)
+
+	likelyQuestions := likelyQuestionsToGenericQuestion(fibbingIt.Likely)
 	newGenericQuestions = append(newGenericQuestions, likelyQuestions...)
-	freeFormQuestions := freeFormQuestionsToGenericQuestion(fibbingItQuestions.FreeForm)
+	freeFormQuestions := freeFormQuestionsToGenericQuestion(fibbingIt.FreeForm)
 	newGenericQuestions = append(newGenericQuestions, freeFormQuestions...)
-	opinionQuestions := opinionQuestionsToGenericQuestions(fibbingItQuestions.Opinion)
+	opinionQuestions := opinionQuestionsToGenericQuestions(fibbingIt.Opinion)
 	newGenericQuestions = append(newGenericQuestions, opinionQuestions...)
 
 	return newGenericQuestions, nil

@@ -70,7 +70,7 @@ type QuestionPool struct {
 	Questions    QuestionPoolQuestions `json:"questions"     description:"List of questions in this pool."`
 }
 
-// QuestionPoolQuestions contains the user's questions (only one game type).
+// QuestionPoolQuestions contains the user's questions (only one game).
 type QuestionPoolQuestions struct {
 	Drawlosseum DrawlosseumQuestionsPool `json:"drawlosseum,omitempty"`
 	Quibly      QuiblyQuestionsPool      `json:"quibly,omitempty"`

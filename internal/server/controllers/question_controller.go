@@ -37,8 +37,8 @@ func (env *Env) AddQuestion(_ *gin.Context, questionInput *serverModels.Question
 	return nil
 }
 
-// UpdateQuestion adds a new question to a game.
-func (env *Env) UpdateQuestion(_ *gin.Context, questionInput *serverModels.UpdateQuestionInput) error {
+// AddTranslation adds a question in another language to a game.
+func (env *Env) AddTranslation(_ *gin.Context, questionInput *serverModels.UpdateQuestionInput) error {
 	var (
 		question = questionInput.QuestionTranslation
 		game     = questionInput.GameParams
@@ -61,7 +61,7 @@ func (env *Env) UpdateQuestion(_ *gin.Context, questionInput *serverModels.Updat
 
 	existingQuestion := env.newGenericQuestion(question.OriginalQuestion)
 	questionService := biz.QuestionService{DB: env.DB}
-	err = questionService.Update(
+	err = questionService.AddTranslation(
 		game.Name,
 		existingQuestion,
 		question.NewQuestion.Content,

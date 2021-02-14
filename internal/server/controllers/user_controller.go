@@ -199,7 +199,7 @@ func (env *Env) getUserPools(questionPools []models.QuestionPool) ([]serverModel
 func (env *Env) newQuestionPool(pool models.QuestionPool) (serverModels.QuestionPool, error) {
 	game, err := factories.GetGame(pool.GameName)
 	if err != nil {
-		env.Logger.Errorf("Unknown game type %s", pool.GameName)
+		env.Logger.Errorf("Unknown game %s", pool.GameName)
 		return serverModels.QuestionPool{}, err
 	}
 
@@ -330,21 +330,25 @@ func (env *Env) GetUserStories(_ *gin.Context, params *serverModels.UserParams) 
 		return []serverModels.Story{}, errors.NotFoundf("The user %s", params.Username)
 	}
 
-	stories := env.getUserStories(userStories)
-	return stories, nil
+	stories, err := env.getUserStories(userStories)
+	return stories, err
 }
 
-func (env *Env) getUserStories(userStories []models.Story) []serverModels.Story {
+func (env *Env) getUserStories(userStories []models.Story) ([]serverModels.Story, error) {
 	stories := []serverModels.Story{}
 
 	for _, story := range userStories {
 		game, err := factories.GetGame(story.GameName)
 		if err != nil {
-			env.Logger.Errorf("Unknown game type %s", story.GameName)
+			env.Logger.Errorf("unknown game %s", story.GameName)
+			return []serverModels.Story{}, err
 		}
-		newStory := game.NewStory(story)
+		newStory, err := game.NewStory(story)
+		if err != nil {
+			return []serverModels.Story{}, err
+		}
 		stories = append(stories, newStory)
 	}
 
-	return stories
+	return stories, nil
 }

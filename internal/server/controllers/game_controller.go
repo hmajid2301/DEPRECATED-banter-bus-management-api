@@ -59,7 +59,7 @@ func (env *Env) GetAllGames(_ *gin.Context, params *serverModels.ListGameParams)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"err": err,
-		}).Error("Failed to get game types.")
+		}).Error("Failed to get game.")
 		return []string{}, err
 	}
 

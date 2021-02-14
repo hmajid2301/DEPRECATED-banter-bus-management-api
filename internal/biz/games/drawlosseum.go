@@ -1,7 +1,7 @@
 package games
 
 import (
-	"errors"
+	"github.com/juju/errors"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 )
@@ -9,10 +9,10 @@ import (
 // Drawlosseum is the concrete type for the the game interface.
 type Drawlosseum struct{}
 
-// GetInfo is used to add new games of type `drawlosseum`.
-func (d Drawlosseum) GetInfo(rulesURL string) models.GameInfo {
+// NewGame is gets the data for an empty/new `drawlosseum` game.
+func (d Drawlosseum) NewGame(rulesURL string) models.Game {
 	t := true
-	return models.GameInfo{
+	return models.Game{
 		Name:      "drawlosseum",
 		RulesURL:  rulesURL,
 		Enabled:   &t,
@@ -30,25 +30,25 @@ func (d Drawlosseum) GetQuestionPath(_ models.GenericQuestion) string {
 	return "questions.drawings"
 }
 
-// GetQuestionPool gets the question pool structure for the Drawlosseum game.
-func (d Drawlosseum) GetQuestionPool() interface{} {
-	return models.DrawlosseumQuestionsPool{
-		Drawings: []string{},
-	}
+// NewQuestionPool gets the question pool structure for the Drawlosseum game.
+func (d Drawlosseum) NewQuestionPool() models.QuestionPoolType {
+	drawlosseumQuestionPool := &models.DrawlosseumQuestionsPool{}
+	drawlosseumQuestionPool.EmptyPoolQuestions()
+	return drawlosseumQuestionPool
 }
 
 // QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
 // a client.
-func (d Drawlosseum) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
-	var newGenericQuestions []models.GenericQuestion
-	drawlosseumQuestions, ok := questions.(models.DrawlosseumQuestionsPool)
-
+func (d Drawlosseum) QuestionPoolToGenericQuestions(
+	questions models.QuestionPoolType,
+) ([]models.GenericQuestion, error) {
+	drawlosseum, ok := questions.(*models.DrawlosseumQuestionsPool)
 	if !ok {
-		errorMessage := "failed to convert type to DrawlosseumQuestionsPool"
-		return []models.GenericQuestion{}, errors.New(errorMessage)
+		return nil, errors.Errorf("invalid question type for game drawlosseum")
 	}
+	var newGenericQuestions []models.GenericQuestion
 
-	for _, question := range drawlosseumQuestions.Drawings {
+	for _, question := range drawlosseum.Drawings {
 		question := models.GenericQuestion{
 			Content: question,
 		}

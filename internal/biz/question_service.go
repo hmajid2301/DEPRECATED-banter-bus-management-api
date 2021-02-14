@@ -12,29 +12,28 @@ import (
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/games"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 )
 
 // QuestionService is struct data required by all question service functions.
 type QuestionService struct {
-	DB core.Repository
+	DB models.Repository
 }
 
 // Add is add questions to a game.
 func (q *QuestionService) Add(gameName string, question models.GenericQuestion) error {
-	gameType, err := q.validateAndGetGameType(gameName, question)
+	game, err := q.validateAndGetGame(gameName, question)
 	if err != nil {
 		return err
 	}
 
-	questionPath := gameType.GetQuestionPath(question)
+	questionPath := game.GetQuestionPath(question)
 	err = q.validateQuestionNotFound(gameName, questionPath, question.LanguageCode, question.Content)
 	if err != nil {
 		return err
 	}
 
 	t := true
-	questionToAdd := map[string]models.Question{
+	newQuestion := models.NewQuestion{
 		questionPath: {
 			Content: map[string]string{
 				question.LanguageCode: question.Content,
@@ -43,8 +42,8 @@ func (q *QuestionService) Add(gameName string, question models.GenericQuestion) 
 		},
 	}
 
-	filter := &models.GameInfo{Name: gameName}
-	updated, err := q.DB.AppendToEntry("game", filter, questionToAdd)
+	filter := map[string]string{"name": gameName}
+	updated, err := newQuestion.AddToList(q.DB, filter)
 	if !updated || err != nil {
 		return errors.Errorf("failed to add a new question")
 	}
@@ -52,19 +51,19 @@ func (q *QuestionService) Add(gameName string, question models.GenericQuestion) 
 	return nil
 }
 
-// Update is add questions to a game.
-func (q *QuestionService) Update(
+// AddTranslation is used to add a new question in a different language to a game.
+func (q *QuestionService) AddTranslation(
 	gameName string,
 	existingQuestion models.GenericQuestion,
 	questionContent string,
 	questionLanguageCode string,
 ) error {
-	gameType, err := q.validateAndGetGameType(gameName, existingQuestion)
+	game, err := q.validateAndGetGame(gameName, existingQuestion)
 	if err != nil {
 		return err
 	}
 
-	questionPath := gameType.GetQuestionPath(existingQuestion)
+	questionPath := game.GetQuestionPath(existingQuestion)
 	originalQuestionExistsErr := q.validateQuestionFound(
 		gameName,
 		questionPath,
@@ -89,7 +88,7 @@ func (q *QuestionService) Update(
 	languagePath := fmt.Sprintf("content.%s", questionLanguageCode)
 	questionToUpdate := newQuestion(questionPath, languagePath, questionContent)
 
-	updated, err := q.DB.UpdateEntry("game", filter, questionToUpdate)
+	updated, err := q.DB.UpdateObject("game", filter, questionToUpdate)
 	if !updated || err != nil {
 		return errors.Errorf("failed to update existing question")
 	}
@@ -99,12 +98,12 @@ func (q *QuestionService) Update(
 
 // Remove removes questions from a game.
 func (q *QuestionService) Remove(gameName string, question models.GenericQuestion) error {
-	gameType, err := q.validateAndGetGameType(gameName, question)
+	game, err := q.validateAndGetGame(gameName, question)
 	if err != nil {
 		return err
 	}
 
-	questionPath := gameType.GetQuestionPath(question)
+	questionPath := game.GetQuestionPath(question)
 	err = q.validateQuestionFound(gameName, questionPath, question.LanguageCode, question.Content)
 	if err != nil {
 		return err
@@ -113,7 +112,7 @@ func (q *QuestionService) Remove(gameName string, question models.GenericQuestio
 	questionToRemove := newEmptyQuestion(questionPath, question.LanguageCode)
 	filter := newQuestionFilter(questionPath, gameName, question.Content, question.LanguageCode)
 
-	updated, err := q.DB.RemoveEntry("game", filter, questionToRemove)
+	updated, err := q.DB.RemoveObject("game", filter, questionToRemove)
 	if !updated || err != nil {
 		return errors.Errorf("failed to remove question")
 	}
@@ -127,12 +126,12 @@ func (q *QuestionService) UpdateEnable(
 	enabled bool,
 	question models.GenericQuestion,
 ) (bool, error) {
-	gameType, err := q.validateAndGetGameType(gameName, question)
+	game, err := q.validateAndGetGame(gameName, question)
 	if err != nil {
 		return false, err
 	}
 
-	questionPath := gameType.GetQuestionPath(question)
+	questionPath := game.GetQuestionPath(question)
 	err = q.validateQuestionFound(gameName, questionPath, question.LanguageCode, question.Content)
 	if err != nil {
 		return false, err
@@ -141,14 +140,14 @@ func (q *QuestionService) UpdateEnable(
 	filter := newQuestionFilter(questionPath, gameName, question.Content, "")
 	update := newQuestion(questionPath, "enabled", enabled)
 
-	updated, err := q.DB.UpdateEntry("game", filter, update)
+	updated, err := q.DB.UpdateObject("game", filter, update)
 	if err != nil {
 		return false, errors.Errorf("failed to update question")
 	}
 	return updated, err
 }
 
-// GetGroups gets all question group names for a given game type and round.
+// GetGroups gets all question group names for a given game and round.
 func (q *QuestionService) GetGroups(gameName string, round string) ([]string, error) {
 	gameService := GameService{DB: q.DB}
 	game, err := gameService.Get(gameName)
@@ -157,7 +156,7 @@ func (q *QuestionService) GetGroups(gameName string, round string) ([]string, er
 	}
 
 	if !game.HasGroups(round) {
-		return nil, errors.NotFoundf("cannot get question groups from round %s of game %s:", round, gameName)
+		return nil, errors.NotFoundf("cannot get question groups from round %s of game %s", round, gameName)
 	}
 
 	bytesData, err := bson.MarshalExtJSON(game.Questions, true, true)
@@ -173,11 +172,14 @@ func (q *QuestionService) GetGroups(gameName string, round string) ([]string, er
 	}
 
 	groupInterface, roundPresent := questions[round]
-	if !roundPresent {
-		return nil, errors.NotFoundf("Cannot find round: %s", round)
+	if !roundPresent || questions[round] == nil {
+		return nil, errors.NotFoundf("cannot find round: %s", round)
 	}
 
-	groups := groupInterface.(map[string]interface{})
+	groups, ok := groupInterface.(map[string]interface{})
+	if !ok {
+		return []string{}, errors.Errorf("failed to convert to type `map[string]interface{}`")
+	}
 
 	var groupList []string
 	for group := range groups {
@@ -187,13 +189,13 @@ func (q *QuestionService) GetGroups(gameName string, round string) ([]string, er
 	return groupList, nil
 }
 
-func (q *QuestionService) validateAndGetGameType(
+func (q *QuestionService) validateAndGetGame(
 	gameName string,
 	question models.GenericQuestion,
-) (models.Game, error) {
+) (models.IGame, error) {
 	gameService := GameService{DB: q.DB}
-	game, err := gameService.Get(gameName)
-	if game.Name == "" {
+	gameInfo, err := gameService.Get(gameName)
+	if gameInfo.Name == "" {
 		return nil, errors.NotFoundf("The game %s", gameName)
 	} else if err != nil {
 		return nil, err
@@ -205,17 +207,17 @@ func (q *QuestionService) validateAndGetGameType(
 		return nil, errors.BadRequestf("Invalid language code: %s", question.LanguageCode)
 	}
 
-	gameType, err := games.GetGame(gameName)
+	game, err := games.GetGame(gameName)
 	if err != nil {
 		return nil, err
 	}
 
-	err = gameType.ValidateQuestionInput(question)
+	err = game.ValidateQuestionInput(question)
 	if err != nil {
 		return nil, err
 	}
 
-	return gameType, nil
+	return game, nil
 }
 
 func (q *QuestionService) validateQuestionNotFound(
@@ -252,7 +254,7 @@ func (q *QuestionService) doesQuestionExist(
 	languageCode string,
 	content string,
 ) bool {
-	var game *models.GameInfo
+	game := &models.Game{}
 
 	contentQuestionFilter := fmt.Sprintf("%s.content.%s", questionPath, languageCode)
 	questionFilter := map[string]string{
@@ -260,7 +262,7 @@ func (q *QuestionService) doesQuestionExist(
 		contentQuestionFilter: content,
 	}
 
-	err := q.DB.Get("game", questionFilter, &game)
+	err := game.Get(q.DB, questionFilter)
 	return err == nil
 }
 

@@ -3,6 +3,7 @@ package controllers
 import (
 	log "github.com/sirupsen/logrus"
 
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 )
 
@@ -10,5 +11,5 @@ import (
 type Env struct {
 	Config core.Config
 	Logger *log.Logger
-	DB     core.Repository
+	DB     models.Repository
 }

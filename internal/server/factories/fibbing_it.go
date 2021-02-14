@@ -1,7 +1,7 @@
 package factories
 
 import (
-	"fmt"
+	"github.com/juju/errors"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
@@ -11,22 +11,26 @@ import (
 type FibbingIt struct{}
 
 // NewQuestionPool returns "FibbingIt" free form, likely and opinion.
-func (f FibbingIt) NewQuestionPool(questions interface{}) (serverModels.QuestionPoolQuestions, error) {
-	fibbingItQuestions, ok := questions.(models.FibbingItQuestionsPool)
+func (f FibbingIt) NewQuestionPool(questions models.QuestionPoolType) (serverModels.QuestionPoolQuestions, error) {
+	fibbingIt, ok := questions.(*models.FibbingItQuestionsPool)
 	if !ok {
-		return serverModels.QuestionPoolQuestions{}, fmt.Errorf("unable to cast to FibbingItQuestionsPool")
+		return serverModels.QuestionPoolQuestions{}, errors.Errorf("invalid question type for game fibbing_it")
 	}
-
 	var newFibbingItQuestionPool serverModels.FibbingItQuestionsPool
-	newFibbingItQuestionPool.Opinion = fibbingItQuestions.Opinion
-	newFibbingItQuestionPool.Likely = fibbingItQuestions.Likely
-	newFibbingItQuestionPool.FreeForm = fibbingItQuestions.FreeForm
+	newFibbingItQuestionPool.Opinion = fibbingIt.Opinion
+	newFibbingItQuestionPool.Likely = fibbingIt.Likely
+	newFibbingItQuestionPool.FreeForm = fibbingIt.FreeForm
 	return serverModels.QuestionPoolQuestions{FibbingIt: newFibbingItQuestionPool}, nil
 }
 
 // NewStory returns "FibbingIt" story answers.
-func (f FibbingIt) NewStory(story models.Story) serverModels.Story {
-	fibbingItAnswers := newAnswersFibbingIt(story.Answers)
+func (f FibbingIt) NewStory(story models.Story) (serverModels.Story, error) {
+	answers, ok := story.Answers.(*models.StoryFibbingItAnswers)
+	if !ok {
+		return serverModels.Story{}, errors.Errorf("invalid answer type for game fibbing_it")
+	}
+
+	fibbingItAnswers := newAnswersFibbingIt(answers)
 	newFibbingItStory := serverModels.Story{
 		Question: story.Question,
 		Round:    story.Round,
@@ -34,14 +38,12 @@ func (f FibbingIt) NewStory(story models.Story) serverModels.Story {
 			FibbingIt: fibbingItAnswers,
 		},
 	}
-	return newFibbingItStory
+	return newFibbingItStory, nil
 }
 
-func newAnswersFibbingIt(answers interface{}) []serverModels.StoryFibbingIt {
-	fibbingItAnswers := answers.([]models.StoryFibbingIt)
-
+func newAnswersFibbingIt(answers *models.StoryFibbingItAnswers) []serverModels.StoryFibbingIt {
 	var newAnswersFibbingIt []serverModels.StoryFibbingIt
-	for _, answer := range fibbingItAnswers {
+	for _, answer := range *answers {
 		newAnswer := serverModels.StoryFibbingIt{
 			Nickname: answer.Nickname,
 			Answer:   answer.Answer,

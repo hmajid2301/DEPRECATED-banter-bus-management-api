@@ -7,7 +7,7 @@ import (
 )
 
 // GetGame is the factory function which will return the game struct based on the name.
-func GetGame(name string) (models.Game, error) {
+func GetGame(name string) (models.IGame, error) {
 	switch name {
 	case "quibly":
 		return Quibly{}, nil

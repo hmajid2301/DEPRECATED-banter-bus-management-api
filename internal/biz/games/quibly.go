@@ -11,10 +11,10 @@ import (
 // Quibly type that implements PlayableGame.
 type Quibly struct{}
 
-// GetInfo is used to add new games of type `quibly`.
-func (q Quibly) GetInfo(rulesURL string) models.GameInfo {
+// NewGame is gets the data for an empty/new `quibly` game.
+func (q Quibly) NewGame(rulesURL string) models.Game {
 	t := true
-	return models.GameInfo{
+	return models.Game{
 		Name:     "quibly",
 		RulesURL: rulesURL,
 		Enabled:  &t,
@@ -41,30 +41,26 @@ func (q Quibly) ValidateQuestionInput(question models.GenericQuestion) error {
 	return nil
 }
 
-// GetQuestionPool gets the question pool structure for the Quibly game.
-func (q Quibly) GetQuestionPool() interface{} {
-	return models.QuiblyQuestionsPool{
-		Pair:    []string{},
-		Answers: []string{},
-		Group:   []string{},
-	}
+// NewQuestionPool gets the question pool structure for the Quibly game.
+func (q Quibly) NewQuestionPool() models.QuestionPoolType {
+	quiblyQuestionPool := &models.QuiblyQuestionsPool{}
+	quiblyQuestionPool.EmptyPoolQuestions()
+	return quiblyQuestionPool
 }
 
 // QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
 // a client.
-func (q Quibly) QuestionPoolToGenericQuestions(questions interface{}) ([]models.GenericQuestion, error) {
-	var newGenericQuestions []models.GenericQuestion
-	quiblyQuestions, ok := questions.(models.QuiblyQuestionsPool)
-
+func (q Quibly) QuestionPoolToGenericQuestions(questions models.QuestionPoolType) ([]models.GenericQuestion, error) {
+	quibly, ok := questions.(*models.QuiblyQuestionsPool)
 	if !ok {
-		errorMessage := "Failed to convert type to QuiblyQuestionsPool."
-		return []models.GenericQuestion{}, errors.New(errorMessage)
+		return nil, errors.Errorf("invalid question type for game quibly")
 	}
+	var newGenericQuestions []models.GenericQuestion
 
 	questionsGroup := map[string]interface{}{
-		"pair":    quiblyQuestions.Pair,
-		"answers": quiblyQuestions.Answers,
-		"group":   quiblyQuestions.Group,
+		"pair":    quibly.Pair,
+		"answers": quibly.Answers,
+		"group":   quibly.Group,
 	}
 
 	for round, group := range questionsGroup {

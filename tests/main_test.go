@@ -20,12 +20,19 @@ import (
 
 type Tests struct {
 	httpExpect *httpexpect.Expect
-	DB         core.Repository
+	DB         models.Repository
 }
 
-type TestData struct {
-	Games []models.GameInfo `json:"games"`
-	Users []models.User     `json:"users"`
+type GameTestData struct {
+	Games models.Games `json:"games"`
+}
+
+type UserTestData struct {
+	Users models.Users `json:"users"`
+}
+
+type TestData interface {
+	InsertData(path string, db models.Repository)
 }
 
 func (s *Tests) Setup(t *testing.T) {
@@ -47,7 +54,6 @@ func (s *Tests) Setup(t *testing.T) {
 
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 
 	env := &controllers.Env{Logger: logger, Config: config, DB: db}
@@ -72,8 +78,11 @@ func (s *Tests) Setup(t *testing.T) {
 func (s *Tests) Teardown(t *testing.T) {}
 
 func (s *Tests) BeforeEach(t *testing.T) {
-	InsertData(s.DB, "data/json/game_collection.json", "game")
-	InsertData(s.DB, "data/json/user_collection.json", "user")
+	gameData := GameTestData{}
+	gameData.InsertData("data/json/game_collection.json", s.DB)
+
+	userData := UserTestData{}
+	userData.InsertData("data/json/user_collection.json", s.DB)
 }
 
 func (s *Tests) AfterEach(t *testing.T) {
@@ -92,29 +101,32 @@ func TestSampleTests(t *testing.T) {
 	gtest.RunSubTests(t, &Tests{})
 }
 
-func InsertData(db core.Repository, dataFilePath string, collection string) {
-	data, _ := ioutil.ReadFile(dataFilePath)
-
-	var (
-		docs     *TestData
-		dataList []interface{}
-	)
-
-	err := json.Unmarshal(data, &docs)
+func (gameData *GameTestData) InsertData(path string, db models.Repository) {
+	err := getData(path, gameData)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	for _, t := range docs.Games {
-		dataList = append(dataList, t)
-	}
-
-	for _, t := range docs.Users {
-		dataList = append(dataList, t)
-	}
-
-	err = db.InsertMultiple(collection, dataList)
+	err = gameData.Games.Add(db)
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func (userData *UserTestData) InsertData(path string, db models.Repository) {
+	err := getData(path, userData)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = userData.Users.Add(db)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func getData(path string, model TestData) error {
+	data, _ := ioutil.ReadFile(path)
+	err := json.Unmarshal(data, &model)
+	return err
 }

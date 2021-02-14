@@ -1,7 +1,7 @@
 package factories
 
 import (
-	"fmt"
+	"github.com/juju/errors"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
@@ -11,20 +11,24 @@ import (
 type Drawlosseum struct{}
 
 // NewQuestionPool returns "Drawlosseum" drawings.
-func (d Drawlosseum) NewQuestionPool(questions interface{}) (serverModels.QuestionPoolQuestions, error) {
-	drawlosseumQuestions, ok := questions.(models.DrawlosseumQuestionsPool)
+func (d Drawlosseum) NewQuestionPool(questions models.QuestionPoolType) (serverModels.QuestionPoolQuestions, error) {
+	drawlosseum, ok := questions.(*models.DrawlosseumQuestionsPool)
 	if !ok {
-		return serverModels.QuestionPoolQuestions{}, fmt.Errorf("unable to cast to DrawlosseumQuestionsPool")
+		return serverModels.QuestionPoolQuestions{}, errors.Errorf("invalid question type for game drawlosseum")
 	}
 
 	var newDrawlosseumQuestionPool serverModels.DrawlosseumQuestionsPool
-	newDrawlosseumQuestionPool.Drawings = drawlosseumQuestions.Drawings
+	newDrawlosseumQuestionPool.Drawings = drawlosseum.Drawings
 	return serverModels.QuestionPoolQuestions{Drawlosseum: newDrawlosseumQuestionPool}, nil
 }
 
 // NewStory returns "Drawlosseum" style answers.
-func (d Drawlosseum) NewStory(story models.Story) serverModels.Story {
-	drawlosseumAnswers := newDrawlosseumAnswers(story.Answers)
+func (d Drawlosseum) NewStory(story models.Story) (serverModels.Story, error) {
+	answers, ok := story.Answers.(*models.StoryDrawlosseumAnswers)
+	if !ok {
+		return serverModels.Story{}, errors.Errorf("invalid answer type for game drawlosseum")
+	}
+	drawlosseumAnswers := newDrawlosseumAnswers(answers)
 	newDrawlosseumStory := serverModels.Story{
 		Question: story.Question,
 		Nickname: story.Nickname,
@@ -32,14 +36,12 @@ func (d Drawlosseum) NewStory(story models.Story) serverModels.Story {
 			Drawlosseum: drawlosseumAnswers,
 		},
 	}
-	return newDrawlosseumStory
+	return newDrawlosseumStory, nil
 }
 
-func newDrawlosseumAnswers(answers interface{}) []serverModels.StoryDrawlosseum {
-	drawlosseumAnswers := answers.([]models.StoryDrawlosseum)
-
+func newDrawlosseumAnswers(answers *models.StoryDrawlosseumAnswers) []serverModels.StoryDrawlosseum {
 	var newAnswersDrawlosseum []serverModels.StoryDrawlosseum
-	for _, answer := range drawlosseumAnswers {
+	for _, answer := range *answers {
 		newAnswer := serverModels.StoryDrawlosseum{
 			Color: answer.Color,
 			Start: serverModels.DrawlosseumDrawingPoint{
