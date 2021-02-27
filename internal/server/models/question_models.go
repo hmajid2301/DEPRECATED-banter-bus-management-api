@@ -27,12 +27,6 @@ type Group struct {
 	Type string `json:"type" description:"The type of the content group." example:"questions"                        enum:"questions,answers"`
 }
 
-// GroupInput is the data for getting all groups from a certain round of a certain game.
-type GroupInput struct {
-	GameName string `json:"game_name" url:"game_name" description:"The name of the game" example:"fibbing_it" validate:"required" path:"name"`
-	Round    string `json:"round"     url:"round"                                                             validate:"required"             query:"round"`
-}
-
 // QuestionTranslation is the data required to add an existing question in another language.
 type QuestionTranslation struct {
 	OriginalQuestion NewQuestion            `json:"original_question" validate:"required"`
@@ -43,16 +37,4 @@ type QuestionTranslation struct {
 type NewQuestionTranslation struct {
 	Content      string `json:"content"       description:"The question in the new language"        example:"Willst du eine Frage?" validate:"required"`
 	LanguageCode string `json:"language_code" description:"The language code for the new question." example:"fr"                    validate:"required"`
-}
-
-// QuestionInput is the body data and params combined into a single struct.
-type QuestionInput struct {
-	GameParams
-	NewQuestion
-}
-
-// UpdateQuestionInput is the body data and params combined into a single struct. Data required to update a question.
-type UpdateQuestionInput struct {
-	GameParams
-	QuestionTranslation
 }

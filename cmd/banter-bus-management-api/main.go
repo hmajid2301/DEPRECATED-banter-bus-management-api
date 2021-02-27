@@ -11,7 +11,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/repository"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/server"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/controllers"
 )
@@ -28,17 +28,17 @@ func mainLogic() int {
 		logger.Error(err.Error())
 		return 1
 	}
-	core.UpdateFormatter(logger, config.App.Environment)
+	core.UpdateFormatter(logger, config.App.Env)
 	core.UpdateLogLevel(logger, config.App.LogLevel)
 
-	db, err := repository.NewMongoDB(logger,
-		config.Database.Host,
-		config.Database.Port,
-		config.Database.Username,
-		config.Database.Password,
-		config.Database.DatabaseName,
-		config.Database.MaxConns,
-		config.Database.Timeout)
+	db, err := database.NewMongoDB(logger,
+		config.DB.Host,
+		config.DB.Port,
+		config.DB.Username,
+		config.DB.Password,
+		config.DB.Name,
+		config.DB.MaxConns,
+		config.DB.Timeout)
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
@@ -46,23 +46,23 @@ func mainLogic() int {
 
 	defer db.CloseDB()
 
-	env := &controllers.Env{Logger: logger, Config: config, DB: db}
-	router, err := server.SetupWebServer(env)
+	env := &controllers.Env{Logger: logger, Conf: config, DB: db}
+	router, err := server.Setup(env)
 	if err != nil {
-		logger.Errorf("Failed to load router: %v.", err)
+		logger.Errorf("Failed to load router %v.", err)
 		return 1
 	}
 
 	srv := http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.Webserver.Host, config.Webserver.Port),
+		Addr:    fmt.Sprintf("%s:%d", config.Srv.Host, config.Srv.Port),
 		Handler: router,
 	}
 
-	go terminateHandler(logger, &srv, config.Database.Timeout)
+	go terminateHandler(logger, &srv, config.DB.Timeout)
 
 	logger.Info("The webservice is ready to serve requests.")
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		logger.Errorf("An Unexpected error while serving HTTP: %v.", err)
+		logger.Errorf("An Unexpected error while serving HTTP %v.", err)
 		return 1
 	}
 
@@ -85,6 +85,6 @@ func terminateHandler(logger *log.Logger, srv *http.Server, timeout int) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		logger.Errorf("Unexpected error while shutting down server: %s", err)
+		logger.Errorf("Unexpected error while shutting down server %s", err)
 	}
 }

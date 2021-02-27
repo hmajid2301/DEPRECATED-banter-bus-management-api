@@ -5,7 +5,7 @@ import (
 
 	"github.com/juju/errors"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
 
 // Quibly type that implements PlayableGame.
@@ -32,20 +32,20 @@ func (q Quibly) GetQuestionPath(question models.GenericQuestion) string {
 	return questionPath
 }
 
-// ValidateQuestionInput is used to validate input for interacting with questions.
-func (q Quibly) ValidateQuestionInput(question models.GenericQuestion) error {
+// ValidateQuestion is used to validate input for interacting with questions.
+func (q Quibly) ValidateQuestion(question models.GenericQuestion) error {
 	validRounds := map[string]bool{"pair": true, "group": true, "answers": true}
 	if !validRounds[question.Round] {
-		return errors.BadRequestf("Invalid round %s", question.Round)
+		return errors.BadRequestf("invalid round %s", question.Round)
 	}
 	return nil
 }
 
 // NewQuestionPool gets the question pool structure for the Quibly game.
 func (q Quibly) NewQuestionPool() models.QuestionPoolType {
-	quiblyQuestionPool := &models.QuiblyQuestionsPool{}
-	quiblyQuestionPool.EmptyPoolQuestions()
-	return quiblyQuestionPool
+	questionPool := &models.QuiblyQuestionsPool{}
+	questionPool.NewPool()
+	return questionPool
 }
 
 // QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
@@ -53,10 +53,10 @@ func (q Quibly) NewQuestionPool() models.QuestionPoolType {
 func (q Quibly) QuestionPoolToGenericQuestions(questions models.QuestionPoolType) ([]models.GenericQuestion, error) {
 	quibly, ok := questions.(*models.QuiblyQuestionsPool)
 	if !ok {
-		return nil, errors.Errorf("invalid question type for game quibly")
+		return nil, errors.Errorf("invalid question for game Quibly")
 	}
-	var newGenericQuestions []models.GenericQuestion
 
+	var newGenericQuestions []models.GenericQuestion
 	questionsGroup := map[string]interface{}{
 		"pair":    quibly.Pair,
 		"answers": quibly.Answers,

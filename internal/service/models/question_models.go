@@ -1,5 +1,7 @@
 package models
 
+import "gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
+
 // Question is the data for questions related to a game.
 type Question struct {
 	Content map[string]string `bson:"content"`
@@ -10,7 +12,7 @@ type Question struct {
 type NewQuestion map[string]Question
 
 // AddToList adds a new Question to the game.
-func (question *NewQuestion) AddToList(db Repository, filter map[string]string) (bool, error) {
+func (question *NewQuestion) AddToList(db database.Database, filter map[string]string) (bool, error) {
 	updated, err := db.AppendToList("game", filter, question)
 	return updated, err
 }
@@ -22,8 +24,8 @@ type QuiblyQuestions struct {
 	Group   []Question `bson:"group,omitempty"`
 }
 
-// EmptyQuestions creates an empty quibly it questions.
-func (q *QuiblyQuestions) EmptyQuestions() {
+// NewQuestions creates an empty quibly it questions.
+func (q *QuiblyQuestions) NewQuestions() {
 	q.Answers = []Question{}
 	q.Pair = []Question{}
 	q.Group = []Question{}
@@ -34,8 +36,8 @@ type DrawlosseumQuestions struct {
 	Drawings []Question `bson:"drawings"`
 }
 
-// EmptyQuestions creates an empty drawlosseum it questions.
-func (d *DrawlosseumQuestions) EmptyQuestions() {
+// NewQuestions creates an empty drawlosseum it questions.
+func (d *DrawlosseumQuestions) NewQuestions() {
 	d.Drawings = []Question{}
 }
 
@@ -47,8 +49,8 @@ type FibbingItQuestions struct {
 	Likely   []Question                       `bson:"likely"`
 }
 
-// EmptyQuestions creates an empty fibbing it questions.
-func (f *FibbingItQuestions) EmptyQuestions() {
+// NewQuestions creates an empty fibbing it questions.
+func (f *FibbingItQuestions) NewQuestions() {
 	f.Opinion = map[string]map[string][]Question{}
 	f.FreeForm = map[string][]Question{}
 	f.Likely = []Question{}

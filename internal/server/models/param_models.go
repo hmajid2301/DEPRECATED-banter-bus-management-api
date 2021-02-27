@@ -26,3 +26,9 @@ type UserParams struct {
 type PoolParams struct {
 	PoolName string `description:"The name of the user question pool." example:"example_pool" path:"pool_name"`
 }
+
+// ExistingQuestionPoolParams data about existing pool for a specific user.
+type ExistingQuestionPoolParams struct {
+	UserParams
+	PoolParams
+}

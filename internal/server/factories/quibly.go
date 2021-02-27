@@ -3,8 +3,8 @@ package factories
 import (
 	"github.com/juju/errors"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
 
 // Quibly struct which is the concrete type for game interface.
@@ -14,44 +14,44 @@ type Quibly struct{}
 func (q Quibly) NewQuestionPool(questions models.QuestionPoolType) (serverModels.QuestionPoolQuestions, error) {
 	quibly, ok := questions.(*models.QuiblyQuestionsPool)
 	if !ok {
-		return serverModels.QuestionPoolQuestions{}, errors.Errorf("invalid question type for game quibly")
+		return serverModels.QuestionPoolQuestions{}, errors.Errorf("invalid question for Quibly")
 	}
 
-	var newQuiblyQuestionPool serverModels.QuiblyQuestionsPool
-	newQuiblyQuestionPool.Pair = quibly.Pair
-	newQuiblyQuestionPool.Group = quibly.Group
-	newQuiblyQuestionPool.Answers = quibly.Answers
-	return serverModels.QuestionPoolQuestions{Quibly: newQuiblyQuestionPool}, nil
+	var pool serverModels.QuiblyQuestionsPool
+	pool.Pair = quibly.Pair
+	pool.Group = quibly.Group
+	pool.Answers = quibly.Answers
+	return serverModels.QuestionPoolQuestions{Quibly: pool}, nil
 }
 
 // NewStory returns "Quibly" story answers.
-func (q Quibly) NewStory(story models.Story) (serverModels.Story, error) {
-	answers, ok := story.Answers.(*models.StoryQuiblyAnswers)
+func (q Quibly) NewStory(userStory models.Story) (serverModels.Story, error) {
+	storyAnswers, ok := userStory.Answers.(*models.StoryQuiblyAnswers)
 
 	if !ok {
-		return serverModels.Story{}, errors.Errorf("invalid answer type for game quibly")
+		return serverModels.Story{}, errors.Errorf("invalid answer for Quibly")
 	}
-	quiblyAnswers := newAnswersQuibly(answers)
-	newQuiblyStory := serverModels.Story{
-		Question: story.Question,
-		Round:    story.Round,
+	answers := newAnswersQuibly(storyAnswers)
+	story := serverModels.Story{
+		Question: userStory.Question,
+		Round:    userStory.Round,
 		StoryAnswers: serverModels.StoryAnswers{
-			Quibly: quiblyAnswers,
+			Quibly: answers,
 		},
 	}
-	return newQuiblyStory, nil
+	return story, nil
 }
 
-func newAnswersQuibly(answers *models.StoryQuiblyAnswers) []serverModels.StoryQuibly {
-	var newAnswersQuibly []serverModels.StoryQuibly
-	for _, answer := range *answers {
-		newAnswer := serverModels.StoryQuibly{
-			Nickname: answer.Nickname,
-			Answer:   answer.Answer,
-			Votes:    answer.Votes,
+func newAnswersQuibly(storyAnswers *models.StoryQuiblyAnswers) []serverModels.StoryQuibly {
+	var answers []serverModels.StoryQuibly
+	for _, storyAnswer := range *storyAnswers {
+		answer := serverModels.StoryQuibly{
+			Nickname: storyAnswer.Nickname,
+			Answer:   storyAnswer.Answer,
+			Votes:    storyAnswer.Votes,
 		}
-		newAnswersQuibly = append(newAnswersQuibly, newAnswer)
+		answers = append(answers, answer)
 	}
 
-	return newAnswersQuibly
+	return answers
 }

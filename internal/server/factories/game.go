@@ -3,8 +3,8 @@ package factories
 import (
 	"github.com/juju/errors"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
 
 // Game is the interface for all games.

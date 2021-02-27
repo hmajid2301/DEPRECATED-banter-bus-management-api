@@ -1,6 +1,6 @@
 module gitlab.com/banter-bus/banter-bus-management-api
 
-go 1.15
+go 1.16
 
 require (
 	github.com/ajg/form v1.5.1 // indirect

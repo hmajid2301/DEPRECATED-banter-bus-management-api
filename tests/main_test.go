@@ -8,11 +8,11 @@ import (
 	"os"
 	"testing"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/repository"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/server"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/controllers"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 
 	"github.com/gavv/httpexpect"
 	"github.com/houqp/gtest"
@@ -20,44 +20,46 @@ import (
 
 type Tests struct {
 	httpExpect *httpexpect.Expect
-	DB         models.Repository
+	DB         database.Database
 }
 
 type GameTestData struct {
 	Games models.Games `json:"games"`
+	DB    database.Database
 }
 
 type UserTestData struct {
 	Users models.Users `json:"users"`
+	DB    database.Database
 }
 
 type TestData interface {
-	InsertData(path string, db models.Repository)
+	InsertData(path string)
 }
 
 func (s *Tests) Setup(t *testing.T) {
 	os.Setenv("BANTER_BUS_CONFIG_PATH", "config.test.yml")
-	config, err := core.NewConfig()
+	conf, err := core.NewConfig()
 	if err != nil {
 		fmt.Printf("Failed to load config %s", err)
 	}
 	logger := core.SetupLogger(ioutil.Discard)
 	core.UpdateLogLevel(logger, "DEBUG")
-	db, err := repository.NewMongoDB(logger,
-		config.Database.Host,
-		config.Database.Port,
-		config.Database.Username,
-		config.Database.Password,
-		config.Database.DatabaseName,
-		config.Database.MaxConns,
-		config.Database.Timeout)
+	db, err := database.NewMongoDB(logger,
+		conf.DB.Host,
+		conf.DB.Port,
+		conf.DB.Username,
+		conf.DB.Password,
+		conf.DB.Name,
+		conf.DB.MaxConns,
+		conf.DB.Timeout)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	env := &controllers.Env{Logger: logger, Config: config, DB: db}
-	router, err := server.SetupWebServer(env)
+	env := &controllers.Env{Logger: logger, Conf: conf, DB: db}
+	router, err := server.Setup(env)
 	if err != nil {
 		fmt.Printf("Failed to setup web server %s", err)
 	}
@@ -78,11 +80,15 @@ func (s *Tests) Setup(t *testing.T) {
 func (s *Tests) Teardown(t *testing.T) {}
 
 func (s *Tests) BeforeEach(t *testing.T) {
-	gameData := GameTestData{}
-	gameData.InsertData("data/json/game_collection.json", s.DB)
+	gameData := GameTestData{
+		DB: s.DB,
+	}
+	gameData.InsertData("data/json/game_collection.json")
 
-	userData := UserTestData{}
-	userData.InsertData("data/json/user_collection.json", s.DB)
+	userData := UserTestData{
+		DB: s.DB,
+	}
+	userData.InsertData("data/json/user_collection.json")
 }
 
 func (s *Tests) AfterEach(t *testing.T) {
@@ -101,25 +107,25 @@ func TestSampleTests(t *testing.T) {
 	gtest.RunSubTests(t, &Tests{})
 }
 
-func (gameData *GameTestData) InsertData(path string, db models.Repository) {
-	err := getData(path, gameData)
+func (g *GameTestData) InsertData(path string) {
+	err := getData(path, g)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = gameData.Games.Add(db)
+	err = g.Games.Add(g.DB)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func (userData *UserTestData) InsertData(path string, db models.Repository) {
-	err := getData(path, userData)
+func (u *UserTestData) InsertData(path string) {
+	err := getData(path, u)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	err = userData.Users.Add(db)
+	err = u.Users.Add(u.DB)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -8,9 +8,9 @@ import (
 )
 
 // SetupLogger setups a new logger .
-func SetupLogger(outputWriter io.Writer) (logger *logrus.Logger) {
+func SetupLogger(writer io.Writer) (logger *logrus.Logger) {
 	logger = logrus.New()
-	logger.Out = outputWriter
+	logger.Out = writer
 	return logger
 }
 

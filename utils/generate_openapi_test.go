@@ -22,13 +22,13 @@ func TestGetOpenAPI(t *testing.T) {
 		fmt.Println("unable to load config")
 	}
 
-	env := &controllers.Env{Logger: nil, Config: config, DB: nil}
-	router, err := server.SetupWebServer(env)
+	env := &controllers.Env{Logger: nil, Conf: config, DB: nil}
+	router, err := server.Setup(env)
 	if err != nil {
 		fmt.Println("unable to setup webserver")
 	}
 	srv := http.Server{
-		Addr:    fmt.Sprintf("%s:%d", config.Webserver.Host, config.Webserver.Port),
+		Addr:    fmt.Sprintf("%s:%d", config.Srv.Host, config.Srv.Port),
 		Handler: router,
 	}
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

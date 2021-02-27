@@ -3,7 +3,7 @@ package games
 import (
 	"github.com/juju/errors"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
 
 // Drawlosseum is the concrete type for the the game interface.
@@ -20,8 +20,8 @@ func (d Drawlosseum) NewGame(rulesURL string) models.Game {
 	}
 }
 
-// ValidateQuestionInput does nothing for the Drawlosseum game, as it requires no extra validation.
-func (d Drawlosseum) ValidateQuestionInput(_ models.GenericQuestion) error {
+// ValidateQuestion does nothing for the Drawlosseum game, as it requires no extra validation.
+func (d Drawlosseum) ValidateQuestion(_ models.GenericQuestion) error {
 	return nil
 }
 
@@ -32,9 +32,9 @@ func (d Drawlosseum) GetQuestionPath(_ models.GenericQuestion) string {
 
 // NewQuestionPool gets the question pool structure for the Drawlosseum game.
 func (d Drawlosseum) NewQuestionPool() models.QuestionPoolType {
-	drawlosseumQuestionPool := &models.DrawlosseumQuestionsPool{}
-	drawlosseumQuestionPool.EmptyPoolQuestions()
-	return drawlosseumQuestionPool
+	pool := &models.DrawlosseumQuestionsPool{}
+	pool.NewPool()
+	return pool
 }
 
 // QuestionPoolToGenericQuestions converts question pool questions into generic questions that can be returned back to
@@ -44,7 +44,7 @@ func (d Drawlosseum) QuestionPoolToGenericQuestions(
 ) ([]models.GenericQuestion, error) {
 	drawlosseum, ok := questions.(*models.DrawlosseumQuestionsPool)
 	if !ok {
-		return nil, errors.Errorf("invalid question type for game drawlosseum")
+		return nil, errors.Errorf("invalid question for Drawlosseum")
 	}
 	var newGenericQuestions []models.GenericQuestion
 

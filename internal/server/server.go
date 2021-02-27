@@ -18,11 +18,11 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/routes"
 )
 
-// SetupWebServer creates all the routes/endpoints, using Fizz.
-func SetupWebServer(env *controllers.Env) (*fizz.Fizz, error) {
+// Setup creates all the routes/endpoints, using Fizz.
+func Setup(env *controllers.Env) (*fizz.Fizz, error) {
 	engine := gin.New()
 
-	if env.Config.App.Environment == "production" {
+	if env.Conf.App.Env == "production" {
 		engine.Use(gin.Recovery())
 	}
 
@@ -47,7 +47,7 @@ func SetupWebServer(env *controllers.Env) (*fizz.Fizz, error) {
 		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())
 	}
 
-	if env.Config.App.Environment != "production" {
+	if env.Conf.App.Env != "production" {
 		env.Logger.Info("activating pprof (devmode on)")
 		pprof.Register(engine)
 	}

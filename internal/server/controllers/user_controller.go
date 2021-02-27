@@ -6,10 +6,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/factories"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
 
 // CreateUser adds a new user to the database
@@ -18,8 +18,8 @@ func (env *Env) CreateUser(_ *gin.Context, user *serverModels.NewUser) error {
 		"username": user.Username,
 	})
 	userLogger.Debug("Trying to add new user.")
-	userService := biz.UserService{DB: env.DB}
-	err := userService.Add(user.Username, user.Membership, user.Admin)
+	u := service.UserService{DB: env.DB, Username: user.Username}
+	err := u.Add(user.Membership, user.Admin)
 
 	if err != nil {
 		userLogger.WithFields(log.Fields{
@@ -58,8 +58,8 @@ func (env *Env) GetAllUsers(_ *gin.Context, params *serverModels.ListUserParams)
 	membershipFilter := newUserFilter(params.Membership)
 	adminFilter := adminFilters[params.AdminStatus]
 
-	userService := biz.UserService{DB: env.DB}
-	usernames, err := userService.GetAll(adminFilter, privacyFilter, membershipFilter)
+	u := service.UserService{DB: env.DB}
+	usernames, err := u.GetAll(adminFilter, privacyFilter, membershipFilter)
 
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -86,8 +86,8 @@ func (env *Env) GetUser(_ *gin.Context, params *serverModels.UserParams) (*serve
 	})
 	userLogger.Debug("Trying to add new user.")
 
-	userService := biz.UserService{DB: env.DB}
-	userFromDB, err := userService.Get(params.Username)
+	u := service.UserService{DB: env.DB, Username: params.Username}
+	user, err := u.Get()
 	if err != nil {
 		userLogger.WithFields(log.Fields{
 			"err": err,
@@ -95,8 +95,8 @@ func (env *Env) GetUser(_ *gin.Context, params *serverModels.UserParams) (*serve
 		return &serverModels.User{}, errors.NotFoundf("The user %s", params.Username)
 	}
 
-	returnedUser := newUser(userFromDB)
-	return returnedUser, nil
+	srvUser := newUser(user)
+	return srvUser, nil
 }
 
 // RemoveUser removes a user
@@ -106,8 +106,8 @@ func (env *Env) RemoveUser(_ *gin.Context, user *serverModels.UserParams) error 
 	})
 	userLogger.Debug("Trying to add new user.")
 
-	userService := biz.UserService{DB: env.DB}
-	err := userService.Remove(user.Username)
+	userService := service.UserService{DB: env.DB, Username: user.Username}
+	err := userService.Remove()
 	return err
 }
 
@@ -120,13 +120,13 @@ func newUser(userFromDB *models.User) *serverModels.User {
 		Preferences: &serverModels.UserPreferences{
 			LanguageCode: userFromDB.Preferences.LanguageCode,
 		},
-		Friends: extractUserFriends(userFromDB),
+		Friends: extractFriends(userFromDB),
 	}
 
 	return returnedUser
 }
 
-func extractUserFriends(user *models.User) []serverModels.Friend {
+func extractFriends(user *models.User) []serverModels.Friend {
 	var friends []serverModels.Friend
 	for _, friend := range user.Friends {
 		returnableFriend := serverModels.Friend{
@@ -143,8 +143,8 @@ func (env *Env) GetAllUserPools(_ *gin.Context, params *serverModels.UserParams)
 		"username": params.Username,
 	})
 	userLogger.Debug("Trying to get user pools.")
-	userService := biz.UserService{DB: env.DB}
-	pools, err := userService.GetPools(params.Username)
+	u := service.UserService{DB: env.DB, Username: params.Username}
+	pools, err := u.GetPools()
 
 	if err != nil {
 		userLogger.WithFields(log.Fields{
@@ -153,8 +153,8 @@ func (env *Env) GetAllUserPools(_ *gin.Context, params *serverModels.UserParams)
 		return []serverModels.QuestionPool{}, errors.NotFoundf("The user %s", params.Username)
 	}
 
-	userPools, err := env.getUserPools(pools)
-	return userPools, err
+	srvPools, err := env.getUserPools(pools)
+	return srvPools, err
 }
 
 // GetUserPool returns a single question pool for a specified user.
@@ -167,8 +167,8 @@ func (env *Env) GetUserPool(
 		"pool_name": params.PoolName,
 	})
 	userLogger.Debug("Trying to get a single user pool.")
-	userService := biz.UserService{DB: env.DB}
-	userPool, err := userService.GetPool(params.Username, params.PoolName)
+	u := service.UserService{DB: env.DB, Username: params.Username}
+	pool, err := u.GetPool(params.PoolName)
 
 	if err != nil {
 		userLogger.WithFields(log.Fields{
@@ -177,7 +177,7 @@ func (env *Env) GetUserPool(
 		return serverModels.QuestionPool{}, err
 	}
 
-	singlePool, err := env.newQuestionPool(userPool)
+	singlePool, err := env.newQuestionPool(pool)
 	return singlePool, err
 }
 
@@ -199,11 +199,11 @@ func (env *Env) getUserPools(questionPools []models.QuestionPool) ([]serverModel
 func (env *Env) newQuestionPool(pool models.QuestionPool) (serverModels.QuestionPool, error) {
 	game, err := factories.GetGame(pool.GameName)
 	if err != nil {
-		env.Logger.Errorf("Unknown game %s", pool.GameName)
+		env.Logger.Errorf("unknown game %s", pool.GameName)
 		return serverModels.QuestionPool{}, err
 	}
 
-	questionPoolQuestions, err := game.NewQuestionPool(pool.Questions)
+	questions, err := game.NewQuestionPool(pool.Questions)
 	if err != nil {
 		return serverModels.QuestionPool{}, err
 	}
@@ -213,7 +213,7 @@ func (env *Env) newQuestionPool(pool models.QuestionPool) (serverModels.Question
 		GameName:     pool.GameName,
 		LanguageCode: pool.LanguageCode,
 		Privacy:      pool.Privacy,
-		Questions:    questionPoolQuestions,
+		Questions:    questions,
 	}
 	return newPool, nil
 }
@@ -227,21 +227,21 @@ func (env *Env) AddUserPool(
 		"username": input.UserParams.Username,
 	})
 	userLogger.Debug("Trying to add question pool.")
-	userService := biz.UserService{DB: env.DB}
+	u := service.UserService{DB: env.DB, Username: input.UserParams.Username}
 
 	languageCode := input.NewQuestionPool.LanguageCode
 	if languageCode == "" {
 		languageCode = "en"
 	}
 
+	emptyResponse := struct{}{}
 	_, err := language.Parse(languageCode)
 	if err != nil {
 		log.Errorf("failed to parse language code %s, err %s", languageCode, err)
-		return struct{}{}, errors.BadRequestf("invalid language code %s", languageCode)
+		return emptyResponse, errors.BadRequestf("invalid language code %s", languageCode)
 	}
 
-	err = userService.AddPool(
-		input.UserParams.Username,
+	err = u.AddPool(
 		input.NewQuestionPool.PoolName,
 		languageCode,
 		input.NewQuestionPool.GameName,
@@ -254,23 +254,22 @@ func (env *Env) AddUserPool(
 		}).Warn("Could not add question pool.")
 	}
 
-	return struct{}{}, err
+	return emptyResponse, err
 }
 
 // RemoveUserPool removes an existing question pool (for a specific user).
 func (env *Env) RemoveUserPool(
 	_ *gin.Context,
 	input *serverModels.ExistingQuestionPoolParams,
-) ([]serverModels.QuestionPool, error) {
+) (struct{}, error) {
 	userLogger := log.WithFields(log.Fields{
 		"username":  input.UserParams.Username,
 		"pool_name": input.PoolParams.PoolName,
 	})
 	userLogger.Debug("Trying to add question pool.")
-	userService := biz.UserService{DB: env.DB}
+	u := service.UserService{DB: env.DB, Username: input.UserParams.Username}
 
-	err := userService.RemovePool(
-		input.UserParams.Username,
+	err := u.RemovePool(
 		input.PoolParams.PoolName,
 	)
 
@@ -280,7 +279,8 @@ func (env *Env) RemoveUserPool(
 		}).Warn("Could not remove question pool.")
 	}
 
-	return []serverModels.QuestionPool{}, err
+	emptyResponse := struct{}{}
+	return emptyResponse, err
 }
 
 // UpdateUserPool adds or removes a question from an existing question pool (for a specific user).
@@ -295,14 +295,13 @@ func (env *Env) UpdateUserPool(
 	})
 	userLogger.Debug("Trying to update question pool.")
 
-	questionToUpdate := env.newGenericQuestion(input.UpdateQuestionPool.NewQuestion)
-	userService := biz.UserService{DB: env.DB}
+	question := env.newGenericQuestion(input.UpdateQuestionPool.NewQuestion)
+	u := service.UserService{DB: env.DB, Username: input.UserParams.Username}
 
-	err := userService.UpdatePool(
-		input.UserParams.Username,
+	err := u.UpdatePool(
 		input.PoolParams.PoolName,
 		input.UpdateQuestionPool.Operation,
-		questionToUpdate,
+		question,
 	)
 
 	if err != nil {
@@ -311,7 +310,8 @@ func (env *Env) UpdateUserPool(
 		}).Error("Could update question pool.")
 	}
 
-	return struct{}{}, err
+	emptyResponse := struct{}{}
+	return emptyResponse, err
 }
 
 // GetUserStories returns all the user's stories.
@@ -321,20 +321,20 @@ func (env *Env) GetUserStories(_ *gin.Context, params *serverModels.UserParams) 
 	})
 	userLogger.Debug("Trying to get user stories.")
 
-	userService := biz.UserService{DB: env.DB}
-	userStories, err := userService.GetUserStories(params.Username)
+	u := service.UserService{DB: env.DB, Username: params.Username}
+	stories, err := u.GetUserStories()
 	if err != nil {
 		userLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn(("User does not exist."))
-		return []serverModels.Story{}, errors.NotFoundf("The user %s", params.Username)
+		return []serverModels.Story{}, errors.NotFoundf("the user %s", params.Username)
 	}
 
-	stories, err := env.getUserStories(userStories)
-	return stories, err
+	srvStories, err := env.newUserStories(stories)
+	return srvStories, err
 }
 
-func (env *Env) getUserStories(userStories []models.Story) ([]serverModels.Story, error) {
+func (env *Env) newUserStories(userStories []models.Story) ([]serverModels.Story, error) {
 	stories := []serverModels.Story{}
 
 	for _, story := range userStories {

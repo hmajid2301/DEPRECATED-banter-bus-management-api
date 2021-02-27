@@ -1,4 +1,4 @@
-package repository
+package database
 
 import (
 	"context"
@@ -10,23 +10,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 )
 
 // MongoDB is a representation of the MongoDB server to connect to
 type MongoDB struct {
-	client   *mongo.Client
-	database *mongo.Database
-	logger   *log.Logger
-
-	Host         string
-	Port         int
-	Username     string
-	Password     string
-	DatabaseName string
-	MaxConns     int
-	Timeout      int
+	*mongo.Database
+	Client   *mongo.Client
+	Logger   *log.Logger
+	Host     string
+	Port     int
+	Username string
+	Password string
+	Name     string
+	MaxConns int
+	Timeout  int
 }
 
 // NewMongoDB sets up the Database
@@ -36,19 +33,20 @@ func NewMongoDB(
 	port int,
 	username string,
 	password string,
-	databaseName string,
+	name string,
 	maxConns int,
 	timeout int,
 ) (*MongoDB, error) {
 	db := &MongoDB{
-		logger:       logger,
-		Host:         host,
-		Port:         port,
-		Username:     username,
-		Password:     password,
-		DatabaseName: databaseName,
-		MaxConns:     maxConns,
-		Timeout:      timeout}
+		Logger:   logger,
+		Host:     host,
+		Port:     port,
+		Username: username,
+		Password: password,
+		Name:     name,
+		MaxConns: maxConns,
+		Timeout:  timeout,
+	}
 
 	logger.Info("Connecting to database.")
 
@@ -68,8 +66,8 @@ func NewMongoDB(
 	}
 
 	logger.Info("Connected to database.")
-	db.client = client
-	db.database = client.Database(databaseName)
+	db.Client = client
+	db.Database = client.Database(name)
 	return db, nil
 }
 
@@ -78,9 +76,9 @@ func (db *MongoDB) CloseDB() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout))
 	defer cancel()
 
-	err := db.client.Disconnect(ctx)
+	err := db.Client.Disconnect(ctx)
 	if err != nil {
-		db.logger.Errorf("Failed to disconnect from database, %s.", err)
+		db.Logger.Errorf("Failed to disconnect from database, %s.", err)
 	}
 }
 
@@ -89,30 +87,30 @@ func (db *MongoDB) Ping() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	err := db.client.Ping(ctx, readpref.Primary())
+	err := db.Client.Ping(ctx, readpref.Primary())
 	return err == nil
 }
 
 // Insert adds a new entry to the database.
-func (db *MongoDB) Insert(collectionName string, objectToInsert models.Document) (bool, error) {
+func (db *MongoDB) Insert(collectionName string, document Document) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
-		"object":     objectToInsert,
-	}).Debug("Inserting object into database.")
-	collection := db.database.Collection(collectionName)
+		"document":   document,
+	}).Debug("Inserting document into database.")
+	collection := db.Collection(collectionName)
 
-	ok, err := collection.InsertOne(ctx, objectToInsert)
+	ok, err := collection.InsertOne(ctx, document)
 	if err != nil {
-		db.logger.Error(err, ok)
+		db.Logger.Error(err, ok)
 		return false, err
 	}
 
 	var inserted = true
 	if ok.InsertedID == nil {
-		db.logger.Error("No elements inserted.")
+		db.Logger.Error("No elements inserted.")
 		inserted = false
 	}
 
@@ -120,20 +118,20 @@ func (db *MongoDB) Insert(collectionName string, objectToInsert models.Document)
 }
 
 // InsertMultiple adds multiple entries to the database at once.
-func (db *MongoDB) InsertMultiple(collectionName string, object models.Documents) error {
+func (db *MongoDB) InsertMultiple(collectionName string, documents Documents) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
-		"object":     object,
-	}).Debug("Inserting multiple objects into database.")
+		"documents":  documents,
+	}).Debug("Inserting multiple documents into database.")
 
-	objectsToInsert := object.ToInterface()
-	collection := db.database.Collection(collectionName)
-	_, err := collection.InsertMany(ctx, objectsToInsert)
+	inserts := documents.ToInterface()
+	collection := db.Collection(collectionName)
+	_, err := collection.InsertMany(ctx, inserts)
 	if err != nil {
-		db.logger.Error(err)
+		db.Logger.Error(err)
 		return err
 	}
 
@@ -141,45 +139,40 @@ func (db *MongoDB) InsertMultiple(collectionName string, object models.Documents
 }
 
 // Get retrieves an entry from the database.
-func (db *MongoDB) Get(collectionName string, filter map[string]string, model models.Document) error {
+func (db *MongoDB) Get(collectionName string, filter map[string]string, document Document) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-		"model":      model,
-	}).Debug("Getting object from database.")
-	collection := db.database.Collection(collectionName)
-	encodedFilter, marshalErr := bson.Marshal(filter)
-	if marshalErr != nil {
-		return marshalErr
-	}
-
-	err := collection.FindOne(ctx, encodedFilter).Decode(model)
+		"document":   document,
+	}).Debug("Getting document from database.")
+	collection := db.Collection(collectionName)
+	err := collection.FindOne(ctx, filter).Decode(document)
 	return err
 }
 
 // GetAll entries from the database.
-func (db *MongoDB) GetAll(collectionName string, model models.Documents) error {
+func (db *MongoDB) GetAll(collectionName string, documents Documents) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
-		"model":      model,
-	}).Debug("Getting all objects from database.")
-	collection := db.database.Collection(collectionName)
+		"documents":  documents,
+	}).Debug("Getting all documents from database.")
+	collection := db.Collection(collectionName)
 
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		db.logger.Errorf("failed to get objects: %v", err)
+		db.Logger.Errorf("failed to get objects: %v", err)
 		return err
 	}
 
-	err = cursor.All(ctx, model)
+	err = cursor.All(ctx, documents)
 	if err != nil {
-		db.logger.Errorf("failed to transform object: %v", err)
+		db.Logger.Errorf("failed to transform object: %v", err)
 	}
 
 	return err
@@ -197,17 +190,17 @@ func (db *MongoDB) GetSubObject(
 	filter map[string]string,
 	parentField string,
 	condition []string,
-	model models.SubDocuments,
+	subDocuments SubDocuments,
 ) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	db.logger.WithFields(log.Fields{
-		"collection": collectionName,
-		"filter":     filter,
-		"model":      model,
+	db.Logger.WithFields(log.Fields{
+		"collection":   collectionName,
+		"filter":       filter,
+		"subDocuments": subDocuments,
 	}).Debug("Getting sub-object from database.")
-	collection := db.database.Collection(collectionName)
+	collection := db.Collection(collectionName)
 
 	pipeline := mongo.Pipeline{
 		{
@@ -240,30 +233,30 @@ func (db *MongoDB) GetSubObject(
 		return err
 	}
 
-	err = aggregate.All(ctx, model)
+	err = aggregate.All(ctx, subDocuments)
 	return err
 }
 
-// Delete removes an entry from the database.
+// Delete removes a document from the database.
 func (db *MongoDB) Delete(collectionName string, filter map[string]string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-	}).Debug("Deleting object from database.")
-	collection := db.database.Collection(collectionName)
+	}).Debug("Deleting document from database.")
+	collection := db.Collection(collectionName)
 
 	ok, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
-		db.logger.Error(err)
+		db.Logger.Error(err)
 		return false, err
 	}
 
 	var deleted = true
 	if ok.DeletedCount == 0 {
-		db.logger.Error("No elements deleted.")
+		db.Logger.Error("No elements deleted.")
 		deleted = false
 	}
 
@@ -275,10 +268,10 @@ func (db *MongoDB) RemoveCollection(collectionName string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 	}).Warn("Deleting collection from database.")
-	err := db.database.Collection(collectionName).Drop(ctx)
+	err := db.Collection(collectionName).Drop(ctx)
 	if err != nil {
 		return err
 	}
@@ -290,15 +283,15 @@ func (db *MongoDB) RemoveCollection(collectionName string) error {
 func (db *MongoDB) Update(
 	collectionName string,
 	filter map[string]string,
-	objectToUpdate models.Document,
+	document Document,
 ) (bool, error) {
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-		"update":     objectToUpdate,
-	}).Debug("Updating item in the database.")
+		"document":   document,
+	}).Debug("Updating document in the database.")
 
-	updated, err := db.modifyEntry(collectionName, filter, objectToUpdate, "$set")
+	updated, err := db.modifyEntry(collectionName, filter, document, "$set")
 	return updated, err
 }
 
@@ -307,15 +300,15 @@ func (db *MongoDB) Update(
 func (db *MongoDB) UpdateObject(
 	collectionName string,
 	filter map[string]string,
-	objectToAdd map[string]interface{},
+	update map[string]interface{},
 ) (bool, error) {
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-		"update":     objectToAdd,
-	}).Debug("Adding new item to object in the database.")
+		"update":     update,
+	}).Debug("Updating sub-object in the database.")
 
-	updated, err := db.modifyEntry(collectionName, filter, objectToAdd, "$set")
+	updated, err := db.modifyEntry(collectionName, filter, update, "$set")
 	return updated, err
 }
 
@@ -325,7 +318,7 @@ func (db *MongoDB) RemoveObject(
 	filter map[string]string,
 	remove map[string]interface{},
 ) (bool, error) {
-	db.logger.WithFields(log.Fields{
+	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
 		"update":     remove,
@@ -339,15 +332,15 @@ func (db *MongoDB) RemoveObject(
 func (db *MongoDB) AppendToList(
 	collectionName string,
 	filter map[string]string,
-	add models.NewSubDocument,
+	subDocument NewSubDocument,
 ) (bool, error) {
-	db.logger.WithFields(log.Fields{
-		"collection": collectionName,
-		"filter":     filter,
-		"add":        add,
-	}).Debug("Adding item to existing entry in the database.")
+	db.Logger.WithFields(log.Fields{
+		"collection":  collectionName,
+		"filter":      filter,
+		"subDocument": subDocument,
+	}).Debug("Adding subDocument to existing entry in the database.")
 
-	updated, err := db.modifyEntry(collectionName, filter, add, "$push")
+	updated, err := db.modifyEntry(collectionName, filter, subDocument, "$push")
 	return updated, err
 }
 
@@ -355,15 +348,15 @@ func (db *MongoDB) AppendToList(
 func (db *MongoDB) RemoveFromList(
 	collectionName string,
 	filter map[string]string,
-	remove models.SubDocument,
+	subDocument SubDocument,
 ) (bool, error) {
-	db.logger.WithFields(log.Fields{
-		"collection": collectionName,
-		"filter":     filter,
-		"remove":     remove,
+	db.Logger.WithFields(log.Fields{
+		"collection":  collectionName,
+		"filter":      filter,
+		"subDocument": subDocument,
 	}).Debug("Removing item from existing entry in the database.")
 
-	updated, err := db.modifyEntry(collectionName, filter, remove, "$pull")
+	updated, err := db.modifyEntry(collectionName, filter, subDocument, "$pull")
 	return updated, err
 }
 
@@ -376,7 +369,7 @@ func (db *MongoDB) modifyEntry(
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
-	collection := db.database.Collection(collectionName)
+	collection := db.Collection(collectionName)
 
 	ok, err := collection.UpdateOne(ctx, filter, bson.M{operation: modify})
 	if err != nil {

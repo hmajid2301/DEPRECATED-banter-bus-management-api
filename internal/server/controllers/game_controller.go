@@ -5,21 +5,20 @@ import (
 	"github.com/juju/errors"
 	log "github.com/sirupsen/logrus"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service"
 )
 
 // CreateGame adds a new game.
 func (env *Env) CreateGame(_ *gin.Context, game *serverModels.NewGame) (struct{}, error) {
 	gameLogger := env.Logger.WithFields(log.Fields{
-		"game_name": game.Name,
+		"name": game.Name,
 	})
 	gameLogger.Debug("Trying to add new game.")
 
 	var emptyResponse struct{}
-
-	gameService := biz.GameService{DB: env.DB}
-	err := gameService.Add(game.Name, game.RulesURL)
+	g := service.GameService{DB: env.DB, Name: game.Name}
+	err := g.Add(game.RulesURL)
 
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
@@ -53,9 +52,9 @@ func (env *Env) GetAllGames(_ *gin.Context, params *serverModels.ListGameParams)
 		"all":      n,
 	}
 
-	enabledFilters := filters[params.Games]
-	gameService := biz.GameService{DB: env.DB}
-	gameNames, err := gameService.GetAll(enabledFilters)
+	enabled := filters[params.Games]
+	g := service.GameService{DB: env.DB}
+	names, err := g.GetAll(enabled)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"err": err,
@@ -63,7 +62,7 @@ func (env *Env) GetAllGames(_ *gin.Context, params *serverModels.ListGameParams)
 		return []string{}, err
 	}
 
-	return gameNames, nil
+	return names, nil
 }
 
 // GetGame gets all the information about a specific game.
@@ -73,8 +72,8 @@ func (env *Env) GetGame(_ *gin.Context, params *serverModels.GameParams) (*serve
 	})
 	gameLogger.Debug("Trying to get a game.")
 
-	gameService := biz.GameService{DB: env.DB}
-	game, err := gameService.Get(params.Name)
+	g := service.GameService{DB: env.DB, Name: params.Name}
+	game, err := g.Get()
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
@@ -82,12 +81,12 @@ func (env *Env) GetGame(_ *gin.Context, params *serverModels.GameParams) (*serve
 		return &serverModels.Game{}, errors.NotFoundf("The game %s", params.Name)
 	}
 
-	actualGame := &serverModels.Game{
+	gameObj := &serverModels.Game{
 		Name:     game.Name,
 		RulesURL: game.RulesURL,
 		Enabled:  *game.Enabled,
 	}
-	return actualGame, nil
+	return gameObj, nil
 }
 
 // RemoveGame removes a game.
@@ -99,8 +98,8 @@ func (env *Env) RemoveGame(_ *gin.Context, params *serverModels.GameParams) (str
 
 	var emptyResponse struct{}
 
-	gameService := biz.GameService{DB: env.DB}
-	err := gameService.Remove(params.Name)
+	gameService := service.GameService{DB: env.DB, Name: params.Name}
+	err := gameService.Remove()
 	if errors.IsNotFound(err) {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
@@ -135,9 +134,9 @@ func (env *Env) updateEnableGameState(name string, enable bool) (struct{}, error
 	log.Debug("Trying to update enable state.")
 
 	var emptyResponse struct{}
+	gameService := service.GameService{DB: env.DB, Name: name}
+	updated, err := gameService.UpdateEnable(enable)
 
-	gameService := biz.GameService{DB: env.DB}
-	updated, err := gameService.UpdateEnable(name, enable)
 	if err != nil || !updated {
 		gameLogger.WithFields(log.Fields{
 			"err": err,

@@ -6,9 +6,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
 
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/biz/models"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
 
 // AddQuestion adds a new question to a game.
@@ -23,9 +23,9 @@ func (env *Env) AddQuestion(_ *gin.Context, questionInput *serverModels.Question
 	})
 	questionLogger.Debug("Trying to add new question.")
 
-	questionToAdd := env.newGenericQuestion(question)
-	questionService := biz.QuestionService{DB: env.DB}
-	err := questionService.Add(game.Name, questionToAdd)
+	add := env.newGenericQuestion(question)
+	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: add}
+	err := q.Add()
 
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
@@ -49,24 +49,19 @@ func (env *Env) AddTranslation(_ *gin.Context, questionInput *serverModels.Updat
 	})
 	questionLogger.Debug("Trying to add new question.")
 
-	newQuestionLanguage := question.NewQuestion.LanguageCode
-	_, err := language.Parse(newQuestionLanguage)
+	newLanguage := question.NewQuestion.LanguageCode
+	_, err := language.Parse(newLanguage)
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err":           err,
-			"language_code": newQuestionLanguage,
+			"language_code": newLanguage,
 		}).Warn("Bad language code.")
-		return errors.BadRequestf("Invalid language %s", newQuestionLanguage)
+		return errors.BadRequestf("invalid language %s", newLanguage)
 	}
 
-	existingQuestion := env.newGenericQuestion(question.OriginalQuestion)
-	questionService := biz.QuestionService{DB: env.DB}
-	err = questionService.AddTranslation(
-		game.Name,
-		existingQuestion,
-		question.NewQuestion.Content,
-		newQuestionLanguage,
-	)
+	genericQuestion := env.newGenericQuestion(question.OriginalQuestion)
+	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: genericQuestion}
+	err = q.AddTranslation(question.NewQuestion.Content, newLanguage)
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err": err,
@@ -89,9 +84,9 @@ func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.Quest
 	})
 	questionLogger.Debug("Trying to remove question.")
 
-	questionToRemove := env.newGenericQuestion(question)
-	questionService := biz.QuestionService{DB: env.DB}
-	err := questionService.Remove(game.Name, questionToRemove)
+	remove := env.newGenericQuestion(question)
+	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: remove}
+	err := q.Remove()
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err": err,
@@ -104,19 +99,19 @@ func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.Quest
 
 // EnableQuestion enables a disabled game.
 func (env *Env) EnableQuestion(_ *gin.Context, questionInput *serverModels.QuestionInput) (struct{}, error) {
-	return env.updateEnableQuestionState(questionInput, true)
+	return env.updateEnable(questionInput, true)
 }
 
 // DisableQuestion disabled an enabled game.
 func (env *Env) DisableQuestion(_ *gin.Context, questionInput *serverModels.QuestionInput) (struct{}, error) {
-	return env.updateEnableQuestionState(questionInput, false)
+	return env.updateEnable(questionInput, false)
 }
 
 // GetAllGroups gets all group names from a certain round in a certain game
 func (env *Env) GetAllGroups(_ *gin.Context, groupInput *serverModels.GroupInput) ([]string, error) {
 	log.Debug("Trying to get all groups")
-	questionService := biz.QuestionService{DB: env.DB}
-	groups, err := questionService.GetGroups(groupInput.GameName, groupInput.Round)
+	q := service.QuestionService{DB: env.DB, GameName: groupInput.Name}
+	groups, err := q.GetGroups(groupInput.Round)
 
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -127,7 +122,7 @@ func (env *Env) GetAllGroups(_ *gin.Context, groupInput *serverModels.GroupInput
 	return groups, nil
 }
 
-func (env *Env) updateEnableQuestionState(
+func (env *Env) updateEnable(
 	questionInput *serverModels.QuestionInput,
 	enable bool,
 ) (struct{}, error) {
@@ -144,9 +139,9 @@ func (env *Env) updateEnableQuestionState(
 
 	var emptyResponse struct{}
 
-	questionToUpdate := env.newGenericQuestion(question)
-	questionService := biz.QuestionService{DB: env.DB}
-	updated, err := questionService.UpdateEnable(game.Name, enable, questionToUpdate)
+	update := env.newGenericQuestion(question)
+	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: update}
+	updated, err := q.UpdateEnable(enable)
 	if err != nil || !updated {
 		questionLogger.WithFields(log.Fields{
 			"err": err,
@@ -158,13 +153,12 @@ func (env *Env) updateEnableQuestionState(
 }
 
 func (env *Env) newGenericQuestion(question serverModels.NewQuestion) models.GenericQuestion {
-	var group *models.GenericQuestionGroup
-	if question.Group == nil {
-		group = &models.GenericQuestionGroup{
-			Name: "",
-			Type: "",
-		}
-	} else {
+	group := &models.GenericQuestionGroup{
+		Name: "",
+		Type: "",
+	}
+
+	if question.Group != nil {
 		group = &models.GenericQuestionGroup{
 			Name: question.Group.Name,
 			Type: question.Group.Type,

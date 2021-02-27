@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"gopkg.in/mgo.v2/bson"
+
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 )
 
 // QUIBLY is the string representation of the game name.
@@ -21,26 +23,26 @@ const DRAWLOSSEUM = "drawlosseum"
 // Game is the data required by all games. The only thing that varies between different games
 // is how they store questions.
 type Game struct {
-	Name      string       `bson:"name"`
+	Name      string       `bson:"name,omitempty"`
 	RulesURL  string       `bson:"rules_url,omitempty" json:"rules_url,omitempty"`
 	Enabled   *bool        `bson:"enabled,omitempty"`
 	Questions QuestionType `bson:"questions,omitempty"`
 }
 
 // Add is used to add a game.
-func (game *Game) Add(db Repository) (bool, error) {
+func (game *Game) Add(db database.Database) (bool, error) {
 	inserted, err := db.Insert("game", game)
 	return inserted, err
 }
 
 // Get is used to get a game.
-func (game *Game) Get(db Repository, filter map[string]string) error {
+func (game *Game) Get(db database.Database, filter map[string]string) error {
 	err := db.Get("game", filter, game)
 	return err
 }
 
 // Update is used to update a game.
-func (game *Game) Update(db Repository, filter map[string]string) (bool, error) {
+func (game *Game) Update(db database.Database, filter map[string]string) (bool, error) {
 	updated, err := db.Update("game", filter, game)
 	return updated, err
 }
@@ -157,13 +159,13 @@ func getQuestionType(gameName string) (QuestionType, error) {
 type Games []Game
 
 // Add is used to add a list of games of the database.
-func (games *Games) Add(db Repository) error {
+func (games *Games) Add(db database.Database) error {
 	err := db.InsertMultiple("game", games)
 	return err
 }
 
 // Get is used to get a list of games.
-func (games *Games) Get(db Repository) error {
+func (games *Games) Get(db database.Database) error {
 	err := db.GetAll("game", games)
 	return err
 }

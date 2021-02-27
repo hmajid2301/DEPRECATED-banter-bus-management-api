@@ -77,7 +77,7 @@ func (s *Tests) SubTestGetAllGroups(t *testing.T) {
 	for _, tc := range data.GetAllGroups {
 		testName := fmt.Sprintf("Get All Groups: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question/group", tc.Payload.GameName)
+			endpoint := fmt.Sprintf("/game/%s/question/group", tc.Payload.Name)
 			response := s.httpExpect.GET(endpoint).WithJSON(tc.Payload).WithQueryObject(tc.Payload)
 			retval := response.Expect().Status(tc.ExpectedCode)
 

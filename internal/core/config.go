@@ -8,53 +8,53 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-// Config is the data type for the expected config file.
-type Config struct {
+// Conf is the data type for the expected config file.
+type Conf struct {
 	App struct {
-		Environment string `yaml:"environment" env:"BANTER_BUS_ENVIRONMENT" env-default:"production"`
-		LogLevel    string `yaml:"logLevel" env:"BANTER_BUS_LOG_LEVEL" env-default:"debug"`
+		Env      string `yaml:"environment" env:"BANTER_BUS_ENVIRONMENT" env-default:"production"`
+		LogLevel string `yaml:"logLevel" env:"BANTER_BUS_LOG_LEVEL" env-default:"debug"`
 	} `yaml:"app"`
-	Webserver struct {
+	Srv struct {
 		Host string `yaml:"host" env:"BANTER_BUS_WEBSERVER_HOST" env-default:"0.0.0.0"`
 		Port int    `yaml:"port" env:"BANTER_BUS_WEBSERVER_PORT" env-default:"8080"`
 	} `yaml:"webserver"`
-	Database struct {
-		Host         string `yaml:"host" env:"BANTER_BUS_DB_HOST" env-default:"banter-bus-database"`
-		Port         int    `yaml:"port" env:"BANTER_BUS_DB_PORT" env-default:"27017"`
-		DatabaseName string `yaml:"name" env:"BANTER_BUS_DB_NAME" env-default:"banterbus"`
-		Username     string `yaml:"user" env:"BANTER_BUS_DB_USER"`
-		Password     string `yaml:"password" env:"BANTER_BUS_DB_PASSWORD"`
-		MaxConns     int    `yaml:"maxConns" env:"BANTER_BUS_DB_MAXCONNS" env-default:"50"`
-		Timeout      int    `yaml:"timeout" env:"BANTER_BUS_DB_TIMEOUT" env-default:"3"`
+	DB struct {
+		Host     string `yaml:"host" env:"BANTER_BUS_DB_HOST" env-default:"banter-bus-database"`
+		Port     int    `yaml:"port" env:"BANTER_BUS_DB_PORT" env-default:"27017"`
+		Name     string `yaml:"name" env:"BANTER_BUS_DB_NAME" env-default:"banterbus"`
+		Username string `yaml:"user" env:"BANTER_BUS_DB_USER"`
+		Password string `yaml:"password" env:"BANTER_BUS_DB_PASSWORD"`
+		MaxConns int    `yaml:"maxConns" env:"BANTER_BUS_DB_MAXCONNS" env-default:"50"`
+		Timeout  int    `yaml:"timeout" env:"BANTER_BUS_DB_TIMEOUT" env-default:"3"`
 	} `yaml:"database"`
 }
 
 // NewConfig creates a new config object.
-func NewConfig() (config Config, err error) {
+func NewConfig() (conf Conf, err error) {
 	path, exists := os.LookupEnv("BANTER_BUS_CONFIG_PATH")
 
-	configPath := "config.yml"
+	confPath := "config.yml"
 	if exists {
-		configPath = path
+		confPath = path
 	}
 
-	err = cleanenv.ReadConfig(configPath, &config)
+	err = cleanenv.ReadConfig(confPath, &conf)
 	if err != nil {
-		err = fmt.Errorf("error reading config file: %w", err)
-		return Config{}, err
+		err = fmt.Errorf("error reading config file %w", err)
+		return Conf{}, err
 	}
 
-	return config, config.validateConfig()
+	return conf, conf.validate()
 }
 
-func (config *Config) validateConfig() (err error) {
-	validEnvironments := map[string]bool{
+func (conf *Conf) validate() (err error) {
+	validEnvs := map[string]bool{
 		"development": true,
 		"production":  true,
 	}
 
-	if !validEnvironments[config.App.Environment] {
-		return fmt.Errorf("invalid environment %s", config.App.Environment)
+	if !validEnvs[conf.App.Env] {
+		return fmt.Errorf("invalid environment %s", conf.App.Env)
 	}
 
 	validLogLevels := map[string]bool{
@@ -67,23 +67,23 @@ func (config *Config) validateConfig() (err error) {
 		"PANIC":   true,
 	}
 
-	if !validLogLevels[config.App.LogLevel] {
-		return fmt.Errorf("invalid log level %s", config.App.LogLevel)
+	if !validLogLevels[conf.App.LogLevel] {
+		return fmt.Errorf("invalid log level %s", conf.App.LogLevel)
 	}
 
-	if net.ParseIP(config.Webserver.Host) == nil {
-		return fmt.Errorf("invalid host ip address %s", config.Webserver.Host)
+	if net.ParseIP(conf.Srv.Host) == nil {
+		return fmt.Errorf("invalid host ip address %s", conf.Srv.Host)
 	}
 
 	const maxPortRange = 65535
 	const minPortRange = 1024
 
-	if config.Webserver.Port > maxPortRange {
-		return fmt.Errorf("invalid host port %v", config.Webserver.Port)
+	if conf.Srv.Port > maxPortRange {
+		return fmt.Errorf("invalid host port %v", conf.Srv.Port)
 	}
 
-	if config.Database.Port < minPortRange || config.Database.Port > maxPortRange {
-		return fmt.Errorf("invalid database port %v", config.Webserver.Port)
+	if conf.DB.Port < minPortRange || conf.DB.Port > maxPortRange {
+		return fmt.Errorf("invalid database port %v", conf.Srv.Port)
 	}
 
 	return err

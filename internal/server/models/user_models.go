@@ -27,32 +27,12 @@ type Friend struct {
 	Username string `json:"username" description:"The screen name of the friend" example:"seeb123"`
 }
 
-// QuestionPoolInput is the combined data to create a new question pool.
-type QuestionPoolInput struct {
-	UserParams
-	NewQuestionPool
-}
-
-// ExistingQuestionPoolParams data about existing pool for a specific user.
-type ExistingQuestionPoolParams struct {
-	UserParams
-	PoolParams
-}
-
 // NewQuestionPool is the data required to create a new question pool.
 type NewQuestionPool struct {
 	PoolName     string `json:"pool_name"     description:"The unique name of the question pool."                                                                          example:"my_pool" validate:"required"`
 	GameName     string `json:"game_name"     description:"The type of game the question pool pertains to"                                                                 example:"quibly"  validate:"required,oneof=quibly fibbing_it drawlosseum" enum:"quibly,fibbing_it,drawlosseum"`
 	LanguageCode string `json:"language_code" description:"Details of the user's preferred display and question language stored using ISO 2-letter language abbreviations" example:"en"                                                                                                   default:"en"`
 	Privacy      string `json:"privacy"       description:"The privacy setting for this question pool"                                                                                       validate:"required,oneof=public private friends"        enum:"public,private,friends"`
-}
-
-// UpdateQuestionPoolInput is the combined data (params + body) required to update an existing question pool.
-// Such as adding or removing a new question.
-type UpdateQuestionPoolInput struct {
-	UserParams
-	PoolParams
-	UpdateQuestionPool
 }
 
 // UpdateQuestionPool is the http body data required to update a question i.e. add/remove a question from the pool.
@@ -96,4 +76,45 @@ type FibbingItQuestionsPool struct {
 	Opinion  map[string]map[string][]string `json:"opinion,omitempty"`
 	FreeForm map[string][]string            `json:"free_form,omitempty"`
 	Likely   []string                       `json:"likely,omitempty"`
+}
+
+// Story struct to contain information about a user story
+type Story struct {
+	Question string `json:"question"`
+	Round    string `json:"round,omitempty"`
+	Nickname string `json:"nickname,omitempty"`
+	StoryAnswers
+}
+
+// StoryAnswers contains all the different stories answers that are supported, for different game.
+type StoryAnswers struct {
+	Drawlosseum []StoryDrawlosseum `json:"drawlosseum,omitempty"`
+	Quibly      []StoryQuibly      `json:"quibly,omitempty"`
+	FibbingIt   []StoryFibbingIt   `json:"fibbing_it,omitempty"`
+}
+
+// StoryFibbingIt contains information about the Fibbing It answers for user stories
+type StoryFibbingIt struct {
+	Nickname string `json:"nickname,omitempty"`
+	Answer   string `json:"answer,omitempty"`
+}
+
+// StoryQuibly contains information about the Quibly answers for user stories
+type StoryQuibly struct {
+	Nickname string `json:"nickname,omitempty"`
+	Answer   string `json:"answer,omitempty"`
+	Votes    int    `json:"votes,omitempty"`
+}
+
+// StoryDrawlosseum contains information about the Drawlosseum answers for user stories
+type StoryDrawlosseum struct {
+	Start DrawlosseumDrawingPoint `json:"start,omitempty"`
+	End   DrawlosseumDrawingPoint `json:"end,omitempty"`
+	Color string                  `json:"color,omitempty"`
+}
+
+// DrawlosseumDrawingPoint contains information about a point in a Drawlosseum drawing
+type DrawlosseumDrawingPoint struct {
+	X float32 `json:"x"`
+	Y float32 `json:"y"`
 }

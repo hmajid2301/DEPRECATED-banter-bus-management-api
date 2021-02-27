@@ -1033,8 +1033,10 @@ var GetAllGroups = []struct {
 	{
 		"Get all groups from questions from the opinion round in the Fibbing It game",
 		&serverModels.GroupInput{
-			GameName: "fibbing_it",
-			Round:    "opinion",
+			GameParams: serverModels.GameParams{
+				Name: "fibbing_it",
+			},
+			Round: "opinion",
 		},
 		[]string{
 			"horse_group",
@@ -1045,8 +1047,10 @@ var GetAllGroups = []struct {
 	{
 		"Get all groups from questions from the free form round in the Fibbing It game",
 		&serverModels.GroupInput{
-			GameName: "fibbing_it",
-			Round:    "free_form",
+			GameParams: serverModels.GameParams{
+				Name: "fibbing_it",
+			},
+			Round: "free_form",
 		},
 		[]string{
 			"bike_group",
@@ -1058,8 +1062,10 @@ var GetAllGroups = []struct {
 	{
 		"Try to get groups from a round in Fibbing It that does not have groups",
 		&serverModels.GroupInput{
-			GameName: "fibbing_it",
-			Round:    "likely",
+			GameParams: serverModels.GameParams{
+				Name: "fibbing_it",
+			},
+			Round: "likely",
 		},
 		[]string{},
 		http.StatusNotFound,
@@ -1068,8 +1074,10 @@ var GetAllGroups = []struct {
 	{
 		"Try to get groups from a non-existent round",
 		&serverModels.GroupInput{
-			GameName: "fibbing_it",
-			Round:    "genocide",
+			GameParams: serverModels.GameParams{
+				Name: "fibbing_it",
+			},
+			Round: "genocide",
 		},
 		[]string{},
 		http.StatusNotFound,
@@ -1078,8 +1086,10 @@ var GetAllGroups = []struct {
 	{
 		"Try to get groups from a game that does not have groups",
 		&serverModels.GroupInput{
-			GameName: "quibly",
-			Round:    "opinion",
+			GameParams: serverModels.GameParams{
+				Name: "quibly",
+			},
+			Round: "opinion",
 		},
 		[]string{},
 		http.StatusNotFound,

@@ -1,10 +1,10 @@
 package models
 
-// IGame is the interface for game(s).
-type IGame interface {
+// Gamer is the interface for game(s).
+type Gamer interface {
 	NewGame(rulesURL string) Game
 	GetQuestionPath(question GenericQuestion) string
-	ValidateQuestionInput(question GenericQuestion) error
+	ValidateQuestion(question GenericQuestion) error
 	NewQuestionPool() QuestionPoolType
 	QuestionPoolToGenericQuestions(questions QuestionPoolType) ([]GenericQuestion, error)
 }
