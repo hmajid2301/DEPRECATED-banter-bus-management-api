@@ -72,8 +72,8 @@ func (env *Env) AddTranslation(_ *gin.Context, questionInput *serverModels.Updat
 	return nil
 }
 
-// RemoveQuestion removes a question from a game.
-func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.QuestionInput) error {
+// RemoveTranslation removes a question in a language from a game.
+func (env *Env) RemoveTranslation(_ *gin.Context, questionInput *serverModels.QuestionInput) error {
 	var (
 		question = questionInput.NewQuestion
 		game     = questionInput.GameParams
@@ -86,7 +86,7 @@ func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.Quest
 
 	remove := env.newGenericQuestion(question)
 	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: remove}
-	err := q.Remove()
+	err := q.RemoveTranslation()
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err": err,

@@ -69,7 +69,7 @@ var AddQuestion = []struct {
 			Round:        "opinion",
 			Group: &serverModels.Group{
 				Name: "bike_group",
-				Type: "questions",
+				Type: "question",
 			},
 		}, http.StatusCreated,
 	},
@@ -81,7 +81,7 @@ var AddQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "bike_group",
-				Type: "questions",
+				Type: "question",
 			},
 		}, http.StatusCreated,
 	},
@@ -93,7 +93,7 @@ var AddQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "bike_group",
-				Type: "answers",
+				Type: "answer",
 			},
 		}, http.StatusCreated,
 	},
@@ -174,43 +174,31 @@ var AddQuestion = []struct {
 			Round:        "opinion",
 			Group: &serverModels.Group{
 				Name: "horse_group",
+				Type: "answer",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Add an answer to fibbing it, round opinion invalid answers type",
+		"fibbing_it",
+		&serverModels.NewQuestion{
+			Content: "super love",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "bike_group",
 				Type: "answers",
 			},
 		}, http.StatusBadRequest,
 	},
 	{
-		"Add an answer to fibbing it, round opinion invalid type",
+		"Add an answer to fibbing it, round opinion invalid questions type",
 		"fibbing_it",
 		&serverModels.NewQuestion{
 			Content: "super love",
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "bike_group",
-				Type: "answer",
-			},
-		}, http.StatusBadRequest,
-	},
-	{
-		"Add an answer to fibbing it, round opinion invalid answer type",
-		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "super love",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "bike_group",
-				Type: "answer",
-			},
-		}, http.StatusBadRequest,
-	},
-	{
-		"Add an answer to fibbing it, round opinion invalid question type",
-		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "super love",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "bike_group",
-				Type: "question",
+				Type: "questions",
 			},
 		}, http.StatusBadRequest,
 	},
@@ -307,7 +295,7 @@ var AddQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "bike_group",
-				Type: "questions",
+				Type: "question",
 			},
 		}, http.StatusConflict,
 	},
@@ -319,7 +307,7 @@ var AddQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "bike_group",
-				Type: "questions",
+				Type: "question",
 			},
 		}, http.StatusConflict,
 	},
@@ -331,7 +319,7 @@ var AddQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "bike_group",
-				Type: "answers",
+				Type: "answer",
 			},
 		}, http.StatusConflict,
 	},
@@ -384,7 +372,7 @@ var AddQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "horse_group",
-				Type: "questions",
+				Type: "question",
 			},
 		}, http.StatusConflict,
 	},
@@ -466,7 +454,6 @@ var UpdateQuestion = []struct {
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "horse",
-				Round:   "group",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
 				Content:      "ऊंट",
@@ -482,7 +469,6 @@ var UpdateQuestion = []struct {
 			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "spoon",
 				LanguageCode: "en",
-				Round:        "group",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
 				Content:      "spoon",
@@ -500,7 +486,7 @@ var UpdateQuestion = []struct {
 				Round:   "opinion",
 				Group: &serverModels.Group{
 					Name: "horse_group",
-					Type: "questions",
+					Type: "question",
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
@@ -519,7 +505,7 @@ var UpdateQuestion = []struct {
 				Round:   "opinion",
 				Group: &serverModels.Group{
 					Name: "horse_group",
-					Type: "answers",
+					Type: "answer",
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
@@ -577,7 +563,7 @@ var UpdateQuestion = []struct {
 		}, http.StatusBadRequest,
 	},
 	{
-		"Update question in fibbing it, invalid group type answer (should be answers)",
+		"Update question in fibbing it, invalid group type answers (should be answer)",
 		"fibbing_it",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
@@ -585,7 +571,7 @@ var UpdateQuestion = []struct {
 				Round:   "opinion",
 				Group: &serverModels.Group{
 					Name: "bike_group",
-					Type: "answer",
+					Type: "answers",
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
@@ -608,7 +594,7 @@ var UpdateQuestion = []struct {
 				Round:   "opinion",
 				Group: &serverModels.Group{
 					Name: "bike_group",
-					Type: "answers",
+					Type: "answer",
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
@@ -716,7 +702,7 @@ var RemoveQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "horse_group",
-				Type: "questions",
+				Type: "question",
 			},
 		}, http.StatusOK,
 	},
@@ -728,7 +714,7 @@ var RemoveQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "horse_group",
-				Type: "answers",
+				Type: "answer",
 			},
 		}, http.StatusOK,
 	},
@@ -850,7 +836,7 @@ var EnableQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "horse_group",
-				Type: "questions",
+				Type: "question",
 			},
 		}, http.StatusOK,
 	},
@@ -862,7 +848,7 @@ var EnableQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "horse_group",
-				Type: "answers",
+				Type: "answer",
 			},
 		}, http.StatusOK,
 	},
@@ -952,7 +938,7 @@ var DisableQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "horse_group",
-				Type: "questions",
+				Type: "question",
 			},
 		}, http.StatusOK,
 	},
@@ -964,7 +950,7 @@ var DisableQuestion = []struct {
 			Round:   "opinion",
 			Group: &serverModels.Group{
 				Name: "horse_group",
-				Type: "answers",
+				Type: "answer",
 			},
 		}, http.StatusOK,
 	},

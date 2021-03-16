@@ -4,56 +4,65 @@ import "gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 
 // Question is the data for questions related to a game.
 type Question struct {
-	Content map[string]string `bson:"content"`
-	Enabled *bool             `bson:"enabled,omitempty"`
+	GameName string            `bson:"game_name"       json:"game_name"`
+	Round    string            `bson:"round,omitempty"`
+	Enabled  *bool             `bson:"enabled"`
+	Content  map[string]string `bson:"content"`
+	Group    QuestionGroup     `bson:"group,omitempty"`
 }
 
-// NewQuestion type is used to add new questions to games.
-type NewQuestion map[string]Question
+// Add is used to add a question.
+func (question *Question) Add(db database.Database) (bool, error) {
+	inserted, err := db.Insert("question", question)
+	return inserted, err
+}
 
-// AddToList adds a new Question to the game.
-func (question *NewQuestion) AddToList(db database.Database, filter map[string]string) (bool, error) {
-	updated, err := db.AppendToList("game", filter, question)
+// Get is used to get a question.
+func (question *Question) Get(db database.Database, filter map[string]string) error {
+	err := db.Get("question", filter, question)
+	return err
+}
+
+// Update is used to update a question.
+func (question *Question) Update(db database.Database, filter map[string]string) (bool, error) {
+	updated, err := db.Update("question", filter, question)
 	return updated, err
 }
 
-// QuiblyQuestions is the data for questions related to the Quibly game.
-type QuiblyQuestions struct {
-	Pair    []Question `bson:"pair,omitempty"`
-	Answers []Question `bson:"answers,omitempty"`
-	Group   []Question `bson:"group,omitempty"`
+// QuestionGroup allows us to group similar questions.
+type QuestionGroup struct {
+	Name string `bson:"name"`
+	Type string `bson:"type"`
 }
 
-// NewQuestions creates an empty quibly it questions.
-func (q *QuiblyQuestions) NewQuestions() {
-	q.Answers = []Question{}
-	q.Pair = []Question{}
-	q.Group = []Question{}
+// Questions is a list of questions.
+type Questions []Question
+
+// Add method adds (a list of) questions at once.
+func (questions *Questions) Add(db database.Database) error {
+	err := db.InsertMultiple("question", questions)
+	return err
 }
 
-// DrawlosseumQuestions is the data required to play the Drawlosseum game.
-type DrawlosseumQuestions struct {
-	Drawings []Question `bson:"drawings"`
+// Get method gets all the questions in the question collection.
+func (questions *Questions) Get(db database.Database) error {
+	err := db.GetAll("question", questions)
+	return err
 }
 
-// NewQuestions creates an empty drawlosseum it questions.
-func (d *DrawlosseumQuestions) NewQuestions() {
-	d.Drawings = []Question{}
+// Delete is used to delete a list of questions that match a filter.
+func (questions Questions) Delete(db database.Database, filter map[string]string) (bool, error) {
+	deleted, err := db.DeleteAll("question", filter)
+	return deleted, err
 }
 
-// FibbingItQuestions is the data for questions related to the Fibbing It game.
-// NOTE: Some fields are a map of questions, because questions will be grouped with other similar questions
-type FibbingItQuestions struct {
-	Opinion  map[string]map[string][]Question `bson:"opinion"`
-	FreeForm map[string][]Question            `bson:"free_form" json:"free_form"`
-	Likely   []Question                       `bson:"likely"`
-}
-
-// NewQuestions creates an empty fibbing it questions.
-func (f *FibbingItQuestions) NewQuestions() {
-	f.Opinion = map[string]map[string][]Question{}
-	f.FreeForm = map[string][]Question{}
-	f.Likely = []Question{}
+// ToInterface converts questions (list of questions) into a list of interfaces, required by GetAll MongoDB.
+func (questions Questions) ToInterface() []interface{} {
+	interfaceObject := make([]interface{}, len(questions))
+	for i, item := range questions {
+		interfaceObject[i] = item
+	}
+	return interfaceObject
 }
 
 // GenericQuestion is generic structure all questions can take, has all the required fields for any question.
@@ -68,4 +77,19 @@ type GenericQuestion struct {
 type GenericQuestionGroup struct {
 	Name string
 	Type string
+}
+
+// UpdateQuestion to add/remove new question translation.
+type UpdateQuestion map[string]interface{}
+
+// Add is used to add new question translations.
+func (question *UpdateQuestion) Add(db database.Database, filter map[string]string) (bool, error) {
+	inserted, err := db.UpdateObject("question", filter, question)
+	return inserted, err
+}
+
+// Remove is used to remove existing question translations.
+func (question *UpdateQuestion) Remove(db database.Database, filter map[string]string) (bool, error) {
+	inserted, err := db.RemoveObject("question", filter, question)
+	return inserted, err
 }

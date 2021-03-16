@@ -2,6 +2,7 @@ package games
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/juju/errors"
 
@@ -11,21 +12,6 @@ import (
 // FibbingIt is the concrete type for the the game interface.
 type FibbingIt struct{}
 
-// NewGame is gets the data for an empty/new `fibbing_it` game.
-func (f FibbingIt) NewGame(rulesURL string) models.Game {
-	t := true
-	return models.Game{
-		Name:     "fibbing_it",
-		RulesURL: rulesURL,
-		Enabled:  &t,
-		Questions: &models.FibbingItQuestions{
-			Opinion:  map[string]map[string][]models.Question{},
-			FreeForm: map[string][]models.Question{},
-			Likely:   []models.Question{},
-		},
-	}
-}
-
 // GetQuestionPath gets the path to get a specific question in MongoDB. Using string concat i.e. "question.likely".
 func (f FibbingIt) GetQuestionPath(question models.GenericQuestion) string {
 	questionPath := fmt.Sprintf("questions.%s", question.Round)
@@ -34,7 +20,7 @@ func (f FibbingIt) GetQuestionPath(question models.GenericQuestion) string {
 		questionPath += fmt.Sprintf(".%s", question.Group.Name)
 	}
 	if question.Group.Type != "" {
-		questionPath += fmt.Sprintf(".%s", question.Group.Type)
+		questionPath += fmt.Sprintf(".%ss", question.Group.Type)
 	}
 	return questionPath
 }
@@ -42,7 +28,7 @@ func (f FibbingIt) GetQuestionPath(question models.GenericQuestion) string {
 // ValidateQuestion is used to validate input for interacting with questions.
 func (f FibbingIt) ValidateQuestion(question models.GenericQuestion) error {
 	validRounds := map[string]bool{"opinion": true, "likely": true, "free_form": true}
-	validTypes := map[string]bool{"answers": true, "questions": true}
+	validTypes := map[string]bool{"answer": true, "question": true}
 
 	if !validRounds[question.Round] {
 		return errors.BadRequestf("invalid round %s", question.Round)
@@ -123,7 +109,7 @@ func opinionQuestionsToGenericQuestions(opinion map[string]map[string][]string) 
 					Round:   "opinion",
 					Group: &models.GenericQuestionGroup{
 						Name: groupName,
-						Type: groupType,
+						Type: strings.TrimSuffix(groupType, "s"),
 					},
 				}
 				newGenericQuestions = append(newGenericQuestions, question)

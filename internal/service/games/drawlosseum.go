@@ -9,17 +9,6 @@ import (
 // Drawlosseum is the concrete type for the the game interface.
 type Drawlosseum struct{}
 
-// NewGame is gets the data for an empty/new `drawlosseum` game.
-func (d Drawlosseum) NewGame(rulesURL string) models.Game {
-	t := true
-	return models.Game{
-		Name:      "drawlosseum",
-		RulesURL:  rulesURL,
-		Enabled:   &t,
-		Questions: &models.DrawlosseumQuestions{},
-	}
-}
-
 // ValidateQuestion does nothing for the Drawlosseum game, as it requires no extra validation.
 func (d Drawlosseum) ValidateQuestion(_ models.GenericQuestion) error {
 	return nil

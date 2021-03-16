@@ -47,6 +47,12 @@ func (users *Users) Get(db database.Database) error {
 	return err
 }
 
+// Delete is used to delete a list of users that match a filter.
+func (users Users) Delete(db database.Database, filter map[string]string) (bool, error) {
+	deleted, err := db.DeleteAll("user", filter)
+	return deleted, err
+}
+
 // ToInterface converts users (list of users) into a list of interfaces, required by GetAll MongoDB.
 func (users Users) ToInterface() []interface{} {
 	interfaceObject := make([]interface{}, len(users))

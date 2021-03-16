@@ -11,21 +11,6 @@ import (
 // Quibly type that implements PlayableGame.
 type Quibly struct{}
 
-// NewGame is gets the data for an empty/new `quibly` game.
-func (q Quibly) NewGame(rulesURL string) models.Game {
-	t := true
-	return models.Game{
-		Name:     "quibly",
-		RulesURL: rulesURL,
-		Enabled:  &t,
-		Questions: &models.QuiblyQuestions{
-			Pair:    []models.Question{},
-			Answers: []models.Question{},
-			Group:   []models.Question{},
-		},
-	}
-}
-
 // GetQuestionPath gets the path to get a specific question in MongoDB. Using string concat i.e. "question.pair".
 func (q Quibly) GetQuestionPath(question models.GenericQuestion) string {
 	questionPath := fmt.Sprintf("questions.%s", question.Round)

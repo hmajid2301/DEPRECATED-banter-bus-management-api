@@ -33,6 +33,11 @@ type UserTestData struct {
 	DB    database.Database
 }
 
+type QuestionTestData struct {
+	Questions models.Questions `json:"questions"`
+	DB        database.Database
+}
+
 type TestData interface {
 	InsertData(path string)
 }
@@ -89,6 +94,11 @@ func (s *Tests) BeforeEach(t *testing.T) {
 		DB: s.DB,
 	}
 	userData.InsertData("data/json/user_collection.json")
+
+	questionData := QuestionTestData{
+		DB: s.DB,
+	}
+	questionData.InsertData("data/json/question_collection.json")
 }
 
 func (s *Tests) AfterEach(t *testing.T) {
@@ -100,6 +110,11 @@ func (s *Tests) AfterEach(t *testing.T) {
 	err = s.DB.RemoveCollection("user")
 	if err != nil {
 		fmt.Printf("Failed to remove collection user %s", err)
+	}
+
+	err = s.DB.RemoveCollection("question")
+	if err != nil {
+		fmt.Printf("Failed to remove collection question %s", err)
 	}
 }
 
@@ -126,6 +141,18 @@ func (u *UserTestData) InsertData(path string) {
 	}
 
 	err = u.Users.Add(u.DB)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (q *QuestionTestData) InsertData(path string) {
+	err := getData(path, q)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = q.Questions.Add(q.DB)
 	if err != nil {
 		fmt.Println(err)
 	}

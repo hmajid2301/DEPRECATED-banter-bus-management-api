@@ -42,6 +42,25 @@ func (u *UserService) Add(membership string, admin *bool) error {
 	return err
 }
 
+// Remove removes a user from the database
+func (u *UserService) Remove() error {
+	exists, err := u.doesUserExist()
+	if !exists {
+		return errors.NotFoundf("the user %s", u.Username)
+	} else if err != nil {
+		return err
+	}
+
+	filter := map[string]string{"username": u.Username}
+
+	deleted, err := u.DB.Delete("user", filter)
+	if !deleted || err != nil {
+		return errors.Errorf("failed to remove user %s", u.Username)
+	}
+
+	return nil
+}
+
 // GetAll is used to get usernames of all users
 func (u *UserService) GetAll(adminFilter *bool, privacyFilter *string, membershipFilter *string) ([]string, error) {
 	users := models.Users{}
@@ -268,25 +287,6 @@ func questionExist(currQuestions []models.GenericQuestion, question models.Gener
 	return false
 }
 
-// Remove removes a user from the database
-func (u *UserService) Remove() error {
-	exists, err := u.doesUserExist()
-	if !exists {
-		return errors.NotFoundf("the user %s", u.Username)
-	} else if err != nil {
-		return err
-	}
-
-	filter := map[string]string{"username": u.Username}
-
-	deleted, err := u.DB.Delete("user", filter)
-	if !deleted || err != nil {
-		return errors.Errorf("failed to remove user %s", u.Username)
-	}
-
-	return nil
-}
-
 // GetUserStories gets a specific user's stories.
 func (u *UserService) GetUserStories() ([]models.Story, error) {
 	user, err := u.Get()
@@ -328,16 +328,21 @@ func getGenericQuestions(gameName string, questions models.QuestionPoolType) ([]
 }
 
 func updatedPoolQuestion(gameName string, question models.GenericQuestion) (models.UpdateUserObject, error) {
-	q := QuestionService{
-		GameName: gameName,
-		Question: question,
-	}
-
-	endPath, err := q.getQuestionPath()
+	endPath, err := getQuestionPath(gameName, question)
 	path := fmt.Sprintf("question_pools.$.%s", endPath)
 	updatedQuestion := models.UpdateUserObject{
 		path: question.Content,
 	}
 
 	return updatedQuestion, err
+}
+
+func getQuestionPath(gameName string, question models.GenericQuestion) (string, error) {
+	game, err := games.GetGame(gameName)
+	if err != nil {
+		return "", err
+	}
+
+	path := game.GetQuestionPath(question)
+	return path, nil
 }

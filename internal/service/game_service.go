@@ -4,7 +4,6 @@ import (
 	"github.com/juju/errors"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/games"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
 
@@ -21,13 +20,14 @@ func (g *GameService) Add(rulesURL string) error {
 		return errors.AlreadyExistsf("The game %s", g.Name)
 	}
 
-	game, err := games.GetGame(g.Name)
-	if err != nil {
-		return err
+	t := true
+	game := models.Game{
+		Name:     g.Name,
+		RulesURL: rulesURL,
+		Enabled:  &t,
 	}
 
-	newGame := game.NewGame(rulesURL)
-	inserted, err := newGame.Add(g.DB)
+	inserted, err := game.Add(g.DB)
 	if !inserted {
 		return errors.Errorf("Failed to add the new game %s", g.Name)
 	}
@@ -59,23 +59,30 @@ func (g *GameService) GetAll(enabled *bool) ([]string, error) {
 	}
 
 	var gameNames []string
-	for _, game := range games {
-		if enabled != nil && *enabled != *game.Enabled {
+	for _, g := range games {
+		if enabled != nil && *enabled != *g.Enabled {
 			continue
 		}
-		gameNames = append(gameNames, game.Name)
+		gameNames = append(gameNames, g.Name)
 	}
 	return gameNames, nil
 }
 
-// Remove is used to remove a game.
+// Remove is used to remove a game and all of its questions.
 func (g *GameService) Remove() error {
 	exists := g.doesItExist()
 	if !exists {
 		return errors.NotFoundf("the game %s", g.Name)
 	}
 
-	filter := map[string]string{"name": g.Name}
+	questions := models.Questions{}
+	filter := map[string]string{"game_name": g.Name}
+	_, err := questions.Delete(g.DB, filter)
+	if err != nil {
+		return err
+	}
+
+	filter = map[string]string{"name": g.Name}
 	deleted, err := g.DB.Delete("game", filter)
 	if !deleted || err != nil {
 		return errors.Errorf("failed to remove game %s", g.Name)
@@ -86,17 +93,17 @@ func (g *GameService) Remove() error {
 
 // UpdateEnable is used to update the enable state of a game.
 func (g *GameService) UpdateEnable(enabled bool) (bool, error) {
-	filter := map[string]string{"name": g.Name}
-	currGame, err := g.Get()
+	game, err := g.Get()
 
-	if currGame.Name == "" || err != nil {
-		return false, errors.NotFoundf("the game %s", g.Name)
+	if game.Name == "" || err != nil {
+		return false, errors.NotFoundf("The game %s", g.Name)
 	}
 
-	game := &models.Game{Enabled: &enabled}
-	updated, err := game.Update(g.DB, filter)
+	newGame := &models.Game{Name: g.Name, RulesURL: game.RulesURL, Enabled: &enabled}
+	filter := map[string]string{"name": g.Name}
+	updated, err := newGame.Update(g.DB, filter)
 	if err != nil {
-		return false, errors.Errorf("failed to update game %s", err)
+		return false, errors.Errorf("Failed to update g %s", err)
 	}
 	return updated, err
 }

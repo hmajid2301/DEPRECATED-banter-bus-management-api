@@ -153,6 +153,70 @@ func (db *MongoDB) Get(collectionName string, filter map[string]string, document
 	return err
 }
 
+// GetUnique retrieves a subdocument from the database.
+func (db *MongoDB) GetUnique(
+	collectionName string,
+	filter map[string]string,
+	fieldName string,
+) ([]string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
+	defer cancel()
+
+	db.Logger.WithFields(log.Fields{
+		"collection": collectionName,
+		"filter":     filter,
+		"field_name": fieldName,
+	}).Debug("Getting unique fields from database.")
+	collection := db.Collection(collectionName)
+	mongoField := fmt.Sprintf("$%s", fieldName)
+	pipeline := mongo.Pipeline{
+		{
+			{
+				Key: "$match", Value: filter,
+			},
+		},
+		{
+			{
+				Key: "$project",
+				Value: bson.M{
+					"item": 1,
+					fieldName: bson.M{
+						"$ifNull": []string{mongoField, ""},
+					},
+				},
+			},
+		},
+		{
+			{
+				Key: "$group",
+				Value: bson.M{
+					"_id":  "_id",
+					"temp": bson.M{"$addToSet": mongoField},
+				},
+			},
+		},
+		{
+			{
+				Key: "$unset", Value: []string{"_id"},
+			},
+		},
+	}
+
+	aggregate, err := collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	model := []map[string][]string{}
+	err = aggregate.All(ctx, &model)
+	if err != nil {
+		return nil, err
+	}
+
+	uniqueItems := model[0]["temp"]
+	return uniqueItems, nil
+}
+
 // GetAll entries from the database.
 func (db *MongoDB) GetAll(collectionName string, documents Documents) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
@@ -263,6 +327,33 @@ func (db *MongoDB) Delete(collectionName string, filter map[string]string) (bool
 	return deleted, nil
 }
 
+// DeleteAll removes all documents from the database that match the filter.
+// If nothing matches the filter then nothing is deleted.
+func (db *MongoDB) DeleteAll(collectionName string, filter map[string]string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
+	defer cancel()
+
+	db.Logger.WithFields(log.Fields{
+		"collection": collectionName,
+		"filter":     filter,
+	}).Debug("Deleting documents from database.")
+	collection := db.Collection(collectionName)
+
+	ok, err := collection.DeleteMany(ctx, filter)
+	if err != nil {
+		db.Logger.Error(err)
+		return false, err
+	}
+
+	var deleted = true
+	if ok.DeletedCount == 0 {
+		db.Logger.Warning("No elements deleted, nothing matched filter.")
+		deleted = false
+	}
+
+	return deleted, nil
+}
+
 // RemoveCollection removes a collection from the database.
 func (db *MongoDB) RemoveCollection(collectionName string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
@@ -300,15 +391,15 @@ func (db *MongoDB) Update(
 func (db *MongoDB) UpdateObject(
 	collectionName string,
 	filter map[string]string,
-	update map[string]interface{},
+	subDocument UpdateSubDocument,
 ) (bool, error) {
 	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-		"update":     update,
+		"document":   subDocument,
 	}).Debug("Updating sub-object in the database.")
 
-	updated, err := db.modifyEntry(collectionName, filter, update, "$set")
+	updated, err := db.modifyEntry(collectionName, filter, subDocument, "$set")
 	return updated, err
 }
 
@@ -316,15 +407,15 @@ func (db *MongoDB) UpdateObject(
 func (db *MongoDB) RemoveObject(
 	collectionName string,
 	filter map[string]string,
-	remove map[string]interface{},
+	subDocument UpdateSubDocument,
 ) (bool, error) {
 	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-		"update":     remove,
+		"document":   subDocument,
 	}).Debug("Removing object in the database.")
 
-	updated, err := db.modifyEntry(collectionName, filter, remove, "$unset")
+	updated, err := db.modifyEntry(collectionName, filter, subDocument, "$unset")
 	return updated, err
 }
 
@@ -371,7 +462,8 @@ func (db *MongoDB) modifyEntry(
 
 	collection := db.Collection(collectionName)
 
-	ok, err := collection.UpdateOne(ctx, filter, bson.M{operation: modify})
+	update := bson.M{operation: modify}
+	ok, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return false, err
 	}

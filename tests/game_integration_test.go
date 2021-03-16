@@ -73,6 +73,7 @@ func (s *Tests) SubTestRemoveGame(t *testing.T) {
 				Expect().
 				Status(tc.ExpectedStatus)
 
+			// TODO: test 0 questions in question collection related to this game. After #29 is merged in.
 			if tc.ExpectedStatus == http.StatusOK {
 				getGame(tc.Name, http.StatusNotFound, serverModels.Game{}, s.httpExpect)
 			}

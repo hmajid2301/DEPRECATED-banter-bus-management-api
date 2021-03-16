@@ -36,7 +36,7 @@ func QuestionRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 			nil,
 			nil,
 		),
-	}, tonic.Handler(env.RemoveQuestion, http.StatusOK))
+	}, tonic.Handler(env.RemoveTranslation, http.StatusOK))
 
 	grp.GET("/group", []fizz.OperationOption{
 		fizz.Summary("Get a list of question groups."),
@@ -54,11 +54,11 @@ func QuestionRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 
 func updateRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 	grp.PUT("", []fizz.OperationOption{
-		fizz.Summary("Adds or removes a new question translation."),
+		fizz.Summary("Adds a new question translation."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
 		fizz.Response(
 			fmt.Sprint(http.StatusNotFound),
-			"Game doesn't exist or original question doesn't exist.",
+			"Game or question doesn't exist.",
 			serverModels.APIError{},
 			nil,
 			nil,

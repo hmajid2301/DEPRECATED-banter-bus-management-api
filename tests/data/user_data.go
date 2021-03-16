@@ -799,7 +799,7 @@ var UpdatePool = []struct {
 				Round:   "opinion",
 				Group: &serverModels.Group{
 					Name: "horse_group",
-					Type: "questions",
+					Type: "question",
 				},
 			},
 			Operation: "add",
@@ -846,7 +846,7 @@ var UpdatePool = []struct {
 				Round:   "opinion",
 				Group: &serverModels.Group{
 					Name: "horse_group",
-					Type: "answers",
+					Type: "answer",
 				},
 			},
 			Operation: "add",
@@ -1083,7 +1083,7 @@ var UpdatePool = []struct {
 				Round:   "opinion",
 				Group: &serverModels.Group{
 					Name: "horse_group",
-					Type: "questions",
+					Type: "question",
 				},
 			},
 			Operation: "remove",
@@ -1131,7 +1131,7 @@ var UpdatePool = []struct {
 				Round:   "opinion",
 				Group: &serverModels.Group{
 					Name: "horse_group",
-					Type: "answers",
+					Type: "answer",
 				},
 			},
 			Operation: "remove",
@@ -1240,7 +1240,7 @@ var UpdatePool = []struct {
 						"to get arrested",
 					},
 					FreeForm: map[string][]string{
-						"bike_group": []string{
+						"bike_group": {
 							"Favourite bike colour?",
 							"A funny question?",
 						},
