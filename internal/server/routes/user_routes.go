@@ -34,11 +34,6 @@ func UserRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 	}, tonic.Handler(env.RemoveUser, http.StatusOK))
 
 	QuestionPoolRoutes(env, grp)
-
-	grp.GET("/:name/story", []fizz.OperationOption{
-		fizz.Summary("Get a user's stories."),
-		fizz.Response(fmt.Sprint(http.StatusNotFound), "User not found", serverModels.APIError{}, nil, nil),
-	}, tonic.Handler(env.GetUserStories, http.StatusOK))
 }
 
 // QuestionPoolRoutes add routes related question pools to the "user" group.

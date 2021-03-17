@@ -10,7 +10,6 @@ type User struct {
 	Membership    string           `bson:"membership,omitempty"`
 	Preferences   *UserPreferences `bson:"preferences,omitempty"`
 	Friends       []Friend         `bson:"friends"`
-	Stories       []Story          `bson:"stories"`
 	QuestionPools []QuestionPool   `bson:"question_pools"        json:"question_pools"`
 }
 
@@ -42,8 +41,8 @@ func (users *Users) Add(db database.Database) error {
 }
 
 // Get method gets all the users in the user collection.
-func (users *Users) Get(db database.Database) error {
-	err := db.GetAll("user", users)
+func (users *Users) Get(db database.Database, filter map[string]string) error {
+	err := db.GetAll("user", filter, users)
 	return err
 }
 

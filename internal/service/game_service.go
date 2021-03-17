@@ -53,7 +53,8 @@ func (g *GameService) Get() (*models.Game, error) {
 func (g *GameService) GetAll(enabled *bool) ([]string, error) {
 	games := models.Games{}
 
-	err := games.Get(g.DB)
+	emptyFilter := map[string]string{}
+	err := games.Get(g.DB, emptyFilter)
 	if err != nil {
 		return []string{}, err
 	}

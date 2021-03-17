@@ -16,54 +16,6 @@
           "username": "dhawanShikhar"
         }
       ],
-      "stories": [
-        {
-          "game_name": "quibly",
-          "question": "how many fish are there?",
-          "round": "pair",
-          "answers": [
-            {
-              "nickname": "funnyMan420",
-              "answer": "one",
-              "votes": 12341
-            },
-            {
-              "nickname": "123456",
-              "answer": "many",
-              "votes": 0
-            }
-          ]
-        },
-        {
-          "game_name": "drawlosseum",
-          "question": "fish",
-          "nickname": "i_cannotDraw",
-          "answers": [
-            {
-              "start": {
-                "x": 100,
-                "y": -100
-              },
-              "end": {
-                "x": 90,
-                "y": -100
-              },
-              "color": "#000"
-            }
-          ]
-        },
-        {
-          "game_name": "fibbing_it",
-          "question": "What do you think about horses?",
-          "round": "opinion",
-          "answers": [
-            { "answer": "tasty", "nickname": "!sus" },
-            { "answer": "lame", "nickname": "normal_guy1" },
-            { "answer": "lame", "nickname": "normal_girl1" },
-            { "answer": "lame", "nickname": "normal_person1" }
-          ]
-        }
-      ],
       "question_pools": [
         {
           "pool_name": "my_pool",
@@ -115,30 +67,6 @@
           "username": "virat_kohli"
         }
       ],
-      "stories": [
-        {
-          "game_name": "fibbing_it",
-          "question": "what do you think about horses?",
-          "round": "free_form",
-          "answers": [
-            { "answer": "tasty", "nickname": "!sus" },
-            { "answer": "hello", "nickname": "normal_guy1" },
-            { "answer": "what is a horse?", "nickname": "normal_girl1" },
-            { "answer": "is this a real game?", "nickname": "normal_person1" }
-          ]
-        },
-        {
-          "game_name": "fibbing_it",
-          "question": "most likely to get arrested?",
-          "round": "likely",
-          "answers": [
-            { "answer": "normal_guy1", "nickname": "!sus" },
-            { "answer": "normal_girl1", "nickname": "normal_guy1" },
-            { "answer": "!sus", "nickname": "normal_girl1" },
-            { "answer": "normal_girl1", "nickname": "normal_person1" }
-          ]
-        }
-      ],
       "question_pools": []
     },
     {
@@ -154,7 +82,6 @@
           "username": "virat_kohli"
         }
       ],
-      "stories": [],
       "question_pools": [
         {
           "pool_name": "draw_me",

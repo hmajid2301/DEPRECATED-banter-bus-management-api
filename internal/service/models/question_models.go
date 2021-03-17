@@ -45,8 +45,8 @@ func (questions *Questions) Add(db database.Database) error {
 }
 
 // Get method gets all the questions in the question collection.
-func (questions *Questions) Get(db database.Database) error {
-	err := db.GetAll("question", questions)
+func (questions *Questions) Get(db database.Database, filter map[string]string) error {
+	err := db.GetAll("question", filter, questions)
 	return err
 }
 
@@ -79,16 +79,16 @@ type GenericQuestionGroup struct {
 	Type string
 }
 
-// UpdateQuestion to add/remove new question translation.
+// UpdateQuestion is used to add/remove translations to an existing question.
 type UpdateQuestion map[string]interface{}
 
-// Add is used to add new question translations.
+// Add is used to add a translation to an existing question.
 func (question *UpdateQuestion) Add(db database.Database, filter map[string]string) (bool, error) {
 	inserted, err := db.UpdateObject("question", filter, question)
 	return inserted, err
 }
 
-// Remove is used to remove existing question translations.
+// Remove is used to remove a translation to an existing question.
 func (question *UpdateQuestion) Remove(db database.Database, filter map[string]string) (bool, error) {
 	inserted, err := db.RemoveObject("question", filter, question)
 	return inserted, err

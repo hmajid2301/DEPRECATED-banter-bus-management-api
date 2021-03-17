@@ -3,7 +3,7 @@ package database
 // Documents are a list of document(s) in the database
 type Documents interface {
 	Add(db Database) error
-	Get(db Database) error
+	Get(db Database, filter map[string]string) error
 	ToInterface() []interface{}
 	Delete(db Database, filter map[string]string) (bool, error)
 }
@@ -42,12 +42,12 @@ type Database interface {
 	Insert(collectionName string, document Document) (bool, error)
 	InsertMultiple(collectionName string, documents Documents) error
 	Get(collectionName string, filter map[string]string, document Document) error
+	GetAll(collectionName string, filter map[string]string, documents Documents) error
 	GetUnique(
 		collectionName string,
 		filter map[string]string,
 		fieldName string,
 	) ([]string, error)
-	GetAll(collectionName string, documents Documents) error
 	Delete(collectionName string, filter map[string]string) (bool, error)
 	DeleteAll(collectionName string, filter map[string]string) (bool, error)
 	RemoveCollection(collectionName string) error

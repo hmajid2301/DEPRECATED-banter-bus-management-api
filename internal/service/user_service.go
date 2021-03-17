@@ -27,11 +27,10 @@ func (u *UserService) Add(membership string, admin *bool) error {
 	var user = models.User{
 		Username:      u.Username,
 		Admin:         admin,
-		Privacy:       "public",
+		Privacy:       "private",
 		Membership:    membership,
 		Preferences:   &models.UserPreferences{},
 		Friends:       []models.Friend{},
-		Stories:       []models.Story{},
 		QuestionPools: []models.QuestionPool{},
 	}
 
@@ -65,7 +64,8 @@ func (u *UserService) Remove() error {
 func (u *UserService) GetAll(adminFilter *bool, privacyFilter *string, membershipFilter *string) ([]string, error) {
 	users := models.Users{}
 
-	err := users.Get(u.DB)
+	emptyFilter := map[string]string{}
+	err := users.Get(u.DB, emptyFilter)
 	if err != nil {
 		return []string{}, err
 	}
@@ -285,16 +285,6 @@ func questionExist(currQuestions []models.GenericQuestion, question models.Gener
 	}
 
 	return false
-}
-
-// GetUserStories gets a specific user's stories.
-func (u *UserService) GetUserStories() ([]models.Story, error) {
-	user, err := u.Get()
-	if err != nil {
-		return []models.Story{}, err
-	}
-
-	return user.Stories, nil
 }
 
 func (u *UserService) doesUserExist() (bool, error) {

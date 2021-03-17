@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/pkg/errors"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -11,6 +12,7 @@ import (
 // Story struct to contain information about a user story
 type Story struct {
 	GameName string          `bson:"game_name"          json:"game_name"`
+	Username string          `bson:"username"`
 	Question string          `bson:"question"`
 	Round    string          `bson:"round,omitempty"`
 	Nickname string          `bson:"nickname,omitempty"`
@@ -27,6 +29,7 @@ type Story struct {
 func (story *Story) UnmarshalBSONValue(t bsontype.Type, data []byte) error {
 	temp := struct {
 		GameName string `json:"game_name" bson:"game_name"`
+		Username string
 		Question string
 		Round    string
 		Nickname string
@@ -56,6 +59,7 @@ func (story *Story) UnmarshalBSONValue(t bsontype.Type, data []byte) error {
 func (story *Story) UnmarshalJSON(data []byte) error {
 	temp := struct {
 		GameName string `json:"game_name" bson:"game_name"`
+		Username string
 		Question string
 		Round    string
 		Nickname string
@@ -83,11 +87,13 @@ func (story *Story) UnmarshalJSON(data []byte) error {
 
 func setStoryFields(temp struct {
 	GameName string `json:"game_name" bson:"game_name"`
+	Username string
 	Question string
 	Round    string
 	Nickname string
 }, story *Story) {
 	story.GameName = temp.GameName
+	story.Username = temp.Username
 	story.Question = temp.Question
 	story.Round = temp.Round
 	story.Nickname = temp.Nickname
@@ -149,3 +155,33 @@ type StoryDrawlosseumAnswers []StoryDrawlosseum
 
 // NewAnswer creates an empty answer for drawlosseum stories.
 func (d StoryDrawlosseumAnswers) NewAnswer() {}
+
+// Stories is a list of stories.
+type Stories []Story
+
+// Add method adds (a list of) stories at once.
+func (stories *Stories) Add(db database.Database) error {
+	err := db.InsertMultiple("story", stories)
+	return err
+}
+
+// Get method gets all the stories in the story collection.
+func (stories *Stories) Get(db database.Database, filter map[string]string) error {
+	err := db.GetAll("story", filter, stories)
+	return err
+}
+
+// Delete is used to delete a list of stories that match a filter.
+func (stories Stories) Delete(db database.Database, filter map[string]string) (bool, error) {
+	deleted, err := db.DeleteAll("story", filter)
+	return deleted, err
+}
+
+// ToInterface converts stories (list of stories) into a list of interfaces, required by GetAll MongoDB.
+func (stories Stories) ToInterface() []interface{} {
+	interfaceObject := make([]interface{}, len(stories))
+	for i, item := range stories {
+		interfaceObject[i] = item
+	}
+	return interfaceObject
+}

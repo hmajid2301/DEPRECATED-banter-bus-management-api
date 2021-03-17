@@ -218,7 +218,7 @@ func (db *MongoDB) GetUnique(
 }
 
 // GetAll entries from the database.
-func (db *MongoDB) GetAll(collectionName string, documents Documents) error {
+func (db *MongoDB) GetAll(collectionName string, filter map[string]string, documents Documents) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -228,7 +228,7 @@ func (db *MongoDB) GetAll(collectionName string, documents Documents) error {
 	}).Debug("Getting all documents from database.")
 	collection := db.Collection(collectionName)
 
-	cursor, err := collection.Find(ctx, bson.M{})
+	cursor, err := collection.Find(ctx, filter)
 	if err != nil {
 		db.Logger.Errorf("failed to get objects: %v", err)
 		return err

@@ -33,6 +33,11 @@ type UserTestData struct {
 	DB    database.Database
 }
 
+type StoryTestData struct {
+	Stories models.Stories `json:"stories"`
+	DB      database.Database
+}
+
 type QuestionTestData struct {
 	Questions models.Questions `json:"questions"`
 	DB        database.Database
@@ -95,6 +100,10 @@ func (s *Tests) BeforeEach(t *testing.T) {
 	}
 	userData.InsertData("data/json/user_collection.json")
 
+	storyData := StoryTestData{
+		DB: s.DB,
+	}
+	storyData.InsertData("data/json/story_collection.json")
 	questionData := QuestionTestData{
 		DB: s.DB,
 	}
@@ -110,6 +119,11 @@ func (s *Tests) AfterEach(t *testing.T) {
 	err = s.DB.RemoveCollection("user")
 	if err != nil {
 		fmt.Printf("Failed to remove collection user %s", err)
+	}
+
+	err = s.DB.RemoveCollection("story")
+	if err != nil {
+		fmt.Printf("Failed to remove collection story %s", err)
 	}
 
 	err = s.DB.RemoveCollection("question")
@@ -153,6 +167,18 @@ func (q *QuestionTestData) InsertData(path string) {
 	}
 
 	err = q.Questions.Add(q.DB)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (s *StoryTestData) InsertData(path string) {
+	err := getData(path, s)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = s.Stories.Add(s.DB)
 	if err != nil {
 		fmt.Println(err)
 	}

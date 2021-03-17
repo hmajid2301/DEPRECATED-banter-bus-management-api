@@ -64,8 +64,8 @@ func (games *Games) Add(db database.Database) error {
 }
 
 // Get is used to get a list of games.
-func (games *Games) Get(db database.Database) error {
-	err := db.GetAll("game", games)
+func (games *Games) Get(db database.Database, filter map[string]string) error {
+	err := db.GetAll("game", filter, games)
 	return err
 }
 
