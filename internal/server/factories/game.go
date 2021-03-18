@@ -9,7 +9,6 @@ import (
 
 // Game is the interface for all games.
 type Game interface {
-	NewQuestionPool(questions models.QuestionPoolType) (serverModels.QuestionPoolQuestions, error)
 	NewStory(story models.Story) (serverModels.Story, error)
 }
 

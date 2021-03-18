@@ -10,20 +10,6 @@ import (
 // Quibly struct which is the concrete type for game interface.
 type Quibly struct{}
 
-// NewQuestionPool returns "Quibly" pair, group and answers.
-func (q Quibly) NewQuestionPool(questions models.QuestionPoolType) (serverModels.QuestionPoolQuestions, error) {
-	quibly, ok := questions.(*models.QuiblyQuestionsPool)
-	if !ok {
-		return serverModels.QuestionPoolQuestions{}, errors.Errorf("invalid question for Quibly")
-	}
-
-	var pool serverModels.QuiblyQuestionsPool
-	pool.Pair = quibly.Pair
-	pool.Group = quibly.Group
-	pool.Answers = quibly.Answers
-	return serverModels.QuestionPoolQuestions{Quibly: pool}, nil
-}
-
 // NewStory returns "Quibly" story answers.
 func (q Quibly) NewStory(userStory models.Story) (serverModels.Story, error) {
 	storyAnswers, ok := userStory.Answers.(*models.StoryQuiblyAnswers)

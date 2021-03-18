@@ -24,7 +24,13 @@ func (env *Env) AddQuestion(_ *gin.Context, questionInput *serverModels.Question
 	questionLogger.Debug("Trying to add new question.")
 
 	add := env.newGenericQuestion(question)
-	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: add}
+	q := service.QuestionService{
+		Username: env.Conf.Official.Username,
+		PoolName: env.Conf.Official.PoolName,
+		DB:       env.DB,
+		GameName: game.Name,
+		Question: add,
+	}
 	err := q.Add()
 
 	if err != nil {
@@ -60,7 +66,13 @@ func (env *Env) AddTranslation(_ *gin.Context, questionInput *serverModels.Updat
 	}
 
 	genericQuestion := env.newGenericQuestion(question.OriginalQuestion)
-	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: genericQuestion}
+	q := service.QuestionService{
+		Username: env.Conf.Official.Username,
+		PoolName: env.Conf.Official.PoolName,
+		DB:       env.DB,
+		GameName: game.Name,
+		Question: genericQuestion,
+	}
 	err = q.AddTranslation(question.NewQuestion.Content, newLanguage)
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
@@ -85,7 +97,13 @@ func (env *Env) RemoveTranslation(_ *gin.Context, questionInput *serverModels.Qu
 	questionLogger.Debug("Trying to remove question.")
 
 	remove := env.newGenericQuestion(question)
-	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: remove}
+	q := service.QuestionService{
+		DB:       env.DB,
+		GameName: game.Name,
+		Question: remove,
+		Username: env.Conf.Official.Username,
+		PoolName: env.Conf.Official.PoolName,
+	}
 	err := q.RemoveTranslation()
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
@@ -110,7 +128,12 @@ func (env *Env) DisableQuestion(_ *gin.Context, questionInput *serverModels.Ques
 // GetAllGroups gets all group names from a certain round in a certain game
 func (env *Env) GetAllGroups(_ *gin.Context, groupInput *serverModels.GroupInput) ([]string, error) {
 	log.Debug("Trying to get all groups")
-	q := service.QuestionService{DB: env.DB, GameName: groupInput.Name}
+	q := service.QuestionService{
+		DB:       env.DB,
+		GameName: groupInput.Name,
+		Username: env.Conf.Official.Username,
+		PoolName: env.Conf.Official.PoolName,
+	}
 	groups, err := q.GetGroups(groupInput.Round)
 
 	if err != nil {
@@ -140,7 +163,13 @@ func (env *Env) updateEnable(
 	var emptyResponse struct{}
 
 	update := env.newGenericQuestion(question)
-	q := service.QuestionService{DB: env.DB, GameName: game.Name, Question: update}
+	q := service.QuestionService{
+		DB:       env.DB,
+		GameName: game.Name,
+		Question: update,
+		Username: env.Conf.Official.Username,
+		PoolName: env.Conf.Official.PoolName,
+	}
 	updated, err := q.UpdateEnable(enable)
 	if err != nil || !updated {
 		questionLogger.WithFields(log.Fields{

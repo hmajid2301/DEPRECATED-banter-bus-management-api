@@ -1,12 +1,22 @@
 {
   "users": [
     {
+      "username": "banter_bus",
+      "admin": true,
+      "privacy": "private",
+      "membership": "paid",
+      "preferences": {
+        "language_code": "en"
+      },
+      "friends": []
+    },
+    {
       "username": "virat_kohli",
       "admin": false,
       "privacy": "public",
       "membership": "paid",
       "preferences": {
-        "languagecode": "pa"
+        "language_code": "pa"
       },
       "friends": [
         {
@@ -14,43 +24,6 @@
         },
         {
           "username": "dhawanShikhar"
-        }
-      ],
-      "question_pools": [
-        {
-          "pool_name": "my_pool",
-          "game_name": "fibbing_it",
-          "language_code": "en",
-          "privacy": "public",
-          "questions": {
-            "opinion": {
-              "horse_group": {
-                "questions": [
-                  "What do you think about horses?",
-                  "What do you think about camels?"
-                ],
-                "answers": ["lame", "tasty"]
-              }
-            },
-            "free_form": {
-              "bike_group": ["Favourite bike colour?", "A funny question?"]
-            },
-            "likely": ["to eat ice-cream from the tub", "to get arrested"]
-          }
-        },
-        {
-          "pool_name": "my_pool2",
-          "game_name": "quibly",
-          "language_code": "fr",
-          "privacy": "private",
-          "questions": {
-            "pair": [
-              "What do you think about horses?",
-              "What do you think about camels?"
-            ],
-            "answers": ["Favourite bike colour?", "A funny question?"],
-            "group": []
-          }
         }
       ]
     },
@@ -60,14 +33,13 @@
       "privacy": "private",
       "membership": "free",
       "preferences": {
-        "languagecode": "mr"
+        "language_code": "mr"
       },
       "friends": [
         {
           "username": "virat_kohli"
         }
-      ],
-      "question_pools": []
+      ]
     },
     {
       "username": "dhawanShikhar",
@@ -75,32 +47,11 @@
       "privacy": "private",
       "membership": "paid",
       "preferences": {
-        "languagecode": "hi"
+        "language_code": "hi"
       },
       "friends": [
         {
           "username": "virat_kohli"
-        }
-      ],
-      "question_pools": [
-        {
-          "pool_name": "draw_me",
-          "game_name": "drawlosseum",
-          "privacy": "friends",
-          "language_code": "en",
-          "questions": { "drawings": ["horses", "camels"] }
-        },
-        {
-          "pool_name": "my_unique_pool2",
-          "game_name": "quibly",
-          "language_code": "en",
-          "privacy": "public",
-          "questions": {
-            "group": [
-              "What do you think about horses?",
-              "What do you think about camels?"
-            ]
-          }
         }
       ]
     }

@@ -21,7 +21,7 @@ type GroupInput struct {
 // QuestionPoolInput is the combined data to create a new question pool.
 type QuestionPoolInput struct {
 	UserParams
-	NewQuestionPool
+	Pool
 }
 
 // UpdateQuestionPoolInput is the combined data (params + body) required to update an existing question pool.
@@ -29,5 +29,5 @@ type QuestionPoolInput struct {
 type UpdateQuestionPoolInput struct {
 	UserParams
 	PoolParams
-	UpdateQuestionPool
+	NewQuestion
 }

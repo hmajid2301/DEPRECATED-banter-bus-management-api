@@ -43,6 +43,11 @@ type QuestionTestData struct {
 	DB        database.Database
 }
 
+type PoolTestData struct {
+	Pools models.Pools `json:"pools"`
+	DB    database.Database
+}
+
 type TestData interface {
 	InsertData(path string)
 }
@@ -104,6 +109,12 @@ func (s *Tests) BeforeEach(t *testing.T) {
 		DB: s.DB,
 	}
 	storyData.InsertData("data/json/story_collection.json")
+
+	poolData := PoolTestData{
+		DB: s.DB,
+	}
+	poolData.InsertData("data/json/pool_collection.json")
+
 	questionData := QuestionTestData{
 		DB: s.DB,
 	}
@@ -124,6 +135,11 @@ func (s *Tests) AfterEach(t *testing.T) {
 	err = s.DB.RemoveCollection("story")
 	if err != nil {
 		fmt.Printf("Failed to remove collection story %s", err)
+	}
+
+	err = s.DB.RemoveCollection("pool")
+	if err != nil {
+		fmt.Printf("Failed to remove collection pool %s", err)
 	}
 
 	err = s.DB.RemoveCollection("question")
@@ -179,6 +195,18 @@ func (s *StoryTestData) InsertData(path string) {
 	}
 
 	err = s.Stories.Add(s.DB)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (p *PoolTestData) InsertData(path string) {
+	err := getData(path, p)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = p.Pools.Add(p.DB)
 	if err != nil {
 		fmt.Println(err)
 	}

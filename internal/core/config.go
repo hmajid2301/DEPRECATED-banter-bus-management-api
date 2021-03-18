@@ -27,6 +27,10 @@ type Conf struct {
 		MaxConns int    `yaml:"maxConns" env:"BANTER_BUS_DB_MAXCONNS" env-default:"50"`
 		Timeout  int    `yaml:"timeout" env:"BANTER_BUS_DB_TIMEOUT" env-default:"3"`
 	} `yaml:"database"`
+	Official struct {
+		Username string `yaml:"username" env:"BANTER_BUS_OFFICIAL_USERNAME"`
+		PoolName string `yaml:"poolName" env:"BANTER_BUS_OFFICIAL_POOL_NAME"`
+	} `yaml:"official"`
 }
 
 // NewConfig creates a new config object.

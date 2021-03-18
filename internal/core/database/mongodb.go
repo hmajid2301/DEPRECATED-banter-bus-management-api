@@ -154,21 +154,17 @@ func (db *MongoDB) Get(collectionName string, filter map[string]string, document
 }
 
 // GetUnique retrieves a subdocument from the database.
-func (db *MongoDB) GetUnique(
-	collectionName string,
-	filter map[string]string,
-	fieldName string,
-) ([]string, error) {
+func (db *MongoDB) GetUnique(collectionName string, filter map[string]string, field string) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
 	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
-		"field_name": fieldName,
+		"field_name": field,
 	}).Debug("Getting unique fields from database.")
 	collection := db.Collection(collectionName)
-	mongoField := fmt.Sprintf("$%s", fieldName)
+	selector := fmt.Sprintf("$%s", field)
 	pipeline := mongo.Pipeline{
 		{
 			{
@@ -180,8 +176,11 @@ func (db *MongoDB) GetUnique(
 				Key: "$project",
 				Value: bson.M{
 					"item": 1,
-					fieldName: bson.M{
-						"$ifNull": []string{mongoField, ""},
+					field: bson.M{
+						"$ifNull": []string{selector, ""},
+					},
+					"pool_name": bson.M{
+						"$eq": []string{"$pool_name", ""},
 					},
 				},
 			},
@@ -191,7 +190,7 @@ func (db *MongoDB) GetUnique(
 				Key: "$group",
 				Value: bson.M{
 					"_id":  "_id",
-					"temp": bson.M{"$addToSet": mongoField},
+					"temp": bson.M{"$addToSet": selector},
 				},
 			},
 		},
@@ -239,65 +238,6 @@ func (db *MongoDB) GetAll(collectionName string, filter map[string]string, docum
 		db.Logger.Errorf("failed to transform object: %v", err)
 	}
 
-	return err
-}
-
-// GetSubObject retrieves a subdocument from the database.
-// This method should be used to retrieve a single subdocument from an array element.
-// The filter is what to use to filter to that subdocument i.e. `{"username": "virat_kohli"}`.
-// The parentField being the first field you want to see i.e. `question_pools`.
-// The condition is which of the array elements to get from the parentField i.e. `{$$this.pool_name", "my_pool"}`.
-// The model must be a slice/array where to unmarshal the BSON to i.e. `[]models.QuestionPool`.
-// This method will return the first element the matches the condition.
-func (db *MongoDB) GetSubObject(
-	collectionName string,
-	filter map[string]string,
-	parentField string,
-	condition []string,
-	subDocuments SubDocuments,
-) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
-	defer cancel()
-
-	db.Logger.WithFields(log.Fields{
-		"collection":   collectionName,
-		"filter":       filter,
-		"subDocuments": subDocuments,
-	}).Debug("Getting sub-object from database.")
-	collection := db.Collection(collectionName)
-
-	pipeline := mongo.Pipeline{
-		{
-			{Key: "$match", Value: filter},
-		},
-		{
-			{
-				Key: "$replaceRoot",
-				Value: bson.M{
-					"newRoot": bson.M{
-						"$arrayElemAt": []interface{}{
-							bson.M{
-								"$filter": bson.M{
-									"input": fmt.Sprintf("$%s", parentField),
-									"cond": bson.M{
-										"$eq": condition,
-									},
-								},
-							},
-							0,
-						},
-					},
-				},
-			},
-		},
-	}
-
-	aggregate, err := collection.Aggregate(ctx, pipeline)
-	if err != nil {
-		return err
-	}
-
-	err = aggregate.All(ctx, subDocuments)
 	return err
 }
 

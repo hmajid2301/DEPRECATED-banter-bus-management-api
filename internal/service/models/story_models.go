@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 
 	"github.com/pkg/errors"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"gopkg.in/mgo.v2/bson"
+
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 )
 
 // Story struct to contain information about a user story

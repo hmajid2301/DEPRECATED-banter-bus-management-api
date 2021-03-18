@@ -10,7 +10,7 @@ type User struct {
 	Membership    string           `bson:"membership,omitempty"`
 	Preferences   *UserPreferences `bson:"preferences,omitempty"`
 	Friends       []Friend         `bson:"friends"`
-	QuestionPools []QuestionPool   `bson:"question_pools"        json:"question_pools"`
+	QuestionPools []Pool           `bson:"question_pools"        json:"question_pools"`
 }
 
 // Add is used to add users to a database.
@@ -63,7 +63,7 @@ func (users Users) ToInterface() []interface{} {
 
 // UserPreferences struct to hold information on a user's preferences
 type UserPreferences struct {
-	LanguageCode string `bson:"language_code,omitempty"`
+	LanguageCode string `bson:"language_code,omitempty" json:"language_code"`
 }
 
 // Friend struct to hold details about a user's friend

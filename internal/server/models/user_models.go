@@ -27,55 +27,12 @@ type Friend struct {
 	Username string `json:"username" description:"The screen name of the friend" example:"seeb123"`
 }
 
-// NewQuestionPool is the data required to create a new question pool.
-type NewQuestionPool struct {
-	PoolName     string `json:"pool_name"     description:"The unique name of the question pool."                                                                          example:"my_pool" validate:"required"`
-	GameName     string `json:"game_name"     description:"The type of game the question pool pertains to"                                                                 example:"quibly"  validate:"required,oneof=quibly fibbing_it drawlosseum" enum:"quibly,fibbing_it,drawlosseum"`
-	LanguageCode string `json:"language_code" description:"Details of the user's preferred display and question language stored using ISO 2-letter language abbreviations" example:"en"                                                                                                   default:"en"`
-	Privacy      string `json:"privacy"       description:"The privacy setting for this question pool"                                                                                       validate:"required,oneof=public private friends"        enum:"public,private,friends"`
-}
-
-// UpdateQuestionPool is the http body data required to update a question i.e. add/remove a question from the pool.
-type UpdateQuestionPool struct {
-	NewQuestion
-	Operation string `json:"operation" description:"The update operation type." validate:"required,oneof=add remove" example:"add" enum:"add,remove"`
-}
-
-// QuestionPool is the list of custom questions for different game.
-type QuestionPool struct {
-	PoolName     string                `json:"pool_name"     description:"The unique name of the question pool."                                                                          example:"my_pool"`
-	GameName     string                `json:"game_name"     description:"The type of game the story pertains to"                                                                         example:"quibly"`
-	LanguageCode string                `json:"language_code" description:"Details of the user's preferred display and question language stored using ISO 2-letter language abbreviations" example:"en"`
-	Privacy      string                `json:"privacy"       description:"The privacy setting for this question pool"                                                                                       enum:"public,private,friends"`
-	Questions    QuestionPoolQuestions `json:"questions"     description:"List of questions in this pool."`
-}
-
-// QuestionPoolQuestions contains the user's questions (only one game).
-type QuestionPoolQuestions struct {
-	Drawlosseum DrawlosseumQuestionsPool `json:"drawlosseum,omitempty"`
-	Quibly      QuiblyQuestionsPool      `json:"quibly,omitempty"`
-	FibbingIt   FibbingItQuestionsPool   `json:"fibbing_it,omitempty"`
-}
-
-// DrawlosseumQuestionsPool is how the Drawlosseum questions are stored in a single list of possible drawing objects.
-type DrawlosseumQuestionsPool struct {
-	Drawings []string `json:"drawings,omitempty"`
-}
-
-// QuiblyQuestionsPool is how the Quibly questions are stored, questions are stored in different rounds of th game.
-// So that the game knows which round the question belongs to, and when to "potentially" use that question.
-type QuiblyQuestionsPool struct {
-	Pair    []string `json:"pair,omitempty"`
-	Answers []string `json:"answers,omitempty"`
-	Group   []string `json:"group,omitempty"`
-}
-
-// FibbingItQuestionsPool is how the Fibbing It questions are stored, questions are stored in different rounds of the game. Note questions can be in groups.
-// So that the game knows which round the question belongs to, and when to "potentially" use that question.
-type FibbingItQuestionsPool struct {
-	Opinion  map[string]map[string][]string `json:"opinion,omitempty"`
-	FreeForm map[string][]string            `json:"free_form,omitempty"`
-	Likely   []string                       `json:"likely,omitempty"`
+// Pool is the list of custom questions for a given game.
+type Pool struct {
+	PoolName     string `json:"pool_name"     description:"The unique name of the question pool."                                                           example:"my_pool" validate:"required"`
+	GameName     string `json:"game_name"     description:"The type of game the pool pertains to"                                                           example:"quibly"  validate:"required,oneof=quibly fibbing_it drawlosseum" enum:"quibly,fibbing_it,drawlosseum"`
+	LanguageCode string `json:"language_code" description:"Details of the question language of this pool, stored using ISO 2-letter language abbreviations" example:"en"`
+	Privacy      string `json:"privacy"       description:"The privacy setting for this question pool"                                                                        validate:"required,oneof=public private friends"        enum:"public,private,friends"`
 }
 
 // Story struct to contain information about a user story

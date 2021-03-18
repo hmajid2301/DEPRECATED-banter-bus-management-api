@@ -10,18 +10,6 @@ import (
 // Drawlosseum struct which is the concrete type for game interface.
 type Drawlosseum struct{}
 
-// NewQuestionPool returns "Drawlosseum" drawings.
-func (d Drawlosseum) NewQuestionPool(questions models.QuestionPoolType) (serverModels.QuestionPoolQuestions, error) {
-	drawlosseum, ok := questions.(*models.DrawlosseumQuestionsPool)
-	if !ok {
-		return serverModels.QuestionPoolQuestions{}, errors.Errorf("invalid question for drawlosseum")
-	}
-
-	var pool serverModels.DrawlosseumQuestionsPool
-	pool.Drawings = drawlosseum.Drawings
-	return serverModels.QuestionPoolQuestions{Drawlosseum: pool}, nil
-}
-
 // NewStory returns "Drawlosseum" style answers.
 func (d Drawlosseum) NewStory(userStory models.Story) (serverModels.Story, error) {
 	storyAnswers, ok := userStory.Answers.(*models.StoryDrawlosseumAnswers)

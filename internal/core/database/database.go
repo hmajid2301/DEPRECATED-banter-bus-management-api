@@ -31,11 +31,6 @@ type SubDocument interface {
 	RemoveFromList(db Database, filter map[string]string) (bool, error)
 }
 
-// SubDocuments are a list of sub-objects of a document.
-type SubDocuments interface {
-	Get(db Database, filter map[string]string, parentField string, condition []string) error
-}
-
 // Database defines the contract when interacting with a repository (i.e. MongoDB).
 type Database interface {
 	Ping() bool
@@ -52,13 +47,6 @@ type Database interface {
 	DeleteAll(collectionName string, filter map[string]string) (bool, error)
 	RemoveCollection(collectionName string) error
 	Update(collectionName string, filter map[string]string, document Document) (bool, error)
-	GetSubObject(
-		collectionName string,
-		filter map[string]string,
-		parentField string,
-		condition []string,
-		subDocument SubDocuments,
-	) error
 	UpdateObject(collectionName string, filter map[string]string, subDocument UpdateSubDocument) (bool, error)
 	RemoveObject(collectionName string, filter map[string]string, subDocument UpdateSubDocument) (bool, error)
 	AppendToList(collectionName string, filter map[string]string, subDocument NewSubDocument) (bool, error)
