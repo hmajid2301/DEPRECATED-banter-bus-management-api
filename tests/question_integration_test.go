@@ -30,16 +30,30 @@ func (s *Tests) SubTestRemoveQuestionFromGame(t *testing.T) {
 				WithJSON(tc.Payload).
 				Expect().
 				Status(tc.Expected)
+			// TODO: test question cannot be found ater
 		})
 	}
 }
 
-func (s *Tests) SubTestUpdateQuestion(t *testing.T) {
-	for _, tc := range data.UpdateQuestion {
-		testName := fmt.Sprintf("Update Question: %s", tc.TestDescription)
+func (s *Tests) SubTestAddTranslationQuestion(t *testing.T) {
+	for _, tc := range data.AddTranslationQuestion {
+		testName := fmt.Sprintf("Add Question Translation: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question", tc.Game)
-			s.httpExpect.PUT(endpoint).
+			endpoint := fmt.Sprintf("/game/%s/question/%s", tc.Game, tc.LanguageCode)
+			s.httpExpect.POST(endpoint).
+				WithJSON(tc.Payload).
+				Expect().
+				Status(tc.Expected)
+		})
+	}
+}
+
+func (s *Tests) SubTestRemoveTranslation(t *testing.T) {
+	for _, tc := range data.RemoveTranslationQuestion {
+		testName := fmt.Sprintf("Remove Question Translation: %s", tc.TestDescription)
+		t.Run(testName, func(t *testing.T) {
+			endpoint := fmt.Sprintf("/game/%s/question/%s", tc.Game, tc.LanguageCode)
+			s.httpExpect.DELETE(endpoint).
 				WithJSON(tc.Payload).
 				Expect().
 				Status(tc.Expected)

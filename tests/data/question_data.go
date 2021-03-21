@@ -365,7 +365,7 @@ var AddQuestion = []struct {
 		}, http.StatusConflict,
 	},
 	{
-		"Add a question to quibly and to round pair",
+		"Add a question to fibbing it that already exists",
 		"fibbing_it",
 		&serverModels.NewQuestion{
 			Content: "What do you think about horses?",
@@ -378,16 +378,121 @@ var AddQuestion = []struct {
 	},
 }
 
-// UpdateQuestion is the test data for adding translations to questions.
-var UpdateQuestion = []struct {
+// RemoveQuestion is the test data for removing questions from a game
+var RemoveQuestion = []struct {
 	TestDescription string
 	Game            string
 	Payload         interface{}
 	Expected        int
 }{
 	{
+		"Remove a question from quibly and round pair",
+		"quibly",
+		&serverModels.NewQuestion{
+			Content: "this is a question?",
+			Round:   "pair",
+		}, http.StatusOK,
+	},
+	{
+		"Remove another question from quibly and round pair",
+		"quibly",
+		&serverModels.NewQuestion{
+			Content:      "this is also question?",
+			Round:        "pair",
+			LanguageCode: "ur",
+		}, http.StatusOK,
+	},
+	{
+		"Remove a question from drawlossuem",
+		"drawlosseum",
+		&serverModels.NewQuestion{
+			Content:      "spoon",
+			LanguageCode: "en",
+		}, http.StatusOK,
+	},
+	{
+		"Remove a question from fibbing it",
+		"fibbing_it",
+		&serverModels.NewQuestion{
+			Content: "to get arrested",
+			Round:   "likely",
+		}, http.StatusOK,
+	},
+	{
+		"Remove another question from fibbing it",
+		"fibbing_it",
+		&serverModels.NewQuestion{
+			Content: "cool",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "answer",
+			},
+		}, http.StatusOK,
+	},
+	{
+		"Remove another question from fibbing it, invalid request (should be answers)",
+		"fibbing_it",
+		&serverModels.NewQuestion{
+			Content: "cool",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "horse_group",
+				Type: "answers",
+			},
+		}, http.StatusBadRequest,
+	},
+	{
+		"Remove a question from fibbing it that was already removed",
+		"fibbing_it",
+		&serverModels.NewQuestion{
+			Content: "to get arrested",
+			Round:   "likely",
+		}, http.StatusNotFound,
+	},
+	{
+		"Remove a question from quibly that was already removed",
+		"quibly",
+		&serverModels.NewQuestion{
+			Content:      "this is also question?",
+			Round:        "pair",
+			LanguageCode: "ur",
+		}, http.StatusNotFound,
+	},
+	{
+		"Remove a question that was already removed from drawlossuem",
+		"drawlosseum",
+		&serverModels.NewQuestion{
+			Content:      "spoon",
+			LanguageCode: "en",
+		}, http.StatusNotFound,
+	},
+	{
+		"Remove a question that doesn't exist from fibbing_it",
+		"fibbing_it",
+		&serverModels.NewQuestion{
+			Content: "What do you think about horses?",
+			Round:   "opinion",
+			Group: &serverModels.Group{
+				Name: "random_group",
+				Type: "question",
+			},
+		}, http.StatusNotFound,
+	},
+}
+
+// AddTranslationQuestion is the test data for adding translations to questions.
+var AddTranslationQuestion = []struct {
+	TestDescription string
+	Game            string
+	LanguageCode    string
+	Payload         interface{}
+	Expected        int
+}{
+	{
 		"Update question in quibly and round pair, new language fr",
 		"quibly",
+		"fr",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "this is a question?",
@@ -395,8 +500,7 @@ var UpdateQuestion = []struct {
 				Round:        "pair",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "this is a question?",
-				LanguageCode: "fr",
+				Content: "this is a question?",
 			},
 		},
 		http.StatusOK,
@@ -404,14 +508,14 @@ var UpdateQuestion = []struct {
 	{
 		"Update question in quibly and round pair, replace exitsing language de",
 		"quibly",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "pink mustard",
 				Round:   "answers",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "le german?",
-				LanguageCode: "de",
+				Content: "le german?",
 			},
 		},
 		http.StatusOK,
@@ -419,6 +523,7 @@ var UpdateQuestion = []struct {
 	{
 		"Update question in quibly and round group, add new language de",
 		"quibly",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "this is a another question?",
@@ -426,8 +531,7 @@ var UpdateQuestion = []struct {
 				Round:        "group",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "Das ist eine andere Frage?",
-				LanguageCode: "de",
+				Content: "Das ist eine andere Frage?",
 			},
 		},
 		http.StatusOK,
@@ -435,6 +539,7 @@ var UpdateQuestion = []struct {
 	{
 		"Update question in quibly and round group, add another new language ur",
 		"quibly",
+		"ur",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "this is a another question?",
@@ -442,8 +547,7 @@ var UpdateQuestion = []struct {
 				Round:        "group",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "Urdu question? Who knows?",
-				LanguageCode: "ur",
+				Content: "Urdu question? Who knows?",
 			},
 		},
 		http.StatusOK,
@@ -451,13 +555,13 @@ var UpdateQuestion = []struct {
 	{
 		"Update question in drawlosseum",
 		"drawlosseum",
+		"hi",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "horse",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "ऊंट",
-				LanguageCode: "hi",
+				Content: "ऊंट",
 			},
 		},
 		http.StatusOK,
@@ -465,14 +569,14 @@ var UpdateQuestion = []struct {
 	{
 		"Update question in drawlosseum, specify en (this should be default)",
 		"drawlosseum",
+		"hi",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content:      "spoon",
 				LanguageCode: "en",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "spoon",
-				LanguageCode: "hi",
+				Content: "spoon",
 			},
 		},
 		http.StatusOK,
@@ -480,6 +584,7 @@ var UpdateQuestion = []struct {
 	{
 		"Update question in fibbing it, round opinion",
 		"fibbing_it",
+		"it",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "What do you think about horses?",
@@ -490,8 +595,7 @@ var UpdateQuestion = []struct {
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "Cosa ne pensi dei cavalli?",
-				LanguageCode: "it",
+				Content: "Cosa ne pensi dei cavalli?",
 			},
 		},
 		http.StatusOK,
@@ -499,6 +603,7 @@ var UpdateQuestion = []struct {
 	{
 		"Update question in fibbing it, round opinion and answers section",
 		"fibbing_it",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "cool",
@@ -509,14 +614,14 @@ var UpdateQuestion = []struct {
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "Liebe",
-				LanguageCode: "de",
+				Content: "Liebe",
 			},
 		}, http.StatusOK,
 	},
 	{
 		"Update question in fibbing it, round free_form, language fr",
 		"fibbing_it",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
@@ -526,28 +631,28 @@ var UpdateQuestion = []struct {
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "was ist Liebe?",
-				LanguageCode: "de",
+				Content: "was ist Liebe?",
 			},
 		}, http.StatusOK,
 	},
 	{
 		"Update question in quibly, invalid round",
 		"quibly",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "A question?",
 				Round:   "invalid",
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "was ist Liebe?",
-				LanguageCode: "de",
+				Content: "was ist Liebe?",
 			},
 		}, http.StatusBadRequest,
 	},
 	{
 		"Update question in fibbing it, invalid round",
 		"fibbing_it",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
@@ -557,14 +662,14 @@ var UpdateQuestion = []struct {
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "was ist Liebe?",
-				LanguageCode: "de",
+				Content: "was ist Liebe?",
 			},
 		}, http.StatusBadRequest,
 	},
 	{
 		"Update question in fibbing it, invalid group type answers (should be answer)",
 		"fibbing_it",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
@@ -575,19 +680,20 @@ var UpdateQuestion = []struct {
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "was ist Liebe?",
-				LanguageCode: "de",
+				Content: "was ist Liebe?",
 			},
 		}, http.StatusBadRequest,
 	},
 	{
 		"Missing content",
 		"quibly",
+		"en",
 		&serverModels.NewQuestion{}, http.StatusBadRequest,
 	},
 	{
 		"Update question in fibbing it but invalid language code",
 		"fibbing_it",
+		"ittt",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
@@ -598,14 +704,14 @@ var UpdateQuestion = []struct {
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "was ist Liebe?",
-				LanguageCode: "ittt",
+				Content: "was ist Liebe?",
 			},
 		}, http.StatusBadRequest,
 	},
 	{
 		"game does not exist",
 		"quibly v3",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite bike colour?",
@@ -615,14 +721,14 @@ var UpdateQuestion = []struct {
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "was ist Liebe?",
-				LanguageCode: "de",
+				Content: "was ist Liebe?",
 			},
 		}, http.StatusNotFound,
 	},
 	{
 		"Original question doesn't exist",
 		"fibbing_it",
+		"de",
 		&serverModels.QuestionTranslation{
 			OriginalQuestion: serverModels.NewQuestion{
 				Content: "Favourite horse colour?",
@@ -632,23 +738,24 @@ var UpdateQuestion = []struct {
 				},
 			},
 			NewQuestion: serverModels.NewQuestionTranslation{
-				Content:      "was ist Liebe?",
-				LanguageCode: "de",
+				Content: "was ist Liebe?",
 			},
 		}, http.StatusNotFound,
 	},
 }
 
-// RemoveQuestion is the test data for removing questions from game.
-var RemoveQuestion = []struct {
+// RemoveTranslationQuestion is the test data for removing questions from game.
+var RemoveTranslationQuestion = []struct {
 	TestDescription string
 	Game            string
+	LanguageCode    string
 	Payload         interface{}
 	Expected        int
 }{
 	{
 		"Delete a question quibly from round pair",
 		"quibly",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "this is a question?",
 			Round:   "pair",
@@ -657,15 +764,16 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round pair, language ur",
 		"quibly",
+		"ur",
 		&serverModels.NewQuestion{
-			Content:      "this is a question?",
-			LanguageCode: "ur",
-			Round:        "pair",
+			Content: "this is a question?",
+			Round:   "pair",
 		}, http.StatusOK,
 	},
 	{
 		"Delete a question quibly from round answers",
 		"quibly",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "pink mustard",
 			Round:   "answers",
@@ -674,15 +782,16 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round group, language fr",
 		"quibly",
+		"fr",
 		&serverModels.NewQuestion{
-			Content:      "this is a another question?",
-			LanguageCode: "fr",
-			Round:        "group",
+			Content: "this is a another question?",
+			Round:   "group",
 		}, http.StatusOK,
 	},
 	{
 		"Delete a question drawlosseum",
 		"drawlosseum",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "horse",
 		}, http.StatusOK,
@@ -690,6 +799,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete another question drawlosseum",
 		"drawlosseum",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "spoon",
 		}, http.StatusOK,
@@ -697,6 +807,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question to fibbing it, round opinion from group horse group",
 		"fibbing_it",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "What do you think about horses?",
 			Round:   "opinion",
@@ -709,6 +820,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a answer to fibbing it, round opinion from group horse group",
 		"fibbing_it",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "cool",
 			Round:   "opinion",
@@ -721,6 +833,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a answer to fibbing it, round free_form from group bike group",
 		"fibbing_it",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "Favourite bike colour?",
 			Round:   "free_form",
@@ -732,6 +845,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a answer to fibbing it, round likely",
 		"fibbing_it",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "to get arrested",
 			Round:   "likely",
@@ -740,6 +854,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete another answer to fibbing it, round likely",
 		"fibbing_it",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "to eat ice-cream from the tub",
 			Round:   "likely",
@@ -748,6 +863,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round invalid",
 		"quibly",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "this is a question?",
 			Round:   "invalid",
@@ -756,6 +872,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round content missing",
 		"quibly",
+		"en",
 		&serverModels.NewQuestion{
 			Round: "group",
 		}, http.StatusBadRequest,
@@ -763,6 +880,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question quibly from round pair that was already deleted",
 		"quibly",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "this is a question?",
 			Round:   "pair",
@@ -771,6 +889,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question drawlosseum that was already deleted",
 		"drawlosseum",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "horse",
 		}, http.StatusNotFound,
@@ -778,6 +897,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question already removed from fibbing it, round free_form from group bike group",
 		"fibbing_it",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "Favourite bike colour?",
 			Round:   "free_form",
@@ -789,6 +909,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete a question already removed from fibbing it, round likely",
 		"fibbing_it",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "to get arrested",
 			Round:   "likely",
@@ -797,6 +918,7 @@ var RemoveQuestion = []struct {
 	{
 		"Delete another  already removed from fibbing it, round likely",
 		"fibbing_it",
+		"en",
 		&serverModels.NewQuestion{
 			Content: "to eat ice-cream from the tub",
 			Round:   "likely",

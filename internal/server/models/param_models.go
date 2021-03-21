@@ -17,6 +17,11 @@ type GameParams struct {
 	Name string `json:"name" description:"The name of the game." example:"quibly" path:"name"`
 }
 
+// LanguageParams is the language code for adding/removing questions.
+type LanguageParams struct {
+	Language string `json:"language" description:"The language code for the new question." example:"fr" path:"language"`
+}
+
 // UserParams is the username of an existing user.
 type UserParams struct {
 	Username string `description:"The screen name of the user" example:"lmoz25" path:"name"`

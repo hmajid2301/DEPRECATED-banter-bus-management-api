@@ -58,6 +58,27 @@ func (q *QuestionService) Add() error {
 	return nil
 }
 
+// RemoveQuestion removes a question from a game.
+func (q *QuestionService) RemoveQuestion() error {
+	err := q.validateQuestion()
+	if err != nil {
+		return err
+	}
+
+	err = q.validateFound()
+	if err != nil {
+		return err
+	}
+
+	filter := q.filter()
+	deleted, err := q.DB.Delete("question", filter)
+	if !deleted || err != nil {
+		return errors.Errorf("failed to remove question")
+	}
+
+	return nil
+}
+
 // AddTranslation is used to add a new question in a different language to a game.
 func (q *QuestionService) AddTranslation(content string, langCode string) error {
 	err := q.validateQuestion()

@@ -3,12 +3,14 @@ package serverModels
 // QuestionInput is the body data and params combined into a single struct.
 type QuestionInput struct {
 	GameParams
+	LanguageParams
 	NewQuestion
 }
 
-// UpdateQuestionInput is the body data and params combined into a single struct. Data required to update a question.
-type UpdateQuestionInput struct {
+// AddTranslationInput is the body data and params combined into a single struct. Data required to add a new question translation.
+type AddTranslationInput struct {
 	GameParams
+	LanguageParams
 	QuestionTranslation
 }
 

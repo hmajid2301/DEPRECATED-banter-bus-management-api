@@ -26,18 +26,6 @@ func QuestionRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.AddQuestion, http.StatusCreated))
 
-	grp.DELETE("", []fizz.OperationOption{
-		fizz.Summary("Remove a question from a game."),
-		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
-		fizz.Response(
-			fmt.Sprint(http.StatusNotFound),
-			"Game or question doesn't exist",
-			serverModels.APIError{},
-			nil,
-			nil,
-		),
-	}, tonic.Handler(env.RemoveTranslation, http.StatusOK))
-
 	grp.GET("/group", []fizz.OperationOption{
 		fizz.Summary("Get a list of question groups."),
 		fizz.Response(
@@ -49,11 +37,24 @@ func QuestionRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.GetAllGroups, http.StatusOK))
 
+	grp.DELETE("", []fizz.OperationOption{
+		fizz.Summary("Remove a question from a game."),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
+		fizz.Response(
+			fmt.Sprint(http.StatusNotFound),
+			"Game or question doesn't exist",
+			serverModels.APIError{},
+			nil,
+			nil,
+		),
+	}, tonic.Handler(env.RemoveQuestion, http.StatusOK))
+
+	translationRoutes(env, grp)
 	updateRoutes(env, grp)
 }
 
-func updateRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
-	grp.PUT("", []fizz.OperationOption{
+func translationRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
+	grp.POST("/:language", []fizz.OperationOption{
 		fizz.Summary("Adds a new question translation."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
 		fizz.Response(
@@ -65,6 +66,20 @@ func updateRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.AddTranslation, http.StatusOK))
 
+	grp.DELETE("/:language", []fizz.OperationOption{
+		fizz.Summary("Remove a question translation from a game."),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
+		fizz.Response(
+			fmt.Sprint(http.StatusNotFound),
+			"Game or question doesn't exist",
+			serverModels.APIError{},
+			nil,
+			nil,
+		),
+	}, tonic.Handler(env.RemoveTranslation, http.StatusOK))
+}
+
+func updateRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 	grp.PUT("/enable", []fizz.OperationOption{
 		fizz.Summary("Enables a question."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
