@@ -2,7 +2,9 @@ ARG GO_VERSION=1.16
 
 FROM golang:${GO_VERSION}-alpine AS builder
 
-COPY go.mod go.sum config.yml.sample ./
+WORKDIR /temp
+
+COPY go.mod go.sum config.yml ./
 COPY internal/ ./internal/
 COPY cmd/ ./cmd/
 
@@ -14,7 +16,7 @@ FROM alpine:latest
 EXPOSE 8080
 
 WORKDIR /api
-COPY --from=builder /api/app ./
-COPY --from=builder /api/config.yml.sample ./config.yml
+COPY --from=builder /temp/app ./
+COPY --from=builder /temp/config.yml ./config.yml
 
 ENTRYPOINT ["./app"]
