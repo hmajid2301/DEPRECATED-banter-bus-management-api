@@ -1,0 +1,76 @@
+{
+  "name": "Banter Bus Management API",
+  "shutdownAction": "stopCompose",
+  "dockerComposeFile": ["docker-compose.dev.yml", "../docker-compose.yml"],
+  "service": "app",
+  "runServices": ["app", "database", "database-gui"],
+  "workspaceFolder": "/workspace",
+
+  "extensions": [
+    "golang.Go",
+    "neverik.go-critic",
+    "eamodio.gitlens",
+    "2gua.rainbow-brackets",
+    "arjun.swagger-viewer",
+    "redhat.vscode-yaml",
+    "coenraads.bracket-pair-colorizer",
+    "aaron-bond.better-comments",
+    "ms-azuretools.vscode-docker"
+  ],
+
+  "postCreateCommand": "{{ .PostCreate }}",
+  "remoteUser": "vscode",
+
+  "settings": {
+    "terminal.integrated.shell.linux": "{{ .BinaryLocation }}",
+    "go.toolsManagement.checkForUpdates": "proxy",
+    "go.useLanguageServer": true,
+    "go.gopath": "/go",
+    "go.goroot": "/usr/local/go",
+
+    "files.eol": "\n",
+    "remote.extensionKind": {
+      "ms-azuretools.vscode-docker": "workspace"
+    },
+    "editor.codeActionsOnSaveTimeout": 3000,
+    "[go]": {
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      },
+      "editor.snippetSuggestions": "none"
+    },
+    "[go.mod]": {
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      }
+    },
+    "gopls": {
+      "usePlaceholders": false,
+      "staticcheck": true
+    },
+    "go.autocompleteUnimportedPackages": true,
+    "go.gotoSymbol.includeImports": true,
+    "go.gotoSymbol.includeGoroot": true,
+    "go.lintTool": "golangci-lint",
+    "go.buildOnSave": "workspace",
+    "go.lintOnSave": "workspace",
+    "go.vetOnSave": "workspace",
+    "editor.formatOnSave": true,
+    "go.toolsEnvVars": {
+      "GOFLAGS": "-tags=",
+      "CGO_ENABLED": 1
+    },
+    "gopls.env": {
+      "GOFLAGS": "-tags="
+    },
+    "go.testEnvVars": {
+      "": ""
+    },
+    "go.testFlags": ["-v", "-race"],
+    "go.testTimeout": "10s",
+    "go.coverOnSingleTest": true,
+    "go.coverOnSingleTestFile": true
+  }
+}

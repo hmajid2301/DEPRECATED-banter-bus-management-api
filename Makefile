@@ -50,7 +50,7 @@ sast: ## Run Static Application Security Testing  job
 
 .PHONY: debug
 debug: ## Run docker ready for debugging in vscode.
-	@USE=DEBUG docker-compose up --build
+	docker-compose up --build
 
 .PHONY: get-openapi-spec
 get-openapi-spec: ## get openapi spec JSON file from the app
@@ -63,8 +63,13 @@ start: ## Start the application.
 
 .PHONY: start-db
 start-db:
-	@docker-compose up -d mongodb mongoclient
+	@docker-compose up -d database database-gui
 
 .PHONY: down
 down:
 	@docker-compose down
+
+# prompt_example> make devcontainer OPTIONS="-shell fish -fisher dracula/fish"
+.PHONY: devcontainer
+devcontainer: ## Generate the devcontainer files
+	@go run ./utils/generate_devcontainer_files.go $(OPTIONS)

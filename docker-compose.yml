@@ -1,47 +1,47 @@
 version: "3"
 
 services:
-  # server:
-  #   container_name: banter-bus-nginx
-  #   build:
-  #     context: .
-  #     dockerfile: docker/nginx/Dockerfile
-  #   ports:
-  #     - 443:443
-  #   depends_on:
-  #     - api
+  server:
+    container_name: banter-bus-proxy
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - 443:443
+    depends_on:
+      - api
 
   api:
     container_name: banter-bus-api
     build:
       context: .
       dockerfile: docker/api/Dockerfile
-    environment:
-      - USE=${USE}
     ports:
       - 8080:8080
       - 2345:2345
     volumes:
-      - ${PWD}/src/:/go/src/src/
+      - ${PWD}/internal/:/api/internal/
+      - ${PWD}/cmd/:/api/cmd/
     depends_on:
-      - mongodb
-    security_opt:
-      - "seccomp:unconfined"
+      - database
 
-  mongodb:
+  database:
     container_name: banter-bus-database
-    image: mongo:latest
-    env_file: docker/database/.env
+    image: mongo:4.4.4
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=banterbus
+      - MONGO_INITDB_ROOT_PASSWORD=banterbus
+      - MONGO_INITDB_DATABASE=banterbus
     volumes:
       - /data/db
     ports:
       - 27017:27017
 
-  mongoclient:
-    image: mongoclient/mongoclient:latest
+  database-gui:
     container_name: banter-bus-database-gui
+    image: mongoclient/mongoclient:4.0.1
     depends_on:
-      - mongodb
+      - database
     environment:
       - MONGOCLIENT_DEFAULT_CONNECTION_URL=mongodb://banterbus:banterbus@banter-bus-database:27017
     volumes:

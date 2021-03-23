@@ -1,4 +1,4 @@
-package controllers_test
+package main
 
 import (
 	"bytes"
@@ -8,14 +8,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"testing"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/server"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/controllers"
 )
 
-func TestGetOpenAPI(t *testing.T) {
+func TestGetOpenAPI() {
 	os.Setenv("BANTER_BUS_CONFIG_PATH", "../tests/config.test.yml")
 	config, err := core.NewConfig()
 	if err != nil {

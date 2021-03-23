@@ -32,8 +32,8 @@ func Setup(env *controllers.Env) (*fizz.Fizz, error) {
 	fizzApp := fizz.NewFromEngine(engine)
 
 	infos := &openapi.Info{
-		Title:       "Banter Bus",
-		Description: "The API definition for the Banter Bus server.",
+		Title:       "Banter Bus Management API",
+		Description: "The API specification for the Banter Bus Management API.",
 		Version:     "1.0.0",
 	}
 
