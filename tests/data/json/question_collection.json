@@ -2,8 +2,6 @@
   "questions": [
     {
       "game_name": "quibly",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "pair",
       "enabled": true,
       "content": {
@@ -14,8 +12,6 @@
     },
     {
       "game_name": "quibly",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "pair",
       "enabled": false,
       "content": {
@@ -26,8 +22,6 @@
     },
     {
       "game_name": "quibly",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "answers",
       "enabled": true,
       "content": {
@@ -37,8 +31,6 @@
     },
     {
       "game_name": "quibly",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "group",
       "enabled": true,
       "content": {
@@ -47,8 +39,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "opinion",
       "group": {
         "type": "question",
@@ -61,8 +51,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "opinion",
       "group": {
         "type": "question",
@@ -75,8 +63,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "opinion",
       "group": {
         "type": "answer",
@@ -89,8 +75,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "opinion",
       "group": {
         "type": "answer",
@@ -103,8 +87,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "opinion",
       "group": {
         "type": "answer",
@@ -117,8 +99,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "free_form",
       "group": {
         "name": "bike_group"
@@ -130,8 +110,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "free_form",
       "group": {
         "name": "bike_group"
@@ -143,8 +121,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "free_form",
       "group": {
         "name": "cat_group"
@@ -156,8 +132,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "likely",
       "enabled": true,
       "content": {
@@ -166,8 +140,6 @@
     },
     {
       "game_name": "fibbing_it",
-      "username": "banter_bus",
-      "pool_name": "official",
       "round": "likely",
       "enabled": false,
       "content": {
@@ -176,8 +148,6 @@
     },
     {
       "game_name": "drawlosseum",
-      "username": "banter_bus",
-      "pool_name": "official",
       "enabled": true,
       "content": {
         "en": "horse"
@@ -185,191 +155,9 @@
     },
     {
       "game_name": "drawlosseum",
-      "username": "banter_bus",
-      "pool_name": "official",
       "enabled": true,
       "content": {
         "en": "spoon"
-      }
-    },
-    {
-      "game_name": "fibbing_it",
-      "username": "virat_kohli",
-      "pool_name": "my_pool",
-      "enabled": true,
-      "round": "opinion",
-      "group": {
-        "type": "answer",
-        "name": "horse_group"
-      },
-      "content": {
-        "en": "lame"
-      }
-    },
-    {
-      "game_name": "fibbing_it",
-      "username": "virat_kohli",
-      "pool_name": "my_pool",
-      "enabled": true,
-      "round": "opinion",
-      "group": {
-        "type": "answer",
-        "name": "horse_group"
-      },
-      "content": {
-        "en": "tasty"
-      }
-    },
-    {
-      "game_name": "fibbing_it",
-      "username": "virat_kohli",
-      "pool_name": "my_pool",
-      "enabled": true,
-      "round": "opinion",
-      "group": {
-        "type": "question",
-        "name": "horse_group"
-      },
-      "content": {
-        "en": "What do you think about horses?"
-      }
-    },
-    {
-      "game_name": "fibbing_it",
-      "username": "virat_kohli",
-      "pool_name": "my_pool",
-      "enabled": true,
-      "round": "opinion",
-      "group": {
-        "type": "question",
-        "name": "horse_group"
-      },
-      "content": {
-        "en": "What do you think about camels?"
-      }
-    },
-    {
-      "game_name": "fibbing_it",
-      "username": "virat_kohli",
-      "pool_name": "my_pool",
-      "enabled": true,
-      "round": "free_form",
-      "group": {
-        "name": "horse_group"
-      },
-      "content": {
-        "en": "Favourite bike colour?"
-      }
-    },
-    {
-      "game_name": "fibbing_it",
-      "username": "virat_kohli",
-      "pool_name": "my_pool",
-      "enabled": true,
-      "round": "free_form",
-      "group": {
-        "name": "horse_group"
-      },
-      "content": {
-        "en": "A funny question?"
-      }
-    },
-    {
-      "game_name": "fibbing_it",
-      "username": "virat_kohli",
-      "pool_name": "my_pool",
-      "enabled": true,
-      "round": "likely",
-      "content": {
-        "en": "to eat ice-cream from the tub"
-      }
-    },
-    {
-      "game_name": "fibbing_it",
-      "username": "virat_kohli",
-      "pool_name": "my_pool",
-      "enabled": true,
-      "round": "likely",
-      "content": {
-        "en": "to get arrested"
-      }
-    },
-    {
-      "game_name": "quibly",
-      "username": "virat_kohli",
-      "pool_name": "my_pool2",
-      "enabled": true,
-      "round": "pair",
-      "content": {
-        "fr": "What do you think about horses?"
-      }
-    },
-    {
-      "game_name": "quibly",
-      "username": "virat_kohli",
-      "pool_name": "my_pool2",
-      "enabled": true,
-      "round": "pair",
-      "content": {
-        "fr": "What do you think about camels?"
-      }
-    },
-    {
-      "game_name": "quibly",
-      "username": "virat_kohli",
-      "pool_name": "my_pool2",
-      "enabled": true,
-      "round": "answers",
-      "content": {
-        "fr": "Favourite bike colour?"
-      }
-    },
-    {
-      "game_name": "quibly",
-      "username": "virat_kohli",
-      "pool_name": "my_pool2",
-      "enabled": true,
-      "round": "answers",
-      "content": {
-        "fr": "A funny question?"
-      }
-    },
-    {
-      "game_name": "drawlosseum",
-      "username": "dhawanShikhar",
-      "pool_name": "draw_me",
-      "enabled": true,
-      "content": {
-        "en": "horses"
-      }
-    },
-    {
-      "game_name": "drawlosseum",
-      "username": "dhawanShikhar",
-      "pool_name": "draw_me",
-      "enabled": true,
-      "content": {
-        "en": "camels"
-      }
-    },
-    {
-      "game_name": "quibly",
-      "username": "dhawanShikhar",
-      "pool_name": "my_unique_pool2",
-      "round": "group",
-      "enabled": true,
-      "content": {
-        "en": "What do you think about horses?"
-      }
-    },
-    {
-      "game_name": "quibly",
-      "username": "dhawanShikhar",
-      "pool_name": "my_unique_pool2",
-      "round": "group",
-      "enabled": true,
-      "content": {
-        "en": "What do you think about camels?"
       }
     }
   ]

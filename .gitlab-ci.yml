@@ -1,4 +1,4 @@
-image: golang
+image: golang:1.16
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -113,6 +113,7 @@ coverage:
     - go get golang.org/x/tools/cmd/cover
     - go get github.com/t-yuki/gocover-cobertura
     - go get -u github.com/jstemmer/go-junit-report
+    - make test
     - make coverage 2>&1 | go-junit-report > junit.xml
     - gocover-cobertura < coverage.out > cobertura.xml
   after_script:

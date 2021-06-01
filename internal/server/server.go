@@ -41,9 +41,6 @@ func Setup(env *controllers.Env) (*fizz.Fizz, error) {
 	routes.MaintenanceRoutes(env, fizzApp.Group("", "maintenance", "Related to managing the maintenance of the API."))
 	routes.GameRoutes(env, fizzApp.Group("/game", "game", "Related to managing games."))
 	routes.QuestionRoutes(env, fizzApp.Group("/game/:name/question", "question", "Related to managing the questions."))
-	routes.UserRoutes(env, fizzApp.Group("/user", "user", "Related to managing users."))
-	routes.StoryRoutes(env, fizzApp.Group("/user/:name/story", "user", "Related to managing stories."))
-	routes.PoolRoutes(env, fizzApp.Group("/user/:name/pool", "user", "Related to managing question pools."))
 
 	if len(fizzApp.Errors()) != 0 {
 		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())

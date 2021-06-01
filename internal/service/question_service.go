@@ -17,8 +17,6 @@ type QuestionService struct {
 	DB       database.Database
 	GameName string
 	Question models.GenericQuestion
-	Username string
-	PoolName string
 }
 
 // Add is add questions to a game.
@@ -35,8 +33,6 @@ func (q *QuestionService) Add() error {
 
 	t := true
 	quest := models.Question{
-		PoolName: q.PoolName,
-		Username: q.Username,
 		GameName: q.GameName,
 		Round:    q.Question.Round,
 		Enabled:  &t,
@@ -185,8 +181,6 @@ func (q *QuestionService) GetGroups(round string) ([]string, error) {
 	filter := map[string]string{
 		"game_name": q.GameName,
 		"round":     round,
-		"pool_name": q.PoolName,
-		"username":  q.Username,
 	}
 	uniqGroups, err := q.DB.GetUnique("question", filter, "group.name")
 	if err != nil {
@@ -255,8 +249,6 @@ func (q *QuestionService) filter() map[string]string {
 	filter := map[string]string{
 		"game_name":   q.GameName,
 		contentFilter: q.Question.Content,
-		"pool_name":   q.PoolName,
-		"username":    q.Username,
 	}
 
 	if q.Question.Round != "" {

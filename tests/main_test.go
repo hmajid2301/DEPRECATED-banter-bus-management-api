@@ -28,24 +28,9 @@ type GameTestData struct {
 	DB    database.Database
 }
 
-type UserTestData struct {
-	Users models.Users `json:"users"`
-	DB    database.Database
-}
-
-type StoryTestData struct {
-	Stories models.Stories `json:"stories"`
-	DB      database.Database
-}
-
 type QuestionTestData struct {
 	Questions models.Questions `json:"questions"`
 	DB        database.Database
-}
-
-type PoolTestData struct {
-	Pools models.Pools `json:"pools"`
-	DB    database.Database
 }
 
 type TestData interface {
@@ -100,21 +85,6 @@ func (s *Tests) BeforeEach(t *testing.T) {
 	}
 	gameData.InsertData("data/json/game_collection.json")
 
-	userData := UserTestData{
-		DB: s.DB,
-	}
-	userData.InsertData("data/json/user_collection.json")
-
-	storyData := StoryTestData{
-		DB: s.DB,
-	}
-	storyData.InsertData("data/json/story_collection.json")
-
-	poolData := PoolTestData{
-		DB: s.DB,
-	}
-	poolData.InsertData("data/json/pool_collection.json")
-
 	questionData := QuestionTestData{
 		DB: s.DB,
 	}
@@ -125,21 +95,6 @@ func (s *Tests) AfterEach(t *testing.T) {
 	err := s.DB.RemoveCollection("game")
 	if err != nil {
 		fmt.Printf("Failed to remove collection game %s", err)
-	}
-
-	err = s.DB.RemoveCollection("user")
-	if err != nil {
-		fmt.Printf("Failed to remove collection user %s", err)
-	}
-
-	err = s.DB.RemoveCollection("story")
-	if err != nil {
-		fmt.Printf("Failed to remove collection story %s", err)
-	}
-
-	err = s.DB.RemoveCollection("pool")
-	if err != nil {
-		fmt.Printf("Failed to remove collection pool %s", err)
 	}
 
 	err = s.DB.RemoveCollection("question")
@@ -164,18 +119,6 @@ func (g *GameTestData) InsertData(path string) {
 	}
 }
 
-func (u *UserTestData) InsertData(path string) {
-	err := getData(path, u)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = u.Users.Add(u.DB)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 func (q *QuestionTestData) InsertData(path string) {
 	err := getData(path, q)
 	if err != nil {
@@ -183,30 +126,6 @@ func (q *QuestionTestData) InsertData(path string) {
 	}
 
 	err = q.Questions.Add(q.DB)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func (s *StoryTestData) InsertData(path string) {
-	err := getData(path, s)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = s.Stories.Add(s.DB)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func (p *PoolTestData) InsertData(path string) {
-	err := getData(path, p)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = p.Pools.Add(p.DB)
 	if err != nil {
 		fmt.Println(err)
 	}

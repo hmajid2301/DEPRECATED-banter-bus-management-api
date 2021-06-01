@@ -25,8 +25,6 @@ func (env *Env) AddQuestion(_ *gin.Context, questionInput *serverModels.Question
 
 	add := env.newGenericQuestion(question)
 	q := service.QuestionService{
-		Username: env.Conf.Official.Username,
-		PoolName: env.Conf.Official.PoolName,
 		DB:       env.DB,
 		GameName: game.Name,
 		Question: add,
@@ -60,8 +58,6 @@ func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.Quest
 		DB:       env.DB,
 		GameName: game.Name,
 		Question: remove,
-		Username: env.Conf.Official.Username,
-		PoolName: env.Conf.Official.PoolName,
 	}
 	err := q.RemoveQuestion()
 	if err != nil {
@@ -100,8 +96,6 @@ func (env *Env) AddTranslation(_ *gin.Context, questionInput *serverModels.AddTr
 
 	genericQuestion := env.newGenericQuestion(question.OriginalQuestion)
 	q := service.QuestionService{
-		Username: env.Conf.Official.Username,
-		PoolName: env.Conf.Official.PoolName,
 		DB:       env.DB,
 		GameName: game.Name,
 		Question: genericQuestion,
@@ -137,8 +131,6 @@ func (env *Env) RemoveTranslation(_ *gin.Context, questionInput *serverModels.Qu
 		DB:       env.DB,
 		GameName: game.Name,
 		Question: remove,
-		Username: env.Conf.Official.Username,
-		PoolName: env.Conf.Official.PoolName,
 	}
 	err := q.RemoveTranslation()
 	if err != nil {
@@ -167,8 +159,6 @@ func (env *Env) GetAllGroups(_ *gin.Context, groupInput *serverModels.GroupInput
 	q := service.QuestionService{
 		DB:       env.DB,
 		GameName: groupInput.Name,
-		Username: env.Conf.Official.Username,
-		PoolName: env.Conf.Official.PoolName,
 	}
 	groups, err := q.GetGroups(groupInput.Round)
 
@@ -203,8 +193,6 @@ func (env *Env) updateEnable(
 		DB:       env.DB,
 		GameName: game.Name,
 		Question: update,
-		Username: env.Conf.Official.Username,
-		PoolName: env.Conf.Official.PoolName,
 	}
 	updated, err := q.UpdateEnable(enable)
 	if err != nil || !updated {

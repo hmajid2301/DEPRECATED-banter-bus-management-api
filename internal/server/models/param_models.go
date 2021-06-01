@@ -21,19 +21,3 @@ type GameParams struct {
 type LanguageParams struct {
 	Language string `json:"language" description:"The language code for the new question." example:"fr" path:"language"`
 }
-
-// UserParams is the username of an existing user.
-type UserParams struct {
-	Username string `description:"The screen name of the user" example:"lmoz25" path:"name"`
-}
-
-// PoolParams is the pool name of an existing pool.
-type PoolParams struct {
-	PoolName string `description:"The name of the user question pool." example:"example_pool" path:"pool_name"`
-}
-
-// ExistingQuestionPoolParams data about existing pool for a specific user.
-type ExistingQuestionPoolParams struct {
-	UserParams
-	PoolParams
-}

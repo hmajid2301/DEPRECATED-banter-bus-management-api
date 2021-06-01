@@ -12,6 +12,7 @@ help: ## Show this help.
 
 .PHONY: lint
 lint: ## Run linter on source code and tests.
+	@echo ${GOARCH}
 	@golangci-lint run -c .golangci.yml --timeout 5m ./...
 	@REVIVE_FORCE_COLOR=1 revive -formatter friendly ./...
 
