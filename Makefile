@@ -70,7 +70,8 @@ start-db:
 down:
 	@docker-compose down
 
-# prompt_example> make devcontainer OPTIONS="-shell fish -fisher dracula/fish"
-.PHONY: devcontainer
-devcontainer: ## Generate the devcontainer files
-	@go run ./utils/generate_devcontainer_files.go $(OPTIONS)
+.PHONY: devcontainer-config
+devcontainer-config: ## Copy the devcontainer config locally
+	@git clone --depth=1 git@gitlab.com:banter-bus/banter-bus-devcontainer-config.git
+	@cp -R banter-bus-devcontainer-config/. ./
+	@rm -rf banter-bus-devcontainer-config

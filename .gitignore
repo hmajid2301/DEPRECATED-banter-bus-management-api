@@ -57,6 +57,5 @@ node_modules
 # Project specific
 bin/banter-bus-server
 
-# .devcontainer generated files
-.devcontainer/docker-compose.dev.yml
-.devcontainer/devcontainer.json
+# .devcontainer
+.devcontainer/

@@ -11,12 +11,13 @@ COPY cmd/ ./cmd/
 RUN go mod download && \
     go build -o ./app ./cmd/banter-bus-management-api/main.go
 
-FROM alpine:latest
+FROM scratch
 
 EXPOSE 8080
 
-WORKDIR /api
+WORKDIR /app
+
 COPY --from=builder /temp/app ./
 COPY --from=builder /temp/config.yml ./config.yml
 
-ENTRYPOINT ["./app"]
+CMD ["./app"]
