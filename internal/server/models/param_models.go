@@ -21,3 +21,8 @@ type GameParams struct {
 type LanguageParams struct {
 	Language string `json:"language" description:"The language code for the new question." example:"fr" path:"language"`
 }
+
+// StoryIDParams is the ID of the story in the database.
+type StoryIDParams struct {
+	StoryID string `description:"The id for the story." example:"2b45f6c6-d8be-4d13-9fc6-2f821c925774" path:"story_id"`
+}

@@ -19,6 +19,7 @@ require (
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.16.4 // indirect
 	github.com/onsi/gomega v1.13.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4 // indirect
@@ -34,5 +35,6 @@ require (
 	go.mongodb.org/mongo-driver v1.4.5
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/text v0.3.6
+	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

@@ -30,7 +30,7 @@ func (s *Tests) SubTestRemoveQuestionFromGame(t *testing.T) {
 				WithJSON(tc.Payload).
 				Expect().
 				Status(tc.Expected)
-			// TODO: test question cannot be found ater
+			// TODO: test question cannot be found after
 		})
 	}
 }
