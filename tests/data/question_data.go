@@ -503,7 +503,7 @@ var AddTranslationQuestion = []struct {
 				Content: "this is a question?",
 			},
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Update question in quibly and round pair, replace exitsing language de",
@@ -518,7 +518,7 @@ var AddTranslationQuestion = []struct {
 				Content: "le german?",
 			},
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Update question in quibly and round group, add new language de",
@@ -534,7 +534,7 @@ var AddTranslationQuestion = []struct {
 				Content: "Das ist eine andere Frage?",
 			},
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Update question in quibly and round group, add another new language ur",
@@ -550,7 +550,7 @@ var AddTranslationQuestion = []struct {
 				Content: "Urdu question? Who knows?",
 			},
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Update question in drawlosseum",
@@ -564,7 +564,7 @@ var AddTranslationQuestion = []struct {
 				Content: "ऊंट",
 			},
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Update question in drawlosseum, specify en (this should be default)",
@@ -579,7 +579,7 @@ var AddTranslationQuestion = []struct {
 				Content: "spoon",
 			},
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Update question in fibbing it, round opinion",
@@ -598,7 +598,7 @@ var AddTranslationQuestion = []struct {
 				Content: "Cosa ne pensi dei cavalli?",
 			},
 		},
-		http.StatusOK,
+		http.StatusCreated,
 	},
 	{
 		"Update question in fibbing it, round opinion and answers section",
@@ -616,7 +616,7 @@ var AddTranslationQuestion = []struct {
 			NewQuestion: serverModels.NewQuestionTranslation{
 				Content: "Liebe",
 			},
-		}, http.StatusOK,
+		}, http.StatusCreated,
 	},
 	{
 		"Update question in fibbing it, round free_form, language fr",
@@ -633,7 +633,7 @@ var AddTranslationQuestion = []struct {
 			NewQuestion: serverModels.NewQuestionTranslation{
 				Content: "was ist Liebe?",
 			},
-		}, http.StatusOK,
+		}, http.StatusCreated,
 	},
 	{
 		"Update question in quibly, invalid round",

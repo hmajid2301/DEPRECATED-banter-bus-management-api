@@ -64,7 +64,7 @@ func translationRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 			nil,
 			nil,
 		),
-	}, tonic.Handler(env.AddTranslation, http.StatusOK))
+	}, tonic.Handler(env.AddTranslation, http.StatusCreated))
 
 	grp.DELETE("/:language", []fizz.OperationOption{
 		fizz.Summary("Remove a question translation from a game."),
