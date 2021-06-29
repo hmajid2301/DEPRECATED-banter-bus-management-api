@@ -12,52 +12,51 @@ import (
 )
 
 // AddQuestion adds a new question to a game.
-func (env *Env) AddQuestion(_ *gin.Context, questionInput *serverModels.QuestionInput) error {
+func (env *Env) AddQuestion(_ *gin.Context, questionInput *serverModels.AddQuestionInput) (string, error) {
 	var (
 		question = questionInput.NewQuestion
-		game     = questionInput.GameParams
+		gameName = questionInput.GameParams.Name
 	)
 	questionLogger := log.WithFields(log.Fields{
 		"question":  question.Content,
-		"game_name": game.Name,
+		"game_name": gameName,
 	})
 	questionLogger.Debug("Trying to add new question.")
 
 	add := env.newGenericQuestion(question)
 	q := service.QuestionService{
 		DB:       env.DB,
-		GameName: game.Name,
+		GameName: gameName,
 		Question: add,
 	}
-	err := q.Add()
+	id, err := q.Add()
 
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Failed to add question.")
-		return err
+		return "", err
 	}
 
-	return nil
+	return id, nil
 }
 
 // RemoveQuestion removes a question  game.
 func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.QuestionInput) error {
 	var (
-		question = questionInput.NewQuestion
-		game     = questionInput.GameParams
+		questionID = questionInput.QuestionIDParams.ID
+		gameName   = questionInput.GameParams.Name
 	)
 	questionLogger := log.WithFields(log.Fields{
-		"question":  question.Content,
-		"game_name": game.Name,
+		"question_id": questionID,
+		"game_name":   gameName,
 	})
 	questionLogger.Debug("Trying to remove question.")
 
-	remove := env.newGenericQuestion(question)
 	q := service.QuestionService{
-		DB:       env.DB,
-		GameName: game.Name,
-		Question: remove,
+		DB:         env.DB,
+		GameName:   gameName,
+		QuestionID: questionID,
 	}
 	err := q.RemoveQuestion()
 	if err != nil {
@@ -73,66 +72,63 @@ func (env *Env) RemoveQuestion(_ *gin.Context, questionInput *serverModels.Quest
 // AddTranslation adds a question in another language to a game.
 func (env *Env) AddTranslation(_ *gin.Context, questionInput *serverModels.AddTranslationInput) error {
 	var (
-		question = questionInput.QuestionTranslation
-		game     = questionInput.GameParams
-		lang     = questionInput.LanguageParams
+		questionID = questionInput.QuestionIDParams.ID
+		question   = questionInput.QuestionTranslation
+		gameName   = questionInput.GameParams.Name
+		lang       = questionInput.LanguageParams.Language
 	)
+
 	questionLogger := log.WithFields(log.Fields{
-		"question":      question.OriginalQuestion.Content,
-		"game_name":     game.Name,
-		"language_code": lang.Language,
+		"question_id":   questionID,
+		"game_name":     gameName,
+		"language_code": lang,
+		"new_question":  question.Content,
 	})
 	questionLogger.Debug("Trying to add new question translation.")
 
-	newLanguage := lang.Language
-	_, err := language.Parse(newLanguage)
+	_, err := language.Parse(lang)
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err":           err,
-			"language_code": newLanguage,
+			"language_code": lang,
 		}).Warn("Bad language code.")
-		return errors.BadRequestf("invalid language %s", newLanguage)
+		return errors.BadRequestf("invalid language %s", lang)
 	}
 
-	genericQuestion := env.newGenericQuestion(question.OriginalQuestion)
 	q := service.QuestionService{
-		DB:       env.DB,
-		GameName: game.Name,
-		Question: genericQuestion,
+		DB:         env.DB,
+		GameName:   gameName,
+		QuestionID: questionID,
 	}
-	err = q.AddTranslation(question.NewQuestion.Content, newLanguage)
+	err = q.AddTranslation(question.Content, lang)
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Failed to add question.")
 		return err
 	}
-
 	return nil
 }
 
 // RemoveTranslation removes a question in a language from a game.
 func (env *Env) RemoveTranslation(_ *gin.Context, questionInput *serverModels.QuestionInput) error {
 	var (
-		question = questionInput.NewQuestion
-		game     = questionInput.GameParams
-		lang     = questionInput.LanguageParams
+		questionID = questionInput.QuestionIDParams.ID
+		gameName   = questionInput.GameParams.Name
+		lang       = questionInput.LanguageParams.Language
 	)
 	questionLogger := log.WithFields(log.Fields{
-		"question":      question.Content,
-		"game_name":     game.Name,
-		"language_code": lang.Language,
+		"question_id":   questionID,
+		"game_name":     gameName,
+		"language_code": lang,
 	})
 	questionLogger.Debug("Trying to remove question translation.")
-
-	question.LanguageCode = lang.Language
-	remove := env.newGenericQuestion(question)
 	q := service.QuestionService{
-		DB:       env.DB,
-		GameName: game.Name,
-		Question: remove,
+		DB:         env.DB,
+		GameName:   gameName,
+		QuestionID: questionID,
 	}
-	err := q.RemoveTranslation()
+	err := q.RemoveTranslation(lang)
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err": err,
@@ -176,23 +172,22 @@ func (env *Env) updateEnable(
 	enable bool,
 ) (struct{}, error) {
 	var (
-		question = questionInput.NewQuestion
-		game     = questionInput.GameParams
+		questionID = questionInput.QuestionIDParams.ID
+		gameName   = questionInput.GameParams.Name
 	)
 	questionLogger := log.WithFields(log.Fields{
-		"question":  question.Content,
-		"game_name": game.Name,
-		"enable":    enable,
+		"question_id": questionID,
+		"game_name":   gameName,
+		"enable":      enable,
 	})
 	questionLogger.Debug("Trying to update question enable state.")
 
 	var emptyResponse struct{}
 
-	update := env.newGenericQuestion(question)
 	q := service.QuestionService{
-		DB:       env.DB,
-		GameName: game.Name,
-		Question: update,
+		DB:         env.DB,
+		GameName:   gameName,
+		QuestionID: questionID,
 	}
 	updated, err := q.UpdateEnable(enable)
 	if err != nil || !updated {

@@ -25,9 +25,8 @@ func (s *Tests) SubTestRemoveQuestionFromGame(t *testing.T) {
 	for _, tc := range data.RemoveQuestion {
 		testName := fmt.Sprintf("Remove Question: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question", tc.Game)
+			endpoint := fmt.Sprintf("/game/%s/question/%s", tc.Game, tc.ID)
 			s.httpExpect.DELETE(endpoint).
-				WithJSON(tc.Payload).
 				Expect().
 				Status(tc.Expected)
 			// TODO: test question cannot be found after
@@ -39,7 +38,7 @@ func (s *Tests) SubTestAddTranslationQuestion(t *testing.T) {
 	for _, tc := range data.AddTranslationQuestion {
 		testName := fmt.Sprintf("Add Question Translation: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question/%s", tc.Game, tc.LanguageCode)
+			endpoint := fmt.Sprintf("/game/%s/question/%s/%s", tc.Game, tc.ID, tc.LanguageCode)
 			s.httpExpect.POST(endpoint).
 				WithJSON(tc.Payload).
 				Expect().
@@ -52,9 +51,8 @@ func (s *Tests) SubTestRemoveTranslation(t *testing.T) {
 	for _, tc := range data.RemoveTranslationQuestion {
 		testName := fmt.Sprintf("Remove Question Translation: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question/%s", tc.Game, tc.LanguageCode)
+			endpoint := fmt.Sprintf("/game/%s/question/%s/%s", tc.Game, tc.ID, tc.LanguageCode)
 			s.httpExpect.DELETE(endpoint).
-				WithJSON(tc.Payload).
 				Expect().
 				Status(tc.Expected)
 		})
@@ -65,9 +63,8 @@ func (s *Tests) SubTestEnableQuestion(t *testing.T) {
 	for _, tc := range data.EnableQuestion {
 		testName := fmt.Sprintf("Enable Question: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question/enable", tc.Game)
+			endpoint := fmt.Sprintf("/game/%s/question/%s/enable", tc.Game, tc.ID)
 			s.httpExpect.PUT(endpoint).
-				WithJSON(tc.Payload).
 				Expect().
 				Status(tc.Expected)
 		})
@@ -78,9 +75,8 @@ func (s *Tests) SubTestDisableQuestion(t *testing.T) {
 	for _, tc := range data.DisableQuestion {
 		testName := fmt.Sprintf("Disable Question: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question/disable", tc.Game)
+			endpoint := fmt.Sprintf("/game/%s/question/%s/disable", tc.Game, tc.ID)
 			s.httpExpect.PUT(endpoint).
-				WithJSON(tc.Payload).
 				Expect().
 				Status(tc.Expected)
 		})

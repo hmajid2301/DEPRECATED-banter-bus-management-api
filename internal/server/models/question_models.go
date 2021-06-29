@@ -29,11 +29,5 @@ type Group struct {
 
 // QuestionTranslation is the data required to add an existing question in another language.
 type QuestionTranslation struct {
-	OriginalQuestion NewQuestion            `json:"original_question" validate:"required"`
-	NewQuestion      NewQuestionTranslation `json:"new_question"      validate:"required"`
-}
-
-// NewQuestionTranslation is the data required by the new question being added.
-type NewQuestionTranslation struct {
 	Content string `json:"content" description:"The question in the new language" example:"Willst du eine Frage?" validate:"required"`
 }

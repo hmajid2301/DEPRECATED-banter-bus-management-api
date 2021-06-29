@@ -382,102 +382,50 @@ var AddQuestion = []struct {
 var RemoveQuestion = []struct {
 	TestDescription string
 	Game            string
-	Payload         interface{}
+	ID              string
 	Expected        int
 }{
 	{
 		"Remove a question from quibly and round pair",
 		"quibly",
-		&serverModels.NewQuestion{
-			Content: "this is a question?",
-			Round:   "pair",
-		}, http.StatusOK,
-	},
-	{
-		"Remove another question from quibly and round pair",
-		"quibly",
-		&serverModels.NewQuestion{
-			Content:      "this is also question?",
-			Round:        "pair",
-			LanguageCode: "ur",
-		}, http.StatusOK,
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
+		http.StatusOK,
 	},
 	{
 		"Remove a question from drawlossuem",
 		"drawlosseum",
-		&serverModels.NewQuestion{
-			Content:      "spoon",
-			LanguageCode: "en",
-		}, http.StatusOK,
+		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
+		http.StatusOK,
 	},
 	{
 		"Remove a question from fibbing it",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "to get arrested",
-			Round:   "likely",
-		}, http.StatusOK,
-	},
-	{
-		"Remove another question from fibbing it",
-		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "cool",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "horse_group",
-				Type: "answer",
-			},
-		}, http.StatusOK,
-	},
-	{
-		"Remove another question from fibbing it, invalid request (should be answers)",
-		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "cool",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "horse_group",
-				Type: "answers",
-			},
-		}, http.StatusBadRequest,
+		"714464a5-337f-4ce7-a4df-2b00764e5c5b",
+		http.StatusOK,
 	},
 	{
 		"Remove a question from fibbing it that was already removed",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "to get arrested",
-			Round:   "likely",
-		}, http.StatusNotFound,
+		"714464a5-337f-4ce7-a4df-2b00764e5c5b",
+		http.StatusNotFound,
 	},
 	{
 		"Remove a question from quibly that was already removed",
 		"quibly",
-		&serverModels.NewQuestion{
-			Content:      "this is also question?",
-			Round:        "pair",
-			LanguageCode: "ur",
-		}, http.StatusNotFound,
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
+		http.StatusNotFound,
 	},
 	{
 		"Remove a question that was already removed from drawlossuem",
 		"drawlosseum",
-		&serverModels.NewQuestion{
-			Content:      "spoon",
-			LanguageCode: "en",
-		}, http.StatusNotFound,
+		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
+		http.StatusNotFound,
 	},
 	{
 		"Remove a question that doesn't exist from fibbing_it",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "What do you think about horses?",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "random_group",
-				Type: "question",
-			},
-		}, http.StatusNotFound,
+		"invalid-id",
+		http.StatusNotFound,
 	},
 }
 
@@ -486,6 +434,7 @@ var AddTranslationQuestion = []struct {
 	TestDescription string
 	Game            string
 	LanguageCode    string
+	ID              string
 	Payload         interface{}
 	Expected        int
 }{
@@ -493,62 +442,19 @@ var AddTranslationQuestion = []struct {
 		"Update question in quibly and round pair, new language fr",
 		"quibly",
 		"fr",
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content:      "this is a question?",
-				LanguageCode: "de",
-				Round:        "pair",
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "this is a question?",
-			},
+			Content: "this is a question?",
 		},
 		http.StatusCreated,
 	},
 	{
-		"Update question in quibly and round pair, replace exitsing language de",
+		"Update question in quibly and round pair, replace existing language de",
 		"quibly",
 		"de",
+		"bf64d60c-62ee-420a-976e-bfcaec77ad8b",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "pink mustard",
-				Round:   "answers",
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "le german?",
-			},
-		},
-		http.StatusCreated,
-	},
-	{
-		"Update question in quibly and round group, add new language de",
-		"quibly",
-		"de",
-		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content:      "this is a another question?",
-				LanguageCode: "fr",
-				Round:        "group",
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "Das ist eine andere Frage?",
-			},
-		},
-		http.StatusCreated,
-	},
-	{
-		"Update question in quibly and round group, add another new language ur",
-		"quibly",
-		"ur",
-		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content:      "this is a another question?",
-				LanguageCode: "fr",
-				Round:        "group",
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "Urdu question? Who knows?",
-			},
+			Content: "le german?",
 		},
 		http.StatusCreated,
 	},
@@ -556,28 +462,9 @@ var AddTranslationQuestion = []struct {
 		"Update question in drawlosseum",
 		"drawlosseum",
 		"hi",
+		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "horse",
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "ऊंट",
-			},
-		},
-		http.StatusCreated,
-	},
-	{
-		"Update question in drawlosseum, specify en (this should be default)",
-		"drawlosseum",
-		"hi",
-		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content:      "spoon",
-				LanguageCode: "en",
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "spoon",
-			},
+			Content: "ऊंट",
 		},
 		http.StatusCreated,
 	},
@@ -585,18 +472,9 @@ var AddTranslationQuestion = []struct {
 		"Update question in fibbing it, round opinion",
 		"fibbing_it",
 		"it",
+		"580aeb14-d907-4a22-82c8-f2ac544a2cd1",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "What do you think about horses?",
-				Round:   "opinion",
-				Group: &serverModels.Group{
-					Name: "horse_group",
-					Type: "question",
-				},
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "Cosa ne pensi dei cavalli?",
-			},
+			Content: "Cosa ne pensi dei cavalli?",
 		},
 		http.StatusCreated,
 	},
@@ -604,142 +482,43 @@ var AddTranslationQuestion = []struct {
 		"Update question in fibbing it, round opinion and answers section",
 		"fibbing_it",
 		"de",
+		"aa9fe2b5-79b5-458d-814b-45ff95a617fc",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "cool",
-				Round:   "opinion",
-				Group: &serverModels.Group{
-					Name: "horse_group",
-					Type: "answer",
-				},
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "Liebe",
-			},
+			Content: "Liebe",
 		}, http.StatusCreated,
-	},
-	{
-		"Update question in fibbing it, round free_form, language fr",
-		"fibbing_it",
-		"de",
-		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "Favourite bike colour?",
-				Round:   "free_form",
-				Group: &serverModels.Group{
-					Name: "bike_group",
-				},
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "was ist Liebe?",
-			},
-		}, http.StatusCreated,
-	},
-	{
-		"Update question in quibly, invalid round",
-		"quibly",
-		"de",
-		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "A question?",
-				Round:   "invalid",
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "was ist Liebe?",
-			},
-		}, http.StatusBadRequest,
-	},
-	{
-		"Update question in fibbing it, invalid round",
-		"fibbing_it",
-		"de",
-		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "Favourite bike colour?",
-				Round:   "free_form2",
-				Group: &serverModels.Group{
-					Name: "bike_group",
-				},
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "was ist Liebe?",
-			},
-		}, http.StatusBadRequest,
-	},
-	{
-		"Update question in fibbing it, invalid group type answers (should be answer)",
-		"fibbing_it",
-		"de",
-		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "Favourite bike colour?",
-				Round:   "opinion",
-				Group: &serverModels.Group{
-					Name: "bike_group",
-					Type: "answers",
-				},
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "was ist Liebe?",
-			},
-		}, http.StatusBadRequest,
 	},
 	{
 		"Missing content",
 		"quibly",
 		"en",
+		"a9c00e19-d41e-4b15-a8bd-ec921af9123d",
 		&serverModels.NewQuestion{}, http.StatusBadRequest,
 	},
 	{
 		"Update question in fibbing it but invalid language code",
 		"fibbing_it",
 		"ittt",
+		"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "Favourite bike colour?",
-				Round:   "opinion",
-				Group: &serverModels.Group{
-					Name: "bike_group",
-					Type: "answer",
-				},
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "was ist Liebe?",
-			},
+			Content: "was ist Liebe?",
 		}, http.StatusBadRequest,
 	},
 	{
 		"game does not exist",
 		"quibly v3",
 		"de",
+		"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "Favourite bike colour?",
-				Round:   "free_form",
-				Group: &serverModels.Group{
-					Name: "bike_group",
-				},
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "was ist Liebe?",
-			},
+			Content: "was ist Liebe?",
 		}, http.StatusNotFound,
 	},
 	{
-		"Original question doesn't exist",
+		"Question doesn't exist",
 		"fibbing_it",
 		"de",
+		"9f64d60c-62ee-420a-976e-bfcaec77ad8b",
 		&serverModels.QuestionTranslation{
-			OriginalQuestion: serverModels.NewQuestion{
-				Content: "Favourite horse colour?",
-				Round:   "free_form",
-				Group: &serverModels.Group{
-					Name: "bike_group",
-				},
-			},
-			NewQuestion: serverModels.NewQuestionTranslation{
-				Content: "was ist Liebe?",
-			},
+			Content: "was ist Liebe?",
 		}, http.StatusNotFound,
 	},
 }
@@ -748,181 +527,93 @@ var AddTranslationQuestion = []struct {
 var RemoveTranslationQuestion = []struct {
 	TestDescription string
 	Game            string
+	ID              string
 	LanguageCode    string
-	Payload         interface{}
 	Expected        int
 }{
 	{
 		"Delete a question quibly from round pair",
 		"quibly",
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "this is a question?",
-			Round:   "pair",
-		}, http.StatusOK,
+		http.StatusOK,
 	},
 	{
 		"Delete a question quibly from round pair, language ur",
 		"quibly",
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
 		"ur",
-		&serverModels.NewQuestion{
-			Content: "this is a question?",
-			Round:   "pair",
-		}, http.StatusOK,
+		http.StatusOK,
 	},
 	{
 		"Delete a question quibly from round answers",
 		"quibly",
+		"bf64d60c-62ee-420a-976e-bfcaec77ad8b",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "pink mustard",
-			Round:   "answers",
-		}, http.StatusOK,
+		http.StatusOK,
 	},
 	{
 		"Delete a question quibly from round group, language fr",
 		"quibly",
+		"4b4dd325-04fd-4aa4-9382-2874dcfd5cae",
 		"fr",
-		&serverModels.NewQuestion{
-			Content: "this is a another question?",
-			Round:   "group",
-		}, http.StatusOK,
+		http.StatusOK,
 	},
 	{
 		"Delete a question drawlosseum",
 		"drawlosseum",
+		"815464a5-337f-4ce7-a4df-2b00764e5c6c",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "horse",
-		}, http.StatusOK,
+		http.StatusOK,
 	},
 	{
 		"Delete another question drawlosseum",
 		"drawlosseum",
+		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "spoon",
-		}, http.StatusOK,
+		http.StatusOK,
 	},
 	{
 		"Delete a question to fibbing it, round opinion from group horse group",
 		"fibbing_it",
+		"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "What do you think about horses?",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "horse_group",
-				Type: "question",
-			},
-		}, http.StatusOK,
+		http.StatusOK,
 	},
 	{
 		"Delete a answer to fibbing it, round opinion from group horse group",
 		"fibbing_it",
+		"03a462ba-f483-4726-aeaf-b8b6b03ce3e2",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "cool",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "horse_group",
-				Type: "answer",
-			},
-		}, http.StatusOK,
-	},
-	{
-		"Delete a answer to fibbing it, round free_form from group bike group",
-		"fibbing_it",
-		"en",
-		&serverModels.NewQuestion{
-			Content: "Favourite bike colour?",
-			Round:   "free_form",
-			Group: &serverModels.Group{
-				Name: "bike_group",
-			},
-		}, http.StatusOK,
-	},
-	{
-		"Delete a answer to fibbing it, round likely",
-		"fibbing_it",
-		"en",
-		&serverModels.NewQuestion{
-			Content: "to get arrested",
-			Round:   "likely",
-		}, http.StatusOK,
-	},
-	{
-		"Delete another answer to fibbing it, round likely",
-		"fibbing_it",
-		"en",
-		&serverModels.NewQuestion{
-			Content: "to eat ice-cream from the tub",
-			Round:   "likely",
-		}, http.StatusOK,
-	},
-	{
-		"Delete a question quibly from round invalid",
-		"quibly",
-		"en",
-		&serverModels.NewQuestion{
-			Content: "this is a question?",
-			Round:   "invalid",
-		}, http.StatusBadRequest,
-	},
-	{
-		"Delete a question quibly from round content missing",
-		"quibly",
-		"en",
-		&serverModels.NewQuestion{
-			Round: "group",
-		}, http.StatusBadRequest,
+		http.StatusOK,
 	},
 	{
 		"Delete a question quibly from round pair that was already deleted",
 		"quibly",
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "this is a question?",
-			Round:   "pair",
-		}, http.StatusNotFound,
+		http.StatusNotFound,
 	},
 	{
 		"Delete a question drawlosseum that was already deleted",
 		"drawlosseum",
+		"815464a5-337f-4ce7-a4df-2b00764e5c6c",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "horse",
-		}, http.StatusNotFound,
+		http.StatusNotFound,
 	},
 	{
 		"Delete a question already removed from fibbing it, round free_form from group bike group",
 		"fibbing_it",
+		"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "Favourite bike colour?",
-			Round:   "free_form",
-			Group: &serverModels.Group{
-				Name: "bike_group",
-			},
-		}, http.StatusNotFound,
-	},
-	{
-		"Delete a question already removed from fibbing it, round likely",
-		"fibbing_it",
-		"en",
-		&serverModels.NewQuestion{
-			Content: "to get arrested",
-			Round:   "likely",
-		}, http.StatusNotFound,
+		http.StatusNotFound,
 	},
 	{
 		"Delete another  already removed from fibbing it, round likely",
 		"fibbing_it",
+		"03a462ba-f483-4726-aeaf-b8b6b03ce3e2",
 		"en",
-		&serverModels.NewQuestion{
-			Content: "to eat ice-cream from the tub",
-			Round:   "likely",
-		}, http.StatusNotFound,
+		http.StatusNotFound,
 	},
 }
 
@@ -930,102 +621,62 @@ var RemoveTranslationQuestion = []struct {
 var EnableQuestion = []struct {
 	TestDescription string
 	Game            string
-	Payload         interface{}
+	ID              string
 	Expected        int
 }{
 	{
 		"Enable a question, quibly and round pair",
 		"quibly",
-		&serverModels.NewQuestion{
-			Content: "this is a question?",
-			Round:   "pair",
-		}, http.StatusOK,
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
+		http.StatusOK,
 	},
 	{
 		"Enable a question, quibly and round answers",
 		"quibly",
-		&serverModels.NewQuestion{
-			Content:      "this is a another question?",
-			LanguageCode: "fr",
-			Round:        "group",
-		}, http.StatusOK,
+		"4b4dd325-04fd-4aa4-9382-2874dcfd5cae",
+		http.StatusOK,
 	},
 	{
 		"Enable a question, fibbing_it and round opinion",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "What do you think about camels?",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "horse_group",
-				Type: "question",
-			},
-		}, http.StatusOK,
+		"7799e38a-758d-4a1b-a191-99c59440af76",
+		http.StatusOK,
 	},
 	{
 		"Enable an answer, fibbing_it and round opinion",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "cool",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "horse_group",
-				Type: "answer",
-			},
-		}, http.StatusOK,
+		"03a462ba-f483-4726-aeaf-b8b6b03ce3e2",
+		http.StatusOK,
 	},
 	{
 		"Enable a question, fibbing_it and round free_form",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "Favourite bike colour?",
-			Round:   "free_form",
-			Group: &serverModels.Group{
-				Name: "bike_group",
-			},
-		}, http.StatusOK,
+		"580aeb14-d907-4a22-82c8-f2ac544a2cd1",
+		http.StatusOK,
 	},
 	{
 		"Enable a question, fibbing_it and round likely",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "to get arrested",
-			Round:   "likely",
-		}, http.StatusOK,
+		"d80f2d90-0fb0-462a-8fbd-1aa00b4e42a5",
+		http.StatusOK,
 	},
 	{
 		"Enable a question, drawlosseum",
 		"drawlosseum",
-		&serverModels.NewQuestion{
-			Content: "spoon",
-		}, http.StatusOK,
+		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
+		http.StatusOK,
 	},
 	{
 		"Enable an already enabled question, drawlosseum",
 		"drawlosseum",
-		&serverModels.NewQuestion{
-			Content: "spoon",
-		}, http.StatusOK,
-	},
-	{
-		"Bad request invalid round, fibbing_it",
-		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "spoon",
-			Round:   "likely2",
-		}, http.StatusBadRequest,
-	},
-	{
-		"Bad request invalid content, fibbing_it",
-		"fibbing_it",
-		&serverModels.NewQuestion{}, http.StatusBadRequest,
+		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
+		http.StatusOK,
 	},
 	{
 		"Game does not exist",
 		"quibly v3",
-		&serverModels.NewQuestion{
-			Content: "super love",
-		}, http.StatusNotFound,
+		"901464a5-337f-4ce7-a4df-2b00764e5d8d",
+		http.StatusNotFound,
 	},
 }
 
@@ -1033,101 +684,56 @@ var EnableQuestion = []struct {
 var DisableQuestion = []struct {
 	TestDescription string
 	Game            string
-	Payload         interface{}
+	ID              string
 	Expected        int
 }{
 	{
 		"Disable a question, quibly and round pair",
 		"quibly",
-		&serverModels.NewQuestion{
-			Content: "this is a question?",
-			Round:   "pair",
-		}, http.StatusOK,
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
+		http.StatusOK,
 	},
 	{
 		"Disable a question, quibly and round answers",
 		"quibly",
-		&serverModels.NewQuestion{
-			Content: "pink mustard",
-			Round:   "answers",
-		}, http.StatusOK,
+		"bf64d60c-62ee-420a-976e-bfcaec77ad8b",
+		http.StatusOK,
 	},
 	{
 		"Disable a question, fibbing_it and round opinion",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "What do you think about camels?",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "horse_group",
-				Type: "question",
-			},
-		}, http.StatusOK,
+		"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
+		http.StatusOK,
 	},
 	{
 		"Disable an answer, fibbing_it and round opinion",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "lame",
-			Round:   "opinion",
-			Group: &serverModels.Group{
-				Name: "horse_group",
-				Type: "answer",
-			},
-		}, http.StatusOK,
-	},
-	{
-		"Disable anquestion, fibbing_it and round free_form",
-		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "Favourite bike colour?",
-			Round:   "free_form",
-			Group: &serverModels.Group{
-				Name: "bike_group",
-			},
-		}, http.StatusOK,
+		"03a462ba-f483-4726-aeaf-b8b6b03ce3e2",
+		http.StatusOK,
 	},
 	{
 		"Disable a question, fibbing_it and round likely",
 		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "to eat ice-cream from the tub",
-			Round:   "likely",
-		}, http.StatusOK,
+		"d5aa9153-f48c-45cc-b411-fb9b2d38e78f",
+		http.StatusOK,
 	},
 	{
 		"Disable a question, drawlosseum",
 		"drawlosseum",
-		&serverModels.NewQuestion{
-			Content: "spoon",
-		}, http.StatusOK,
+		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
+		http.StatusOK,
 	},
 	{
-		"Disable a question, thats disabled drawlosseum",
-		"drawlosseum",
-		&serverModels.NewQuestion{
-			Content: "spoon",
-		}, http.StatusOK,
-	},
-	{
-		"Bad request invalid round, fibbing_it",
-		"fibbing_it",
-		&serverModels.NewQuestion{
-			Content: "spoon",
-			Round:   "likely2",
-		}, http.StatusBadRequest,
-	},
-	{
-		"Bad request invalid content, fibbing_it",
-		"fibbing_it",
-		&serverModels.NewQuestion{}, http.StatusBadRequest,
+		"Question does not exist",
+		"quibly",
+		"90aa9153-f48c-45cc-b411-fb9b2d38e78f",
+		http.StatusNotFound,
 	},
 	{
 		"Game does not exist",
 		"quibly v3",
-		&serverModels.NewQuestion{
-			Content: "super love",
-		}, http.StatusNotFound,
+		"d5aa9153-f48c-45cc-b411-fb9b2d38e78f",
+		http.StatusNotFound,
 	},
 }
 

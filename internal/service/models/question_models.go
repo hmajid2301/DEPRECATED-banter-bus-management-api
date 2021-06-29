@@ -4,6 +4,7 @@ import "gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 
 // Question is the data for questions related to a game.
 type Question struct {
+	ID       string            `bson:"id"`
 	GameName string            `bson:"game_name"          json:"game_name"`
 	Round    string            `bson:"round,omitempty"`
 	Enabled  *bool             `bson:"enabled"`

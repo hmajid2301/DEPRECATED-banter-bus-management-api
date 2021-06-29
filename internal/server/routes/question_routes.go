@@ -37,7 +37,7 @@ func QuestionRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.GetAllGroups, http.StatusOK))
 
-	grp.DELETE("", []fizz.OperationOption{
+	grp.DELETE("/:question_id", []fizz.OperationOption{
 		fizz.Summary("Remove a question from a game."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
 		fizz.Response(
@@ -54,7 +54,7 @@ func QuestionRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 }
 
 func translationRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
-	grp.POST("/:language", []fizz.OperationOption{
+	grp.POST("/:question_id/:language", []fizz.OperationOption{
 		fizz.Summary("Adds a new question translation."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
 		fizz.Response(
@@ -66,7 +66,7 @@ func translationRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.AddTranslation, http.StatusCreated))
 
-	grp.DELETE("/:language", []fizz.OperationOption{
+	grp.DELETE("/:question_id/:language", []fizz.OperationOption{
 		fizz.Summary("Remove a question translation from a game."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
 		fizz.Response(
@@ -80,7 +80,7 @@ func translationRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 }
 
 func updateRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
-	grp.PUT("/enable", []fizz.OperationOption{
+	grp.PUT("/:question_id/enable", []fizz.OperationOption{
 		fizz.Summary("Enables a question."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
 		fizz.Response(
@@ -92,7 +92,7 @@ func updateRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.EnableQuestion, http.StatusOK))
 
-	grp.PUT("/disable", []fizz.OperationOption{
+	grp.PUT("/:question_id/disable", []fizz.OperationOption{
 		fizz.Summary("Disabled a question."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", serverModels.APIError{}, nil, nil),
 		fizz.Response(

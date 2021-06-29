@@ -1,16 +1,23 @@
 package serverModels
 
+// AddQuestionInput is used to add a new question to a game.
+type AddQuestionInput struct {
+	GameParams
+	NewQuestion
+}
+
 // QuestionInput is the body data and params combined into a single struct.
 type QuestionInput struct {
 	GameParams
 	LanguageParams
-	NewQuestion
+	QuestionIDParams
 }
 
 // AddTranslationInput is the body data and params combined into a single struct. Data required to add a new question translation.
 type AddTranslationInput struct {
 	GameParams
 	LanguageParams
+	QuestionIDParams
 	QuestionTranslation
 }
 

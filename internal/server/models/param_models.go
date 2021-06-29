@@ -14,12 +14,17 @@ type ListUserParams struct {
 
 // GameParams is the name of an existing game.
 type GameParams struct {
-	Name string `json:"name" description:"The name of the game." example:"quibly" path:"name"`
+	Name string `description:"The name of the game." example:"quibly" path:"name"`
 }
 
 // LanguageParams is the language code for adding/removing questions.
 type LanguageParams struct {
-	Language string `json:"language" description:"The language code for the new question." example:"fr" path:"language"`
+	Language string `description:"The language code for the new question." example:"fr" path:"language"`
+}
+
+// QuestionIDParams is the id for a specific question.
+type QuestionIDParams struct {
+	ID string `description:"The id for a specific question." example:"a-random-id" path:"question_id"`
 }
 
 // StoryIDParams is the ID of the story in the database.
