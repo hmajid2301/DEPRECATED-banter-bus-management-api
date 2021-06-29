@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/juju/errors"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
@@ -23,4 +24,18 @@ func (s *StoryService) Get(storyID string) (models.Story, error) {
 	}
 
 	return story, nil
+}
+
+// Delete removes a specific story using id.
+func (s *StoryService) Delete(storyID string) error {
+	filter := map[string]string{
+		"id": storyID,
+	}
+
+	deleted, err := s.DB.Delete("story", filter)
+	if !deleted || err != nil {
+		return errors.Errorf("failed to remove story %v", err)
+	}
+
+	return nil
 }

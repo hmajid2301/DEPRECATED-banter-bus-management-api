@@ -69,7 +69,7 @@ func (q *QuestionService) RemoveQuestion() error {
 	filter := q.filter()
 	deleted, err := q.DB.Delete("question", filter)
 	if !deleted || err != nil {
-		return errors.Errorf("failed to remove question")
+		return errors.Errorf("failed to remove question %v", err)
 	}
 
 	return nil
@@ -112,7 +112,7 @@ func (q *QuestionService) AddTranslation(content string, langCode string) error 
 
 	updated, err := translation.Add(q.DB, filter)
 	if !updated || err != nil {
-		return errors.Errorf("failed to update existing question")
+		return errors.Errorf("failed to update existing question %v", err)
 	}
 
 	return nil

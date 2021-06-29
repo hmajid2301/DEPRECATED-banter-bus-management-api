@@ -45,3 +45,22 @@ func (env *Env) newStory(story models.Story) (serverModels.Story, error) {
 
 	return newStory, nil
 }
+
+// DeleteStory removed a story with a specific ID.
+func (env *Env) DeleteStory(_ *gin.Context, params *serverModels.StoryIDParams) error {
+	storyLogger := log.WithFields(log.Fields{
+		"story_id": params.StoryID,
+	})
+	storyLogger.Debug("Trying to remove story.")
+
+	s := service.StoryService{DB: env.DB}
+	err := s.Delete(params.StoryID)
+	if err != nil {
+		storyLogger.WithFields(log.Fields{
+			"err": err,
+		}).Warn(("Story does not exist."))
+		return errors.NotFoundf("the story %s", params.StoryID)
+	}
+
+	return nil
+}

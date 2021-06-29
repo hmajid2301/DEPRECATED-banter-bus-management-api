@@ -175,6 +175,7 @@ type StoryDrawlosseumAnswers []StoryDrawlosseum
 // NewAnswer creates an empty answer for drawlosseum stories.
 func (d StoryDrawlosseumAnswers) NewAnswer() {}
 
+// Stories a list of Story types.
 type Stories []Story
 
 // Add method adds (a list of) stories at once.

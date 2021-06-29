@@ -11,10 +11,15 @@ import (
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
 )
 
-// StoryRoutes add routes related to the "user" group.
+// StoryRoutes add routes related to the "story" group.
 func StoryRoutes(env *controllers.Env, grp *fizz.RouterGroup) {
 	grp.GET("", []fizz.OperationOption{
 		fizz.Summary("Get a story."),
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "Story not found", serverModels.APIError{}, nil, nil),
 	}, tonic.Handler(env.GetStory, http.StatusOK))
+
+	grp.DELETE("", []fizz.OperationOption{
+		fizz.Summary("Delete a story."),
+		fizz.Response(fmt.Sprint(http.StatusNotFound), "Story not found", serverModels.APIError{}, nil, nil),
+	}, tonic.Handler(env.DeleteStory, http.StatusOK))
 }
