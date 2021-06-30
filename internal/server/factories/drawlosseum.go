@@ -10,6 +10,11 @@ import (
 // Drawlosseum struct which is the concrete type for game interface.
 type Drawlosseum struct{}
 
+// ValidateQuestion does nothing for the Drawlosseum game, as it requires no extra validation.
+func (d Drawlosseum) ValidateQuestion(_ models.GenericQuestion) error {
+	return nil
+}
+
 // NewServerStory returns "Drawlosseum" style answers.
 func (d Drawlosseum) NewServerStory(story models.Story) (serverModels.Story, error) {
 	storyAnswers, ok := story.Answers.(*models.StoryDrawlosseumAnswers)

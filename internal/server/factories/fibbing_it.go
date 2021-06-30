@@ -10,6 +10,24 @@ import (
 // FibbingIt struct which is the concrete type for game interface.
 type FibbingIt struct{}
 
+// ValidateQuestion is used to validate input for interacting with questions.
+func (f FibbingIt) ValidateQuestion(question models.GenericQuestion) error {
+	validRounds := map[string]bool{"opinion": true, "likely": true, "free_form": true}
+	validTypes := map[string]bool{"answer": true, "question": true}
+
+	if !validRounds[question.Round] {
+		return errors.BadRequestf("invalid round %s", question.Round)
+	}
+
+	if question.Group == nil {
+		return errors.BadRequestf("missing group information %s", question.Group)
+	} else if question.Group.Type != "" && !validTypes[question.Group.Type] {
+		return errors.BadRequestf("invalid group type %s", question.Group.Type)
+	}
+
+	return nil
+}
+
 // NewServerStory returns "FibbingIt" story answers.
 func (f FibbingIt) NewServerStory(story models.Story) (serverModels.Story, error) {
 	storyAnswer, ok := story.Answers.(*models.StoryFibbingItAnswers)

@@ -9,6 +9,7 @@ import (
 
 // Game is the interface for all games.
 type Game interface {
+	ValidateQuestion(question models.GenericQuestion) error
 	NewServerStory(story models.Story) (serverModels.Story, error)
 	NewStory(serverStory serverModels.Story) (models.Story, error)
 }

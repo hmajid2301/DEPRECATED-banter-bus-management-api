@@ -237,7 +237,7 @@ var AddQuestion = []struct {
 		"Add a question that already exists to quibly and to round pair",
 		"quibly",
 		&serverModels.NewQuestion{
-			Content: "this is another question?",
+			Content: "this is also question?",
 			Round:   "pair",
 		}, http.StatusConflict,
 	},

@@ -10,6 +10,15 @@ import (
 // Quibly struct which is the concrete type for game interface.
 type Quibly struct{}
 
+// ValidateQuestion is used to validate input for interacting with questions.
+func (q Quibly) ValidateQuestion(question models.GenericQuestion) error {
+	validRounds := map[string]bool{"pair": true, "group": true, "answers": true}
+	if !validRounds[question.Round] {
+		return errors.BadRequestf("invalid round %s", question.Round)
+	}
+	return nil
+}
+
 // NewServerStory returns "Quibly" story answers.
 func (q Quibly) NewServerStory(story models.Story) (serverModels.Story, error) {
 	storyAnswers, ok := story.Answers.(*models.StoryQuiblyAnswers)

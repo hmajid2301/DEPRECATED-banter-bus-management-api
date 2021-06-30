@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
 
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/factories"
 	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/service"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
@@ -24,6 +25,11 @@ func (env *Env) AddQuestion(_ *gin.Context, questionInput *serverModels.AddQuest
 	questionLogger.Debug("Trying to add new question.")
 
 	add := env.newGenericQuestion(question)
+	err := env.validateQuestion(gameName, add)
+	if err != nil {
+		return "", err
+	}
+
 	q := service.QuestionService{
 		DB:       env.DB,
 		GameName: gameName,
@@ -225,4 +231,23 @@ func (env *Env) newGenericQuestion(question serverModels.NewQuestion) models.Gen
 	}
 
 	return newQuestion
+}
+
+func (env *Env) validateQuestion(gameName string, question models.GenericQuestion) error {
+	_, err := language.Parse(question.LanguageCode)
+	if err != nil {
+		return errors.BadRequestf("invalid language code %s", question.LanguageCode)
+	}
+
+	game, err := factories.GetGame(gameName)
+	if err != nil {
+		return err
+	}
+
+	err = game.ValidateQuestion(question)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

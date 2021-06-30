@@ -7,10 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/juju/errors"
-	"golang.org/x/text/language"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/games"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
 )
 
@@ -24,12 +22,7 @@ type QuestionService struct {
 
 // Add is add questions to a game.
 func (q *QuestionService) Add() (string, error) {
-	err := q.validateQuestion()
-	if err != nil {
-		return "", err
-	}
-
-	err = q.validateNotFound()
+	err := q.validateNotFound()
 	if err != nil {
 		return "", err
 	}
@@ -165,34 +158,6 @@ func (q *QuestionService) GetGroups(round string) ([]string, error) {
 
 	sort.Strings(uniqGroups)
 	return uniqGroups, nil
-}
-
-func (q *QuestionService) validateQuestion() error {
-	gameService := GameService{DB: q.DB, Name: q.GameName}
-	gameInfo, err := gameService.Get()
-
-	if gameInfo.Name == "" {
-		return errors.NotFoundf("game %s", q.GameName)
-	} else if err != nil {
-		return err
-	}
-
-	_, err = language.Parse(q.Question.LanguageCode)
-	if err != nil {
-		return errors.BadRequestf("invalid language code %s", q.Question.LanguageCode)
-	}
-
-	game, err := games.GetGame(q.GameName)
-	if err != nil {
-		return err
-	}
-
-	err = game.ValidateQuestion(q.Question)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (q *QuestionService) validateNotFound() error {
