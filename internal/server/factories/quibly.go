@@ -10,14 +10,14 @@ import (
 // Quibly struct which is the concrete type for game interface.
 type Quibly struct{}
 
-// NewStory returns "Quibly" story answers.
-func (q Quibly) NewStory(story models.Story) (serverModels.Story, error) {
+// NewServerStory returns "Quibly" story answers.
+func (q Quibly) NewServerStory(story models.Story) (serverModels.Story, error) {
 	storyAnswers, ok := story.Answers.(*models.StoryQuiblyAnswers)
 
 	if !ok {
 		return serverModels.Story{}, errors.Errorf("invalid answer for Quibly")
 	}
-	answers := newAnswersQuibly(storyAnswers)
+	answers := newServerAnswersQuibly(storyAnswers)
 	newStory := serverModels.Story{
 		Question: story.Question,
 		Round:    story.Round,
@@ -28,7 +28,7 @@ func (q Quibly) NewStory(story models.Story) (serverModels.Story, error) {
 	return newStory, nil
 }
 
-func newAnswersQuibly(storyAnswers *models.StoryQuiblyAnswers) []serverModels.StoryQuibly {
+func newServerAnswersQuibly(storyAnswers *models.StoryQuiblyAnswers) []serverModels.StoryQuibly {
 	var answers []serverModels.StoryQuibly
 	for _, storyAnswer := range *storyAnswers {
 		answer := serverModels.StoryQuibly{
@@ -40,4 +40,37 @@ func newAnswersQuibly(storyAnswers *models.StoryQuiblyAnswers) []serverModels.St
 	}
 
 	return answers
+}
+
+// NewStory returns "Quibly" story answers.
+func (q Quibly) NewStory(story serverModels.Story) (models.Story, error) {
+	answers, err := newAnswersQuibly(story.StoryAnswers.Quibly)
+	if err != nil {
+		return models.Story{}, err
+	}
+
+	newStory := models.Story{
+		Question: story.Question,
+		Round:    story.Round,
+		Answers:  answers,
+	}
+	return newStory, nil
+}
+
+func newAnswersQuibly(storyAnswers []serverModels.StoryQuibly) (models.StoryQuiblyAnswers, error) {
+	var answers models.StoryQuiblyAnswers
+	if len(storyAnswers) == 0 {
+		return []models.StoryQuibly{}, errors.BadRequestf("no answers in the story.")
+	}
+
+	for _, storyAnswer := range storyAnswers {
+		answer := models.StoryQuibly{
+			Nickname: storyAnswer.Nickname,
+			Answer:   storyAnswer.Answer,
+			Votes:    storyAnswer.Votes,
+		}
+		answers = append(answers, answer)
+	}
+
+	return answers, nil
 }

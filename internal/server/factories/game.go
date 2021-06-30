@@ -9,7 +9,8 @@ import (
 
 // Game is the interface for all games.
 type Game interface {
-	NewStory(story models.Story) (serverModels.Story, error)
+	NewServerStory(story models.Story) (serverModels.Story, error)
+	NewStory(serverStory serverModels.Story) (models.Story, error)
 }
 
 // GetGame is the factory function which returns the game struct depending on the name.

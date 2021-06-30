@@ -26,3 +26,8 @@ type GroupInput struct {
 	GameParams
 	Round string `json:"round" url:"round" validate:"required" query:"round"`
 }
+
+type NewStoryInput struct {
+	GameParams
+	Story
+}
