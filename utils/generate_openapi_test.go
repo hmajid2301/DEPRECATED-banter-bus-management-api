@@ -9,9 +9,8 @@ import (
 	"net/http/httptest"
 	"os"
 
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/api"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/server"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/controllers"
 )
 
 func TestGetOpenAPI() {
@@ -21,8 +20,8 @@ func TestGetOpenAPI() {
 		fmt.Println("unable to load config")
 	}
 
-	env := &controllers.Env{Logger: nil, Conf: config, DB: nil}
-	router, err := server.Setup(env)
+	env := &api.Env{Logger: nil, Conf: config, DB: nil}
+	router, err := api.Setup(env)
 	if err != nil {
 		fmt.Println("unable to setup webserver")
 	}

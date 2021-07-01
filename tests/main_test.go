@@ -8,11 +8,12 @@ import (
 	"os"
 	"testing"
 
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/api"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/server"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/controllers"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/service/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/games"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/questions"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/story"
 
 	"github.com/gavv/httpexpect"
 	"github.com/houqp/gtest"
@@ -24,17 +25,17 @@ type Tests struct {
 }
 
 type GameTestData struct {
-	Games models.Games `json:"games"`
+	Games games.Games `json:"games"`
 	DB    database.Database
 }
 
 type QuestionTestData struct {
-	Questions models.Questions `json:"questions"`
+	Questions questions.Questions `json:"questions"`
 	DB        database.Database
 }
 
 type StoryTestData struct {
-	Stories models.Stories `json:"stories"`
+	Stories story.Stories `json:"stories"`
 	DB      database.Database
 }
 
@@ -63,8 +64,8 @@ func (s *Tests) Setup(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	env := &controllers.Env{Logger: logger, Conf: conf, DB: db}
-	router, err := server.Setup(env)
+	env := &api.Env{Logger: logger, Conf: conf, DB: db}
+	router, err := api.Setup(env)
 	if err != nil {
 		fmt.Printf("Failed to setup web server %s", err)
 	}
@@ -134,18 +135,6 @@ func (g *GameTestData) InsertData(path string) {
 	}
 }
 
-func (s *StoryTestData) InsertData(path string) {
-	err := getData(path, s)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	err = s.Stories.Add(s.DB)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 func (q *QuestionTestData) InsertData(path string) {
 	err := getData(path, q)
 	if err != nil {
@@ -153,6 +142,18 @@ func (q *QuestionTestData) InsertData(path string) {
 	}
 
 	err = q.Questions.Add(q.DB)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (s *StoryTestData) InsertData(path string) {
+	err := getData(path, s)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = s.Stories.Add(s.DB)
 	if err != nil {
 		fmt.Println(err)
 	}

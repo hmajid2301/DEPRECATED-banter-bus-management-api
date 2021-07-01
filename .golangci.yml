@@ -1,7 +1,6 @@
 run:
   skip-dirs:
     - tests/data
-    - internal/server/models
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
@@ -11,7 +10,7 @@ linters:
     - deadcode
     - depguard
     - dogsled
-    - dupl
+    # - dupl
     - errcheck
     - funlen
     - gochecknoinits
@@ -20,7 +19,7 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    - golint
+    # - golint
     - gomnd
     - goprintffuncname
     - gosec
@@ -28,7 +27,7 @@ linters:
     - govet
     - ineffassign
     - interfacer
-    - lll
+    # - lll
     - misspell
     - nakedret
     - nolintlint

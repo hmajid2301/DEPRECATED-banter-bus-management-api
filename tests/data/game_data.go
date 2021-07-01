@@ -3,7 +3,7 @@ package data
 import (
 	"net/http"
 
-	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/games"
 )
 
 // AddGame is the test data for adding new game.
@@ -11,16 +11,16 @@ var AddGame = []struct {
 	TestDescription string
 	Payload         interface{}
 	ExpectedStatus  int
-	ExpectedGame    serverModels.Game
+	ExpectedGame    games.GameOut
 }{
 	{
 		"Add a new game",
-		&serverModels.NewGame{
+		&games.GameIn{
 			Name:     "quibly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 		},
 		http.StatusCreated,
-		serverModels.Game{
+		games.GameOut{
 			Name:     "quibly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 			Enabled:  true,
@@ -32,7 +32,7 @@ var AddGame = []struct {
 			Nam:      "quibly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 		}, http.StatusBadRequest,
-		serverModels.Game{},
+		games.GameOut{},
 	},
 	{
 		"Try to add another game wrong Rule field",
@@ -41,15 +41,15 @@ var AddGame = []struct {
 			RulURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
 		},
 		http.StatusBadRequest,
-		serverModels.Game{},
+		games.GameOut{},
 	},
 	{
 		"Try to add a game that already exists.",
-		&serverModels.NewGame{
+		&games.GameIn{
 			Name:     "quibly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 		}, http.StatusConflict,
-		serverModels.Game{},
+		games.GameOut{},
 	},
 }
 
@@ -99,13 +99,13 @@ var GetGame = []struct {
 	TestDescription string
 	Name            string
 	ExpectedStatus  int
-	ExpectedGame    serverModels.Game
+	ExpectedGame    games.GameOut
 }{
 	{
 		"Get a game",
 		"quibly",
 		http.StatusOK,
-		serverModels.Game{
+		games.GameOut{
 			Name:     "quibly",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
 			Enabled:  true,
@@ -115,7 +115,7 @@ var GetGame = []struct {
 		"Get another game",
 		"fibbing_it",
 		http.StatusOK,
-		serverModels.Game{
+		games.GameOut{
 			Name:     "fibbing_it",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
 			Enabled:  true,
@@ -125,13 +125,13 @@ var GetGame = []struct {
 		"Try to get game that doesn't exist",
 		"quiblyv3",
 		http.StatusNotFound,
-		serverModels.Game{},
+		games.GameOut{},
 	},
 	{
 		"Try to get another game that doesn't exist",
 		"another_one",
 		http.StatusNotFound,
-		serverModels.Game{},
+		games.GameOut{},
 	},
 }
 
@@ -163,13 +163,13 @@ var EnableGame = []struct {
 	TestDescription string
 	Name            string
 	ExpectedStatus  int
-	ExpectedGame    serverModels.Game
+	ExpectedGame    games.GameOut
 }{
 	{
 		"Enable a disabled game",
 		"drawlosseum",
 		http.StatusOK,
-		serverModels.Game{
+		games.GameOut{
 			Name:     "drawlosseum",
 			RulesURL: "https://google.com/drawlosseum",
 			Enabled:  true,
@@ -179,7 +179,7 @@ var EnableGame = []struct {
 		"Enable an already enabled game",
 		"drawlosseum",
 		http.StatusOK,
-		serverModels.Game{
+		games.GameOut{
 			Name:     "drawlosseum",
 			RulesURL: "https://google.com/drawlosseum",
 			Enabled:  true,
@@ -189,7 +189,7 @@ var EnableGame = []struct {
 		"Enable a game that doesn't exist",
 		"quiblyv3",
 		http.StatusNotFound,
-		serverModels.Game{},
+		games.GameOut{},
 	},
 }
 
@@ -198,13 +198,13 @@ var DisableGame = []struct {
 	TestDescription string
 	Name            string
 	ExpectedStatus  int
-	ExpectedGame    serverModels.Game
+	ExpectedGame    games.GameOut
 }{
 	{
 		"Disable an enabled game",
 		"fibbing_it",
 		http.StatusOK,
-		serverModels.Game{
+		games.GameOut{
 			Name:     "fibbing_it",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
 			Enabled:  false,
@@ -214,7 +214,7 @@ var DisableGame = []struct {
 		"Disable an already disabled game",
 		"fibbing_it",
 		http.StatusOK,
-		serverModels.Game{
+		games.GameOut{
 			Name:     "fibbing_it",
 			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
 			Enabled:  false,
@@ -224,6 +224,6 @@ var DisableGame = []struct {
 		"Disable a game that doesn't exist",
 		"quiblyv3",
 		http.StatusNotFound,
-		serverModels.Game{},
+		games.GameOut{},
 	},
 }

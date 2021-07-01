@@ -11,7 +11,7 @@ require (
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.2
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/uuid v1.1.1
+	github.com/google/uuid v1.2.0
 	github.com/houqp/gtest v1.0.0
 	github.com/ilyakaznacheev/cleanenv v1.2.5
 	github.com/imkira/go-interpol v1.1.0 // indirect
@@ -34,8 +34,8 @@ require (
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	go.mongodb.org/mongo-driver v1.4.5
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/text v0.3.6
+	golang.org/x/tools v0.1.3-0.20210608163600-9ed039809d4c // indirect
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

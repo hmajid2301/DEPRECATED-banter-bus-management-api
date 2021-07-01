@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/games"
 	"gitlab.com/banter-bus/banter-bus-management-api/tests/data"
 
 	"github.com/gavv/httpexpect"
@@ -15,7 +15,7 @@ func (s *Tests) SubTestAddGame(t *testing.T) {
 	for _, tc := range data.AddGame {
 		testName := fmt.Sprintf("Add New Game: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			gameData, ok := tc.Payload.(*serverModels.NewGame)
+			gameData, ok := tc.Payload.(*games.GameIn)
 
 			if ok && tc.ExpectedStatus == http.StatusCreated {
 				endpoint := fmt.Sprintf("/game/%s", gameData.Name)
@@ -75,7 +75,7 @@ func (s *Tests) SubTestRemoveGame(t *testing.T) {
 
 			// TODO: test 0 questions in question collection related to this game. After #29 is merged in.
 			if tc.ExpectedStatus == http.StatusOK {
-				getGame(tc.Name, http.StatusNotFound, serverModels.Game{}, s.httpExpect)
+				getGame(tc.Name, http.StatusNotFound, games.GameOut{}, s.httpExpect)
 			}
 		})
 	}
@@ -113,7 +113,7 @@ func (s *Tests) SubTestDisableGame(t *testing.T) {
 	}
 }
 
-func getGame(game string, expectedStatus int, expectedResult serverModels.Game, httpExpect *httpexpect.Expect) {
+func getGame(game string, expectedStatus int, expectedResult games.GameOut, httpExpect *httpexpect.Expect) {
 	endpoint := fmt.Sprintf("/game/%s", game)
 	response := httpExpect.GET(endpoint).
 		Expect().

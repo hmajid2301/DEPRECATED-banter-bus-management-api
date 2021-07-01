@@ -10,10 +10,9 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/api"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/server"
-	"gitlab.com/banter-bus/banter-bus-management-api/internal/server/controllers"
 )
 
 func main() {
@@ -46,8 +45,8 @@ func mainLogic() int {
 
 	defer db.CloseDB()
 
-	env := &controllers.Env{Logger: logger, Conf: config, DB: db}
-	router, err := server.Setup(env)
+	env := &api.Env{Logger: logger, Conf: config, DB: db}
+	router, err := api.Setup(env)
 	if err != nil {
 		logger.Errorf("Failed to load router %v.", err)
 		return 1

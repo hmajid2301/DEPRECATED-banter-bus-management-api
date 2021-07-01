@@ -3,7 +3,8 @@ package data
 import (
 	"net/http"
 
-	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/questions"
 )
 
 // AddQuestion is the test data for add questions to a game
@@ -16,7 +17,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to quibly and to round pair",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "this is another question?",
 			Round:   "pair",
 		}, http.StatusCreated,
@@ -24,7 +25,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to quibly and to round answer, language de",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content:      "what is the funniest thing ever told?",
 			LanguageCode: "de",
 			Round:        "answers",
@@ -33,7 +34,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to quibly and to round group",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "what does ATGM stand for?",
 			Round:   "group",
 		}, http.StatusCreated,
@@ -41,7 +42,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question to drawlosseum, language ur",
 		"drawlosseum",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content:      "camel",
 			LanguageCode: "ur",
 		}, http.StatusCreated,
@@ -49,25 +50,25 @@ var AddQuestion = []struct {
 	{
 		"Add another question to drawlosseum",
 		"drawlosseum",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "pencil",
 		}, http.StatusCreated,
 	},
 	{
 		"Add yet another question to drawlosseum",
 		"drawlosseum",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "food fight",
 		}, http.StatusCreated,
 	},
 	{
 		"Add a question to fibbing it, round opinion new group bike group, language en",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content:      "do you love bikes?",
 			LanguageCode: "en",
 			Round:        "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "question",
 			},
@@ -76,10 +77,10 @@ var AddQuestion = []struct {
 	{
 		"Add another question to fibbing it, round opinion new group bike group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "how much does liam love bikes?",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "question",
 			},
@@ -88,10 +89,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion existing group bike group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "answer",
 			},
@@ -100,10 +101,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round free_form existing group bike group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "What is love?",
 			Round:   "free_form",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 			},
 		}, http.StatusCreated,
@@ -111,10 +112,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round free_form new group horse group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "What is the fastest horse?",
 			Round:   "free_form",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "horse_group",
 			},
 		}, http.StatusCreated,
@@ -122,10 +123,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round free_form existing group horse group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "What is the second horse called?",
 			Round:   "free_form",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "horse_group",
 			},
 		}, http.StatusCreated,
@@ -133,7 +134,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round likely",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "to never eat a vegetable again?",
 			Round:   "likely",
 		}, http.StatusCreated,
@@ -141,7 +142,7 @@ var AddQuestion = []struct {
 	{
 		"Add question to quibly, invalid round",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "This is another question?",
 			Round:   "invalid",
 		}, http.StatusBadRequest,
@@ -149,7 +150,7 @@ var AddQuestion = []struct {
 	{
 		"Add question to quibly, invalid2 round",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "This is another question?",
 			Round:   "invalid2",
 		}, http.StatusBadRequest,
@@ -157,10 +158,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, invalid round free_form",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "What is the fastest horse?",
 			Round:   "invalid_free_form",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "horse_group",
 			},
 		}, http.StatusBadRequest,
@@ -168,11 +169,11 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, invalid language code",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content:      "What is the fastest horse?",
 			LanguageCode: "deed",
 			Round:        "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "horse_group",
 				Type: "answer",
 			},
@@ -181,10 +182,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion invalid answers type",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "answers",
 			},
@@ -193,10 +194,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion invalid questions type",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "questions",
 			},
@@ -205,10 +206,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it, round opinion invalid type",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "type",
 			},
@@ -217,26 +218,26 @@ var AddQuestion = []struct {
 	{
 		"game does not exist but missing content",
 		"quibly v3",
-		&serverModels.NewQuestion{}, http.StatusBadRequest,
+		&questions.QuestionIn{}, http.StatusBadRequest,
 	},
 	{
 		"game does not exist",
 		"quibly_v2",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "super love",
 		}, http.StatusNotFound,
 	},
 	{
 		"another game does not exist",
 		"quibly v3",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "super love",
 		}, http.StatusNotFound,
 	},
 	{
 		"Add a question that already exists to quibly and to round pair",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "this is also question?",
 			Round:   "pair",
 		}, http.StatusConflict,
@@ -244,7 +245,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question that already exists to quibly and to round answer",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "pink mustard",
 			Round:   "answers",
 		}, http.StatusConflict,
@@ -252,7 +253,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question that already exists to quibly and to round answer",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content:      "german",
 			LanguageCode: "de",
 			Round:        "answers",
@@ -261,7 +262,7 @@ var AddQuestion = []struct {
 	{
 		"Add a question that already exists to quibly and to round group",
 		"quibly",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "what does ATGM stand for?",
 			Round:   "group",
 		}, http.StatusConflict,
@@ -269,31 +270,31 @@ var AddQuestion = []struct {
 	{
 		"Add a question that already exists to drawlosseum",
 		"drawlosseum",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "horse",
 		}, http.StatusConflict,
 	},
 	{
 		"Add another question that already exists to drawlosseum",
 		"drawlosseum",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "pencil",
 		}, http.StatusConflict,
 	},
 	{
 		"Add yet another question that already exists to drawlosseum",
 		"drawlosseum",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "food fight",
 		}, http.StatusConflict,
 	},
 	{
 		"Add a question to fibbing it that already exists, round opinion new group bike group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "do you love bikes?",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "question",
 			},
@@ -302,10 +303,10 @@ var AddQuestion = []struct {
 	{
 		"Add another question to fibbing it that already exists, round opinion new group bike group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "how much does liam love bikes?",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "question",
 			},
@@ -314,10 +315,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it that already exists, round opinion existing group bike group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 				Type: "answer",
 			},
@@ -326,10 +327,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it that already exists, round free_form existing group bike group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "What is love?",
 			Round:   "free_form",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "bike_group",
 			},
 		}, http.StatusConflict,
@@ -337,10 +338,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it that already exists, round free_form new group horse group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "What is the fastest horse?",
 			Round:   "free_form",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "horse_group",
 			},
 		}, http.StatusConflict,
@@ -348,10 +349,10 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it that already exists, round free_form existing group horse group",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "What is the second horse called?",
 			Round:   "free_form",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "horse_group",
 			},
 		}, http.StatusConflict,
@@ -359,7 +360,7 @@ var AddQuestion = []struct {
 	{
 		"Add an answer to fibbing it tthat already exists, round likely",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "to never eat a vegetable again?",
 			Round:   "likely",
 		}, http.StatusConflict,
@@ -367,10 +368,10 @@ var AddQuestion = []struct {
 	{
 		"Add a question to fibbing it that already exists",
 		"fibbing_it",
-		&serverModels.NewQuestion{
+		&questions.QuestionIn{
 			Content: "What do you think about horses?",
 			Round:   "opinion",
-			Group: &serverModels.Group{
+			Group: &questions.QuestionGroupIn{
 				Name: "horse_group",
 				Type: "question",
 			},
@@ -443,7 +444,7 @@ var AddTranslationQuestion = []struct {
 		"quibly",
 		"fr",
 		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
-		&serverModels.QuestionTranslation{
+		&questions.QuestionTranslationIn{
 			Content: "this is a question?",
 		},
 		http.StatusCreated,
@@ -453,7 +454,7 @@ var AddTranslationQuestion = []struct {
 		"quibly",
 		"de",
 		"bf64d60c-62ee-420a-976e-bfcaec77ad8b",
-		&serverModels.QuestionTranslation{
+		&questions.QuestionTranslationIn{
 			Content: "le german?",
 		},
 		http.StatusCreated,
@@ -463,7 +464,7 @@ var AddTranslationQuestion = []struct {
 		"drawlosseum",
 		"hi",
 		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
-		&serverModels.QuestionTranslation{
+		&questions.QuestionTranslationIn{
 			Content: "ऊंट",
 		},
 		http.StatusCreated,
@@ -473,7 +474,7 @@ var AddTranslationQuestion = []struct {
 		"fibbing_it",
 		"it",
 		"580aeb14-d907-4a22-82c8-f2ac544a2cd1",
-		&serverModels.QuestionTranslation{
+		&questions.QuestionTranslationIn{
 			Content: "Cosa ne pensi dei cavalli?",
 		},
 		http.StatusCreated,
@@ -483,7 +484,7 @@ var AddTranslationQuestion = []struct {
 		"fibbing_it",
 		"de",
 		"aa9fe2b5-79b5-458d-814b-45ff95a617fc",
-		&serverModels.QuestionTranslation{
+		&questions.QuestionTranslationIn{
 			Content: "Liebe",
 		}, http.StatusCreated,
 	},
@@ -492,14 +493,14 @@ var AddTranslationQuestion = []struct {
 		"quibly",
 		"en",
 		"a9c00e19-d41e-4b15-a8bd-ec921af9123d",
-		&serverModels.NewQuestion{}, http.StatusBadRequest,
+		&questions.QuestionIn{}, http.StatusBadRequest,
 	},
 	{
 		"Update question in fibbing it but invalid language code",
 		"fibbing_it",
 		"ittt",
 		"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
-		&serverModels.QuestionTranslation{
+		&questions.QuestionTranslationIn{
 			Content: "was ist Liebe?",
 		}, http.StatusBadRequest,
 	},
@@ -508,7 +509,7 @@ var AddTranslationQuestion = []struct {
 		"quibly v3",
 		"de",
 		"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
-		&serverModels.QuestionTranslation{
+		&questions.QuestionTranslationIn{
 			Content: "was ist Liebe?",
 		}, http.StatusNotFound,
 	},
@@ -517,7 +518,7 @@ var AddTranslationQuestion = []struct {
 		"fibbing_it",
 		"de",
 		"9f64d60c-62ee-420a-976e-bfcaec77ad8b",
-		&serverModels.QuestionTranslation{
+		&questions.QuestionTranslationIn{
 			Content: "was ist Liebe?",
 		}, http.StatusNotFound,
 	},
@@ -740,14 +741,14 @@ var DisableQuestion = []struct {
 // GetAllGroups is the data for the get groups tests
 var GetAllGroups = []struct {
 	TestDescription string
-	Payload         *serverModels.GroupInput
+	Payload         *questions.GroupInput
 	ExpectedGroups  []string
 	ExpectedCode    int
 }{
 	{
 		"Get all groups from questions from the opinion round in the Fibbing It game",
-		&serverModels.GroupInput{
-			GameParams: serverModels.GameParams{
+		&questions.GroupInput{
+			GameParams: internal.GameParams{
 				Name: "fibbing_it",
 			},
 			Round: "opinion",
@@ -760,8 +761,8 @@ var GetAllGroups = []struct {
 
 	{
 		"Get all groups from questions from the free form round in the Fibbing It game",
-		&serverModels.GroupInput{
-			GameParams: serverModels.GameParams{
+		&questions.GroupInput{
+			GameParams: internal.GameParams{
 				Name: "fibbing_it",
 			},
 			Round: "free_form",
@@ -775,8 +776,8 @@ var GetAllGroups = []struct {
 
 	{
 		"Try to get groups from a round in Fibbing It that does not have groups",
-		&serverModels.GroupInput{
-			GameParams: serverModels.GameParams{
+		&questions.GroupInput{
+			GameParams: internal.GameParams{
 				Name: "fibbing_it",
 			},
 			Round: "likely",
@@ -787,8 +788,8 @@ var GetAllGroups = []struct {
 
 	{
 		"Try to get groups from a non-existent round",
-		&serverModels.GroupInput{
-			GameParams: serverModels.GameParams{
+		&questions.GroupInput{
+			GameParams: internal.GameParams{
 				Name: "fibbing_it",
 			},
 			Round: "genocide",
@@ -799,8 +800,8 @@ var GetAllGroups = []struct {
 
 	{
 		"Try to get groups from a game that does not have groups",
-		&serverModels.GroupInput{
-			GameParams: serverModels.GameParams{
+		&questions.GroupInput{
+			GameParams: internal.GameParams{
 				Name: "quibly",
 			},
 			Round: "opinion",

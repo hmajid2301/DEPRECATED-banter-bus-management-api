@@ -13,7 +13,6 @@ help: ## Show this help.
 .PHONY: lint
 lint: ## Run linter on source code and tests.
 	@golangci-lint run -c .golangci.yml --timeout 5m ./...
-	@REVIVE_FORCE_COLOR=1 revive -formatter friendly ./...
 
 .PHONY: format
 format: ARGS="-w"

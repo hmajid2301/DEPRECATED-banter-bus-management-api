@@ -3,24 +3,24 @@ package data
 import (
 	"net/http"
 
-	serverModels "gitlab.com/banter-bus/banter-bus-management-api/internal/server/models"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/story"
 )
 
 // AddStories is the test data for adding stories.
 var AddStories = []struct {
 	TestDescription string
 	GameName        string
-	Payload         serverModels.Story
+	Payload         story.StoryInOut
 	ExpectedStatus  int
 }{
 	{
 		"Add a story: Quibly",
 		"quibly",
-		serverModels.Story{
+		story.StoryInOut{
 			Question: "how many fish are there?",
 			Round:    "pair",
-			StoryAnswers: serverModels.StoryAnswers{
-				Quibly: []serverModels.StoryQuibly{
+			StoryAnswersInOut: story.StoryAnswersInOut{
+				Quibly: []story.QuiblyAnswerInOut{
 					{
 						Nickname: "funnyMan420",
 						Answer:   "one",
@@ -39,17 +39,17 @@ var AddStories = []struct {
 	{
 		"Add a story: Drawlosseum",
 		"drawlosseum",
-		serverModels.Story{
+		story.StoryInOut{
 			Question: "fish",
 			Nickname: "i_cannotDraw",
-			StoryAnswers: serverModels.StoryAnswers{
-				Drawlosseum: []serverModels.StoryDrawlosseum{
+			StoryAnswersInOut: story.StoryAnswersInOut{
+				Drawlosseum: story.DrawlosseumAnswersInOut{
 					{
-						Start: serverModels.DrawlosseumDrawingPoint{
+						Start: story.DrawingPoint{
 							X: 100,
 							Y: -100,
 						},
-						End: serverModels.DrawlosseumDrawingPoint{
+						End: story.DrawingPoint{
 							X: 90,
 							Y: -100,
 						},
@@ -64,12 +64,12 @@ var AddStories = []struct {
 	{
 		"Add a story: Fibbing It",
 		"fibbing_it",
-		serverModels.Story{
+		story.StoryInOut{
 			Nickname: "i_cannotDraw",
 			Question: "What do you think about horses?",
 			Round:    "opinion",
-			StoryAnswers: serverModels.StoryAnswers{
-				FibbingIt: []serverModels.StoryFibbingIt{
+			StoryAnswersInOut: story.StoryAnswersInOut{
+				FibbingIt: []story.FibbingItAnswerInOut{
 					{
 						Answer: "tasty", Nickname: "!sus",
 					},
@@ -87,10 +87,10 @@ var AddStories = []struct {
 	{
 		"Story missing field exists",
 		"fibbing_it",
-		serverModels.Story{
-			Question:     "fish",
-			Nickname:     "i_cannotDraw",
-			StoryAnswers: serverModels.StoryAnswers{},
+		story.StoryInOut{
+			Question:          "fish",
+			Nickname:          "i_cannotDraw",
+			StoryAnswersInOut: story.StoryAnswersInOut{},
 		},
 		http.StatusBadRequest,
 	},
@@ -101,17 +101,17 @@ var GetStories = []struct {
 	TestDescription string
 	StoryID         string
 	ExpectedStatus  int
-	ExpectedResult  serverModels.Story
+	ExpectedResult  story.StoryInOut
 }{
 	{
 		"Get a story",
 		"1def4233-f674-4a3f-863d-6e850bfbfdb4",
 		http.StatusOK,
-		serverModels.Story{
+		story.StoryInOut{
 			Question: "how many fish are there?",
 			Round:    "pair",
-			StoryAnswers: serverModels.StoryAnswers{
-				Quibly: []serverModels.StoryQuibly{
+			StoryAnswersInOut: story.StoryAnswersInOut{
+				Quibly: []story.QuiblyAnswerInOut{
 					{
 						Nickname: "funnyMan420",
 						Answer:   "one",
@@ -130,17 +130,17 @@ var GetStories = []struct {
 		"Get another story",
 		"a4ffd1c8-93c5-4f4c-8ace-71996edcbcb7",
 		http.StatusOK,
-		serverModels.Story{
+		story.StoryInOut{
 			Question: "fish",
 			Nickname: "i_cannotDraw",
-			StoryAnswers: serverModels.StoryAnswers{
-				Drawlosseum: []serverModels.StoryDrawlosseum{
+			StoryAnswersInOut: story.StoryAnswersInOut{
+				Drawlosseum: story.DrawlosseumAnswersInOut{
 					{
-						Start: serverModels.DrawlosseumDrawingPoint{
+						Start: story.DrawingPoint{
 							X: 100,
 							Y: -100,
 						},
-						End: serverModels.DrawlosseumDrawingPoint{
+						End: story.DrawingPoint{
 							X: 90,
 							Y: -100,
 						},
@@ -154,7 +154,7 @@ var GetStories = []struct {
 		"Story does not exist",
 		"50-011c-45d8-98f7-819520c253b6",
 		http.StatusNotFound,
-		serverModels.Story{},
+		story.StoryInOut{},
 	},
 }
 
