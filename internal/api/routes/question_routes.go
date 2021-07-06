@@ -24,6 +24,24 @@ func QuestionRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.AddQuestion, http.StatusCreated))
 
+	grp.DELETE("/:question_id", []fizz.OperationOption{
+		fizz.Summary("Remove a question from a game."),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", APIError{}, nil, nil),
+		fizz.Response(
+			fmt.Sprint(http.StatusNotFound),
+			"Game or question doesn't exist",
+			APIError{},
+			nil,
+			nil,
+		),
+	}, tonic.Handler(env.RemoveQuestion, http.StatusOK))
+
+	getRoutes(env, grp)
+	translationRoutes(env, grp)
+	updateRoutes(env, grp)
+}
+
+func getRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {
 	grp.GET("", []fizz.OperationOption{
 		fizz.Summary("Gets a list of questions."),
 		fizz.Response(
@@ -43,6 +61,18 @@ func QuestionRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.GetAllGroups, http.StatusOK))
 
+	grp.GET("/id/:language", []fizz.OperationOption{
+		fizz.Summary("Get all questions IDs for a game."),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", APIError{}, nil, nil),
+		fizz.Response(
+			fmt.Sprint(http.StatusNotFound),
+			"Game or question doesn't exist.",
+			APIError{},
+			nil,
+			nil,
+		),
+	}, tonic.Handler(env.GetQuestionsIDs, http.StatusOK))
+
 	grp.GET("/:question_id/:language", []fizz.OperationOption{
 		fizz.Summary("Get a single question."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", APIError{}, nil, nil),
@@ -54,21 +84,6 @@ func QuestionRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {
 			nil,
 		),
 	}, tonic.Handler(env.GetQuestion, http.StatusOK))
-
-	grp.DELETE("/:question_id", []fizz.OperationOption{
-		fizz.Summary("Remove a question from a game."),
-		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", APIError{}, nil, nil),
-		fizz.Response(
-			fmt.Sprint(http.StatusNotFound),
-			"Game or question doesn't exist",
-			APIError{},
-			nil,
-			nil,
-		),
-	}, tonic.Handler(env.RemoveQuestion, http.StatusOK))
-
-	translationRoutes(env, grp)
-	updateRoutes(env, grp)
 }
 
 func translationRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {

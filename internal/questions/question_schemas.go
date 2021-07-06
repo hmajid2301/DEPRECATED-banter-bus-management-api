@@ -1,6 +1,8 @@
 package questions
 
-import "gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
+import (
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
+)
 
 type Question struct {
 	ID       string            `bson:"id"`
@@ -97,4 +99,9 @@ type SearchParams struct {
 	Enabled   *bool
 	Random    bool
 	Limit     int64
+}
+
+type QuestionIDs struct {
+	IDs    []string
+	Cursor string
 }

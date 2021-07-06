@@ -68,6 +68,44 @@ func (q *QuestionService) Get() (Question, error) {
 	return question, nil
 }
 
+//TODO: add endpoint to get all unique languages
+
+func (q *QuestionService) GetAll(limit int64, cursor string, language string) (QuestionIDs, error) {
+	filter := map[string]interface{}{
+		"game_name":                         q.GameName,
+		fmt.Sprintf("content.%s", language): map[string]interface{}{"$exists": true},
+	}
+
+	if cursor != "" {
+		filter["id"] = map[string]string{
+			"$gt": cursor,
+		}
+	}
+
+	questions := Questions{}
+	err := questions.GetWithLimit(q.DB, filter, limit)
+	if err != nil {
+		return QuestionIDs{}, errors.Errorf("failed to get question %v", err)
+	}
+
+	var nextCursor string
+	if len(questions) == int(limit) {
+		lastQuestion := questions[len(questions)-1]
+		nextCursor = lastQuestion.ID
+	}
+
+	questionIDs := []string{}
+	for _, question := range questions {
+		currentID := question.ID
+		questionIDs = append(questionIDs, currentID)
+	}
+
+	return QuestionIDs{
+		IDs:    questionIDs,
+		Cursor: nextCursor,
+	}, nil
+}
+
 func (q *QuestionService) GetList(searchParam SearchParams) (Questions, error) {
 	filter := map[string]interface{}{
 		"game_name": q.GameName,
@@ -157,6 +195,7 @@ func (q *QuestionService) UpdateEnable(enabled bool) (bool, error) {
 
 	filter := q.filter()
 	question := &Question{}
+	// TODO: make FindOneAndUpdate
 	err = question.Get(q.DB, filter)
 	if err != nil {
 		return false, err

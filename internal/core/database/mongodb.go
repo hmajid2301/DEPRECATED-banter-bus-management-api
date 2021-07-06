@@ -64,6 +64,14 @@ func NewMongoDB(
 	logger.Info("Connected to database.")
 	db.Client = client
 	db.Database = client.Database(name)
+	err = db.createIndex("question", "id", true)
+	if err != nil {
+		return &MongoDB{}, fmt.Errorf("error while creating index for question %w", err)
+	}
+	err = db.createIndex("story", "id", true)
+	if err != nil {
+		return &MongoDB{}, fmt.Errorf("error while creating index for story %w", err)
+	}
 	return db, nil
 }
 
@@ -265,7 +273,12 @@ func (db *MongoDB) GetWithLimit(
 	return err
 }
 
-func (db *MongoDB) find(collectionName string, filter map[string]interface{}, documents Documents, options *options.FindOptions) error {
+func (db *MongoDB) find(
+	collectionName string,
+	filter map[string]interface{},
+	documents Documents,
+	options *options.FindOptions,
+) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -453,4 +466,18 @@ func (db *MongoDB) modifyEntry(
 	}
 
 	return updated, nil
+}
+
+func (db *MongoDB) createIndex(collectionName string, field string, unique bool) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
+	defer cancel()
+
+	mod := mongo.IndexModel{
+		Keys:    bson.M{field: 1},
+		Options: options.Index().SetUnique(unique),
+	}
+
+	collection := db.Collection(collectionName)
+	_, err := collection.Indexes().CreateOne(ctx, mod)
+	return err
 }

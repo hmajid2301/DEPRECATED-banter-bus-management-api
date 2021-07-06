@@ -21,6 +21,43 @@ func (s *Tests) SubTestAddQuestionToGame(t *testing.T) {
 	}
 }
 
+func (s *Tests) SubTestGetQuestions(t *testing.T) {
+	for _, tc := range data.GetQuestions {
+		testName := fmt.Sprintf("Get Questions: %s", tc.TestDescription)
+		t.Run(testName, func(t *testing.T) {
+			endpoint := fmt.Sprintf("/game/%s/question", tc.Game)
+			response := s.httpExpect.GET(endpoint).
+				WithQuery("round", tc.Round).WithQuery("language", tc.Language).WithQuery("limit", tc.Limit).
+				WithQuery("group_name", tc.GroupName).WithQuery("enabled", tc.Enabled).WithQuery("random", tc.Random).
+				Expect().Status(tc.ExpectedStatus)
+
+			if tc.ExpectedStatus == http.StatusOK {
+				if tc.Random == true {
+					response.JSON().Array().Length().Equal(tc.Limit)
+				} else {
+					response.JSON().Array().Equal(tc.ExpectedQuestions)
+				}
+			}
+		})
+	}
+}
+
+func (s *Tests) SubTestGetQuestionsIds(t *testing.T) {
+	for _, tc := range data.GetAllQuestionsIds {
+		testName := fmt.Sprintf("Get All Question IDs: %s", tc.TestDescription)
+		t.Run(testName, func(t *testing.T) {
+			endpoint := fmt.Sprintf("/game/%s/question/id/%s", tc.Game, tc.LanguageCode)
+			response := s.httpExpect.GET(endpoint).WithQuery("limit", tc.Limit).WithQuery("cursor", tc.Cursor).
+				Expect().
+				Status(tc.ExpectedStatus)
+
+			if tc.ExpectedStatus == http.StatusOK {
+				response.JSON().Equal(tc.ExpectedPayload)
+			}
+		})
+	}
+}
+
 func (s *Tests) SubTestRemoveQuestionFromGame(t *testing.T) {
 	for _, tc := range data.RemoveQuestion {
 		testName := fmt.Sprintf("Remove Question: %s", tc.TestDescription)
@@ -81,26 +118,6 @@ func (s *Tests) SubTestGetQuestionByID(t *testing.T) {
 	}
 }
 
-func (s *Tests) SubTestGetQuestions(t *testing.T) {
-	for _, tc := range data.GetQuestions {
-		testName := fmt.Sprintf("Get Questions: %s", tc.TestDescription)
-		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question", tc.Game)
-			response := s.httpExpect.GET(endpoint).
-				WithQuery("round", tc.Round).WithQuery("language", tc.Language).WithQuery("limit", tc.Limit).
-				WithQuery("group_name", tc.GroupName).WithQuery("enabled", tc.Enabled).WithQuery("random", tc.Random).
-				Expect().Status(tc.ExpectedStatus)
-
-			if tc.ExpectedStatus == http.StatusOK {
-				if tc.Random == true {
-					response.JSON().Array().Length().Equal(tc.Limit)
-				} else {
-					response.JSON().Array().Equal(tc.ExpectedQuestions)
-				}
-			}
-		})
-	}
-}
 func (s *Tests) SubTestEnableQuestion(t *testing.T) {
 	for _, tc := range data.EnableQuestion {
 		testName := fmt.Sprintf("Enable Question: %s", tc.TestDescription)

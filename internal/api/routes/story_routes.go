@@ -6,6 +6,7 @@ import (
 
 	"github.com/loopfz/gadgeto/tonic"
 	"github.com/wI2L/fizz"
+
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/story"
 )
 

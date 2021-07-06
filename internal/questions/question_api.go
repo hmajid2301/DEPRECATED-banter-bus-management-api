@@ -176,7 +176,11 @@ func (env *QuestionAPI) GetQuestion(_ *gin.Context, questionInput *GetQuestionIn
 func newGenericQuestionOut(question Question, languageCode string) (QuestionGenericOut, error) {
 	content := question.Content[languageCode]
 	if content == "" {
-		return QuestionGenericOut{}, errors.NotFoundf("language code %s not found for question with id %s", languageCode, question.ID)
+		return QuestionGenericOut{}, errors.NotFoundf(
+			"language code %s not found for question with id %s",
+			languageCode,
+			question.ID,
+		)
 	}
 
 	questionOut := QuestionGenericOut{
@@ -195,6 +199,45 @@ func newGenericQuestionOut(question Question, languageCode string) (QuestionGene
 	return questionOut, nil
 }
 
+func (env *QuestionAPI) GetQuestionsIDs(_ *gin.Context, questionInput *GetQuestionIDsInput) (AllQuestionOut, error) {
+	var (
+		gameName     = questionInput.Name
+		languageCode = questionInput.Language
+		limit        = questionInput.Limit
+		cursor       = questionInput.Cursor
+	)
+	questionLogger := env.Logger.WithFields(log.Fields{
+		"game_name":     gameName,
+		"language_code": languageCode,
+		"limit":         limit,
+		"cursor":        cursor,
+	})
+	questionLogger.Debug("Trying to get questions IDs.")
+
+	_, err := language.Parse(languageCode)
+	if err != nil {
+		questionLogger.WithFields(log.Fields{
+			"err":           err,
+			"language_code": languageCode,
+		}).Warn("Bad language code.")
+		return AllQuestionOut{}, errors.BadRequestf("invalid language %s", languageCode)
+	}
+
+	q := QuestionService{
+		DB:       env.DB,
+		GameName: gameName,
+	}
+	questions, err := q.GetAll(limit, cursor, languageCode)
+	if err != nil {
+		questionLogger.WithFields(log.Fields{
+			"err": err,
+		}).Warn("Failed to get questions.")
+		return AllQuestionOut{}, err
+	}
+
+	return AllQuestionOut(questions), nil
+}
+
 func (env *QuestionAPI) GetQuestions(_ *gin.Context, params *ListQuestionParams) ([]QuestionOut, error) {
 	questionLogger := env.Logger.WithFields(log.Fields{
 		"game_name":     params.Name,
@@ -206,7 +249,6 @@ func (env *QuestionAPI) GetQuestions(_ *gin.Context, params *ListQuestionParams)
 		"limit":         params.Limit,
 	})
 
-	// todo refactor this
 	questionLogger.Debug("Trying to get questions.")
 
 	_, err := language.Parse(params.Language)

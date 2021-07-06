@@ -1189,3 +1189,106 @@ var GetQuestionById = []struct {
 		questions.QuestionGenericOut{}, http.StatusNotFound,
 	},
 }
+
+var GetAllQuestionsIds = []struct {
+	TestDescription string
+	Game            string
+	LanguageCode    string
+	Limit           int64
+	Cursor          string
+	ExpectedPayload questions.AllQuestionOut
+	ExpectedStatus  int
+}{
+	{
+		"Get all questions from fibbing it",
+		"fibbing_it",
+		"en",
+		5,
+		"",
+		questions.AllQuestionOut{
+			IDs: []string{
+				"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
+				"7799e38a-758d-4a1b-a191-99c59440af76",
+				"03a462ba-f483-4726-aeaf-b8b6b03ce3e2",
+				"d5aa9153-f48c-45cc-b411-fb9b2d38e78f",
+				"138bc208-2849-41f3-bbd8-3226a96c5370",
+			},
+			Cursor: "138bc208-2849-41f3-bbd8-3226a96c5370",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get all questions from fibbing it using pagination",
+		"fibbing_it",
+		"en",
+		5,
+		"138bc208-2849-41f3-bbd8-3226a96c5370",
+		questions.AllQuestionOut{
+			IDs: []string{
+				"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
+				"7799e38a-758d-4a1b-a191-99c59440af76",
+				"d5aa9153-f48c-45cc-b411-fb9b2d38e78f",
+				"580aeb14-d907-4a22-82c8-f2ac544a2cd1",
+				"aa9fe2b5-79b5-458d-814b-45ff95a617fc",
+			},
+			Cursor: "aa9fe2b5-79b5-458d-814b-45ff95a617fc",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get all questions from drawlossuem it using pagination",
+		"drawlosseum",
+		"en",
+		5,
+		"",
+		questions.AllQuestionOut{
+			IDs: []string{
+				"815464a5-337f-4ce7-a4df-2b00764e5c6c",
+				"101464a5-337f-4ce7-a4df-2b00764e5d8d",
+			},
+			Cursor: "",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get all questions from quibly",
+		"quibly",
+		"en",
+		2,
+		"",
+		questions.AllQuestionOut{
+			IDs: []string{
+				"4d18ac45-8034-4f8e-b636-cf730b17e51a",
+				"a9c00e19-d41e-4b15-a8bd-ec921af9123d",
+			},
+			Cursor: "a9c00e19-d41e-4b15-a8bd-ec921af9123d",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get all questions from quibly it using pagination",
+		"quibly",
+		"en",
+		3,
+		"a9c00e19-d41e-4b15-a8bd-ec921af9123d",
+		questions.AllQuestionOut{
+			IDs: []string{
+				"bf64d60c-62ee-420a-976e-bfcaec77ad8b",
+			},
+			Cursor: "",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get with invalid limit",
+		"quibly",
+		"en",
+		-1,
+		"",
+		questions.AllQuestionOut{
+			IDs:    []string{},
+			Cursor: "",
+		},
+		http.StatusBadRequest,
+	},
+}
