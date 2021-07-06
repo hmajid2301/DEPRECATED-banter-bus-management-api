@@ -6,7 +6,6 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/story"
 )
 
-// AddStories is the test data for adding stories.
 var AddStories = []struct {
 	TestDescription string
 	GameName        string
@@ -96,7 +95,6 @@ var AddStories = []struct {
 	},
 }
 
-// GetStories is the test data for getting user's stories.
 var GetStories = []struct {
 	TestDescription string
 	StoryID         string
@@ -158,7 +156,6 @@ var GetStories = []struct {
 	},
 }
 
-// DeleteStories data to test deleting a story.
 var DeleteStories = []struct {
 	TestDescription string
 	StoryID         string

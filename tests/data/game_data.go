@@ -6,7 +6,6 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/games"
 )
 
-// AddGame is the test data for adding new game.
 var AddGame = []struct {
 	TestDescription string
 	Payload         interface{}
@@ -53,7 +52,6 @@ var AddGame = []struct {
 	},
 }
 
-// GetAllGames is the test data for getting existing game.
 var GetAllGames = []struct {
 	TestDescription string
 	Filter          string
@@ -94,7 +92,6 @@ var GetAllGames = []struct {
 	},
 }
 
-// GetGame is the test data for getting existing game.
 var GetGame = []struct {
 	TestDescription string
 	Name            string
@@ -135,7 +132,6 @@ var GetGame = []struct {
 	},
 }
 
-// RemoveGame is the test data for removing existing game.
 var RemoveGame = []struct {
 	TestDescription string
 	Name            string
@@ -158,7 +154,6 @@ var RemoveGame = []struct {
 	},
 }
 
-// EnableGame is the test data for enabling game.
 var EnableGame = []struct {
 	TestDescription string
 	Name            string
@@ -193,7 +188,6 @@ var EnableGame = []struct {
 	},
 }
 
-// DisableGame is the test data for disabling game.
 var DisableGame = []struct {
 	TestDescription string
 	Name            string

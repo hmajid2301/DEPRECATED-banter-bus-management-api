@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/juju/errors"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 )
@@ -39,8 +40,10 @@ func (q *QuestionService) Add() (string, error) {
 	}
 
 	if q.Question.Group != nil {
-		question.Group.Name = q.Question.Group.Name
-		question.Group.Type = q.Question.Group.Type
+		question.Group = &QuestionGroup{
+			Name: q.Question.Group.Name,
+			Type: q.Question.Group.Type,
+		}
 	}
 
 	inserted, err := question.Add(q.DB)
@@ -51,7 +54,46 @@ func (q *QuestionService) Add() (string, error) {
 	return uuid, nil
 }
 
-func (q *QuestionService) RemoveQuestion() error {
+func (q *QuestionService) Get() (Question, error) {
+	filter := q.filter()
+	question := Question{}
+	err := question.Get(q.DB, filter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return question, errors.NotFoundf("failed to get question with id %s for game %s", q.QuestionID, q.GameName)
+		}
+		return question, errors.Errorf("failed to get question %v", err)
+	}
+
+	return question, nil
+}
+
+func (q *QuestionService) GetList(searchParam SearchParams) (Questions, error) {
+	filter := map[string]interface{}{
+		"game_name": q.GameName,
+		"round":     searchParam.Round,
+		fmt.Sprintf("content.%s", searchParam.Language): map[string]interface{}{"$exists": true},
+	}
+
+	if searchParam.Enabled != nil {
+		filter["enabled"] = searchParam.Enabled
+	}
+
+	var err error
+	questions := Questions{}
+
+	switch {
+	case searchParam.GroupName != "":
+		err = questions.Get(q.DB, filter)
+	case searchParam.Random:
+		err = questions.GetRandom(q.DB, filter, searchParam.Limit)
+	default:
+		err = questions.GetWithLimit(q.DB, filter, searchParam.Limit)
+	}
+	return questions, err
+}
+
+func (q *QuestionService) Remove() error {
 	err := q.validateFound()
 	if err != nil {
 		return err
@@ -131,24 +173,24 @@ func (q *QuestionService) UpdateEnable(enabled bool) (bool, error) {
 func (q *QuestionService) GetGroups(round string) ([]string, error) {
 	game, err := GetGame(q.GameName)
 	if err != nil {
-		return []string{""}, err
+		return []string{}, err
 	}
 
 	if !game.HasGroups(round) {
 		return nil, errors.NotFoundf("cannot get question groups from round %s of game %s", round, q.GameName)
 	}
 
-	filter := map[string]string{
+	filter := map[string]interface{}{
 		"game_name": q.GameName,
 		"round":     round,
 	}
-	uniqGroups, err := q.DB.GetUnique("question", filter, "group.name")
+	uniqueGroups, err := q.DB.GetUnique("question", filter, "group.name")
 	if err != nil {
 		return nil, err
 	}
 
-	sort.Strings(uniqGroups)
-	return uniqGroups, nil
+	sort.Strings(uniqueGroups)
+	return uniqueGroups, nil
 }
 
 func (q *QuestionService) validateNotFound() error {
@@ -178,8 +220,8 @@ func (q *QuestionService) get() (*Question, error) {
 	return question, err
 }
 
-func (q *QuestionService) filter() map[string]string {
-	filter := map[string]string{
+func (q *QuestionService) filter() map[string]interface{} {
+	filter := map[string]interface{}{
 		"game_name": q.GameName,
 	}
 

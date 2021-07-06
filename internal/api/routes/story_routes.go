@@ -9,7 +9,6 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/story"
 )
 
-// StoryRoutes add routes related to the "story" group.
 func StoryRoutes(env *story.StoryAPI, grp *fizz.RouterGroup) {
 	grp.POST("/:name", []fizz.OperationOption{
 		fizz.Summary("Add a story."),

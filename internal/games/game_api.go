@@ -48,21 +48,9 @@ func (env *GameAPI) GetGames(_ *gin.Context, params *ListGameParams) ([]string, 
 	})
 	gameLogger.Debug("Trying to get all games.")
 
-	var (
-		t = true
-		f = false
-	)
-
-	var n *bool
-	filters := map[string]*bool{
-		"enabled":  &t,
-		"disabled": &f,
-		"all":      n,
-	}
-
-	enabled := filters[params.Games]
+	enabled := internal.GetEnabledBool(params.Games)
 	g := GameService{DB: env.DB}
-	names, err := g.GetAll(enabled)
+	games, err := g.GetAll(enabled)
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
@@ -70,7 +58,12 @@ func (env *GameAPI) GetGames(_ *gin.Context, params *ListGameParams) ([]string, 
 		return []string{}, err
 	}
 
-	return names, nil
+	gameNames := []string{}
+	for _, game := range games {
+		gameNames = append(gameNames, game.Name)
+	}
+
+	return gameNames, nil
 }
 
 func (env *GameAPI) GetGame(_ *gin.Context, params *internal.GameParams) (*GameOut, error) {

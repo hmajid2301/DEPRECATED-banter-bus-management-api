@@ -10,7 +10,6 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/questions"
 )
 
-// QuestionRoutes add routes related to the "question" group.
 func QuestionRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {
 	grp.POST("", []fizz.OperationOption{
 		fizz.Summary("Add a new question to a game."),
@@ -25,6 +24,14 @@ func QuestionRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.AddQuestion, http.StatusCreated))
 
+	grp.GET("", []fizz.OperationOption{
+		fizz.Summary("Gets a list of questions."),
+		fizz.Response(
+			fmt.Sprint(http.StatusNotFound), "Game or round does not exist",
+			APIError{}, nil, nil,
+		),
+	}, tonic.Handler(env.GetQuestions, http.StatusOK))
+
 	grp.GET("/group", []fizz.OperationOption{
 		fizz.Summary("Get a list of question groups."),
 		fizz.Response(
@@ -35,6 +42,18 @@ func QuestionRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {
 			nil,
 		),
 	}, tonic.Handler(env.GetAllGroups, http.StatusOK))
+
+	grp.GET("/:question_id/:language", []fizz.OperationOption{
+		fizz.Summary("Get a single question."),
+		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", APIError{}, nil, nil),
+		fizz.Response(
+			fmt.Sprint(http.StatusNotFound),
+			"Game, question or language code (for that question) doesn't exist.",
+			APIError{},
+			nil,
+			nil,
+		),
+	}, tonic.Handler(env.GetQuestion, http.StatusOK))
 
 	grp.DELETE("/:question_id", []fizz.OperationOption{
 		fizz.Summary("Remove a question from a game."),

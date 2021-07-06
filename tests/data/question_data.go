@@ -7,7 +7,6 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/questions"
 )
 
-// AddQuestion is the test data for add questions to a game
 var AddQuestion = []struct {
 	TestDescription string
 	Game            string
@@ -68,7 +67,7 @@ var AddQuestion = []struct {
 			Content:      "do you love bikes?",
 			LanguageCode: "en",
 			Round:        "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "question",
 			},
@@ -80,7 +79,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "how much does liam love bikes?",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "question",
 			},
@@ -92,7 +91,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "answer",
 			},
@@ -104,7 +103,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "What is love?",
 			Round:   "free_form",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 			},
 		}, http.StatusCreated,
@@ -115,7 +114,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "What is the fastest horse?",
 			Round:   "free_form",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "horse_group",
 			},
 		}, http.StatusCreated,
@@ -126,7 +125,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "What is the second horse called?",
 			Round:   "free_form",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "horse_group",
 			},
 		}, http.StatusCreated,
@@ -161,7 +160,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "What is the fastest horse?",
 			Round:   "invalid_free_form",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "horse_group",
 			},
 		}, http.StatusBadRequest,
@@ -173,7 +172,7 @@ var AddQuestion = []struct {
 			Content:      "What is the fastest horse?",
 			LanguageCode: "deed",
 			Round:        "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "horse_group",
 				Type: "answer",
 			},
@@ -185,7 +184,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "answers",
 			},
@@ -197,7 +196,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "questions",
 			},
@@ -209,7 +208,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "type",
 			},
@@ -294,7 +293,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "do you love bikes?",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "question",
 			},
@@ -306,7 +305,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "how much does liam love bikes?",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "question",
 			},
@@ -318,7 +317,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "super love",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 				Type: "answer",
 			},
@@ -330,7 +329,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "What is love?",
 			Round:   "free_form",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "bike_group",
 			},
 		}, http.StatusConflict,
@@ -341,7 +340,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "What is the fastest horse?",
 			Round:   "free_form",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "horse_group",
 			},
 		}, http.StatusConflict,
@@ -352,7 +351,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "What is the second horse called?",
 			Round:   "free_form",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "horse_group",
 			},
 		}, http.StatusConflict,
@@ -371,7 +370,7 @@ var AddQuestion = []struct {
 		&questions.QuestionIn{
 			Content: "What do you think about horses?",
 			Round:   "opinion",
-			Group: &questions.QuestionGroupIn{
+			Group: &questions.QuestionGroupInOut{
 				Name: "horse_group",
 				Type: "question",
 			},
@@ -379,7 +378,6 @@ var AddQuestion = []struct {
 	},
 }
 
-// RemoveQuestion is the test data for removing questions from a game
 var RemoveQuestion = []struct {
 	TestDescription string
 	Game            string
@@ -430,7 +428,6 @@ var RemoveQuestion = []struct {
 	},
 }
 
-// AddTranslationQuestion is the test data for adding translations to questions.
 var AddTranslationQuestion = []struct {
 	TestDescription string
 	Game            string
@@ -524,7 +521,6 @@ var AddTranslationQuestion = []struct {
 	},
 }
 
-// RemoveTranslationQuestion is the test data for removing questions from game.
 var RemoveTranslationQuestion = []struct {
 	TestDescription string
 	Game            string
@@ -618,7 +614,6 @@ var RemoveTranslationQuestion = []struct {
 	},
 }
 
-// EnableQuestion test data used to test enable endpoint
 var EnableQuestion = []struct {
 	TestDescription string
 	Game            string
@@ -681,7 +676,6 @@ var EnableQuestion = []struct {
 	},
 }
 
-// DisableQuestion test data used to test disable endpoint
 var DisableQuestion = []struct {
 	TestDescription string
 	Game            string
@@ -738,7 +732,6 @@ var DisableQuestion = []struct {
 	},
 }
 
-// GetAllGroups is the data for the get groups tests
 var GetAllGroups = []struct {
 	TestDescription string
 	Payload         *questions.GroupInput
@@ -751,7 +744,7 @@ var GetAllGroups = []struct {
 			GameParams: internal.GameParams{
 				Name: "fibbing_it",
 			},
-			Round: "opinion",
+			RoundParams: internal.RoundParams{Round: "opinion"},
 		},
 		[]string{
 			"horse_group",
@@ -765,7 +758,7 @@ var GetAllGroups = []struct {
 			GameParams: internal.GameParams{
 				Name: "fibbing_it",
 			},
-			Round: "free_form",
+			RoundParams: internal.RoundParams{Round: "free_form"},
 		},
 		[]string{
 			"bike_group",
@@ -780,7 +773,7 @@ var GetAllGroups = []struct {
 			GameParams: internal.GameParams{
 				Name: "fibbing_it",
 			},
-			Round: "likely",
+			RoundParams: internal.RoundParams{Round: "likely"},
 		},
 		[]string{},
 		http.StatusNotFound,
@@ -792,7 +785,7 @@ var GetAllGroups = []struct {
 			GameParams: internal.GameParams{
 				Name: "fibbing_it",
 			},
-			Round: "genocide",
+			RoundParams: internal.RoundParams{Round: "genocide"},
 		},
 		[]string{},
 		http.StatusNotFound,
@@ -804,9 +797,395 @@ var GetAllGroups = []struct {
 			GameParams: internal.GameParams{
 				Name: "quibly",
 			},
-			Round: "opinion",
+			RoundParams: internal.RoundParams{Round: "opinion"},
 		},
 		[]string{},
 		http.StatusNotFound,
+	},
+}
+
+var GetQuestions = []struct {
+	TestDescription   string
+	Game              string
+	Round             string
+	Language          string
+	Limit             int
+	GroupName         string
+	Enabled           string
+	Random            bool
+	ExpectedStatus    int
+	ExpectedQuestions []questions.QuestionOut
+}{
+	{
+		"Get some quibly questions for round pair",
+		"quibly",
+		"pair",
+		"",
+		2,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "this is a question?",
+				Type:    "question",
+			},
+			{
+				Content: "this is also question?",
+				Type:    "question",
+			},
+		},
+	},
+	{
+		"Get some quibly questions for round answers",
+		"quibly",
+		"answers",
+		"de",
+		1,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "german",
+				Type:    "answer",
+			},
+		},
+	},
+	{
+		"Get some quibly questions for round group",
+		"quibly",
+		"group",
+		"fr",
+		1,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "this is a another question?",
+				Type:    "question",
+			},
+		},
+	},
+	{
+		"Get some quibly questions for round group and limit 10",
+		"quibly",
+		"group",
+		"fr",
+		10,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "this is a another question?",
+				Type:    "question",
+			},
+		},
+	},
+	{
+		"Get some quibly questions for round group and no language for that question",
+		"quibly",
+		"group",
+		"ur",
+		10,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{},
+	},
+	{
+		"Get some fibbing_it questions for round opinion",
+		"fibbing_it",
+		"opinion",
+		"en",
+		3,
+		"horse_group",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "What do you think about horses?",
+				Type:    "question",
+			},
+			{
+				Content: "What do you think about camels?",
+				Type:    "question",
+			},
+			{
+				Content: "cool",
+				Type:    "answer",
+			},
+			{
+				Content: "tasty",
+				Type:    "answer",
+			},
+			{
+				Content: "lame",
+				Type:    "answer",
+			},
+		},
+	},
+	{
+		"Get some fibbing_it questions for round free_form (no language specified, defaults to en)",
+		"fibbing_it",
+		"free_form",
+		"",
+		5,
+		"bike_group",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "Favourite bike colour?",
+				Type:    "question",
+			},
+			{
+				Content: "A funny question?",
+				Type:    "question",
+			},
+		},
+	},
+	{
+		"Get some fibbing_it questions for round likely",
+		"fibbing_it",
+		"likely",
+		"",
+		5,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "to eat ice-cream from the tub",
+				Type:    "question",
+			},
+			{
+				Content: "to get arrested",
+				Type:    "question",
+			},
+		},
+	},
+	{
+		"Get some drawlosseum questions",
+		"drawlosseum",
+		"drawing",
+		"",
+		2,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "horse",
+				Type:    "answer",
+			},
+			{
+				Content: "spoon",
+				Type:    "answer",
+			},
+		},
+	},
+	{
+		"Get some drawlosseum questions, bad limit -1",
+		"drawlosseum",
+		"drawing",
+		"",
+		-1,
+		"",
+		"",
+		false,
+		http.StatusBadRequest,
+		[]questions.QuestionOut{},
+	},
+	{
+		"Get some drawlosseum round doesn't exist",
+		"drawlosseum",
+		"drawing3",
+		"",
+		2,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{},
+	},
+	{
+		"Get some drawlosseum round doesn't exist",
+		"drawlosseum",
+		"drawing3",
+		"",
+		2,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{},
+	},
+	{
+		"Get some questions game doesn't exist",
+		"game",
+		"abc",
+		"",
+		2,
+		"",
+		"",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{},
+	},
+	{
+		"Get some fibbing_it questions for round opinion, enabled",
+		"fibbing_it",
+		"opinion",
+		"en",
+		3,
+		"horse_group",
+		"enabled",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "What do you think about horses?",
+				Type:    "question",
+			},
+			{
+				Content: "What do you think about camels?",
+				Type:    "question",
+			},
+			{
+				Content: "cool",
+				Type:    "answer",
+			},
+			{
+				Content: "tasty",
+				Type:    "answer",
+			},
+			{
+				Content: "lame",
+				Type:    "answer",
+			},
+		},
+	},
+	{
+		"Get some fibbing_it questions for round opinion, not enabled",
+		"fibbing_it",
+		"opinion",
+		"en",
+		3,
+		"horse_group",
+		"disabled",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{},
+	},
+	{
+		"Get some fibbing_it disabled questions",
+		"fibbing_it",
+		"free_form",
+		"it",
+		3,
+		"cat_group",
+		"disabled",
+		false,
+		http.StatusOK,
+		[]questions.QuestionOut{
+			{
+				Content: "Perché sono superiori i gatti di Liam?",
+				Type:    "question",
+			},
+		},
+	},
+	{
+		"Get some quibly questions for round pair and random",
+		"quibly",
+		"pair",
+		"",
+		2,
+		"",
+		"",
+		true,
+		http.StatusOK,
+		[]questions.QuestionOut{},
+	},
+}
+
+var GetQuestionById = []struct {
+	TestDescription string
+	Game            string
+	LanguageCode    string
+	ID              string
+	ExpectedPayload questions.QuestionGenericOut
+	Expected        int
+}{
+	{
+		"Get a quibly question",
+		"quibly",
+		"de",
+		"4d18ac45-8034-4f8e-b636-cf730b17e51a",
+		questions.QuestionGenericOut{
+			Round:   "pair",
+			Enabled: true,
+			Content: "this is a question?",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get a drawlosseum question",
+		"drawlosseum",
+		"en",
+		"101464a5-337f-4ce7-a4df-2b00764e5d8d",
+		questions.QuestionGenericOut{
+			Round:   "drawing",
+			Enabled: true,
+			Content: "spoon",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get a fibbing it question",
+		"fibbing_it",
+		"it",
+		"d80f2d90-0fb0-462a-8fbd-1aa00b4e42a5",
+		questions.QuestionGenericOut{
+			Content: "Perché sono superiori i gatti di Liam?",
+			Enabled: false,
+			Round:   "free_form",
+			Group: &questions.QuestionGroupInOut{
+				Name: "cat_group",
+			},
+		},
+		http.StatusOK,
+	},
+	{
+		"Game does not exist",
+		"quibly v3",
+		"de",
+		"3e2889f6-56aa-4422-a7c5-033eafa9fd39",
+		questions.QuestionGenericOut{}, http.StatusNotFound,
+	},
+	{
+		"Question does not exist",
+		"fibbing_it",
+		"de",
+		"9f64d60c-62ee-420a-976e-bfcaec77ad8b",
+		questions.QuestionGenericOut{}, http.StatusNotFound,
+	},
+	{
+		"Question does not exist",
+		"fibbing_it",
+		"de",
+		"1010d60c-62ee-420a-976e-bfcaec771010",
+		questions.QuestionGenericOut{}, http.StatusNotFound,
 	},
 }

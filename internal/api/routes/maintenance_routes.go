@@ -10,7 +10,6 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/maintenance"
 )
 
-// MaintenanceRoutes add routes related to the "maintenance" group.
 func MaintenanceRoutes(env *maintenance.MaintenanceAPI, grp *fizz.RouterGroup) {
 	grp.GET("/healthcheck", []fizz.OperationOption{
 		fizz.Summary("Checks Banter Bus API is healthy."),

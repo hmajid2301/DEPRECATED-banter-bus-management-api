@@ -10,7 +10,6 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/games"
 )
 
-// GameRoutes add routes related to the "game" group.
 func GameRoutes(env *games.GameAPI, grp *fizz.RouterGroup) {
 	grp.POST("", []fizz.OperationOption{
 		fizz.Summary("Create a new game."),

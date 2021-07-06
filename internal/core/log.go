@@ -1,4 +1,3 @@
-// Package core contains all the core high-level features.
 package core
 
 import (
@@ -7,14 +6,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// SetupLogger setups a new logger .
 func SetupLogger(writer io.Writer) (logger *logrus.Logger) {
 	logger = logrus.New()
 	logger.Out = writer
 	return logger
 }
 
-// UpdateLogLevel changes the log level for the logger.
 func UpdateLogLevel(logger *logrus.Logger, logLevel string) *logrus.Logger {
 	lLevel, err := logrus.ParseLevel(logLevel)
 	if err != nil {
@@ -25,7 +22,6 @@ func UpdateLogLevel(logger *logrus.Logger, logLevel string) *logrus.Logger {
 	return logger
 }
 
-// UpdateFormatter changes the format for the logger depending on environment.
 func UpdateFormatter(logger *logrus.Logger, environment string) *logrus.Logger {
 	if environment == "production" {
 		logger.SetFormatter(&logrus.JSONFormatter{})

@@ -27,12 +27,12 @@ func (story *Story) Add(db database.Database) (bool, error) {
 	return inserted, err
 }
 
-func (story *Story) Get(db database.Database, filter map[string]string) error {
+func (story *Story) Get(db database.Database, filter map[string]interface{}) error {
 	err := db.Get("story", filter, story)
 	return err
 }
 
-func (story *Story) Update(db database.Database, filter map[string]string) (bool, error) {
+func (story *Story) Update(db database.Database, filter map[string]interface{}) (bool, error) {
 	updated, err := db.Update("story", filter, story)
 	return updated, err
 }
@@ -160,12 +160,16 @@ func (stories *Stories) Add(db database.Database) error {
 	return err
 }
 
-func (stories *Stories) Get(db database.Database, filter map[string]string) error {
+func (stories *Stories) Get(db database.Database, filter map[string]interface{}) error {
 	err := db.GetAll("story", filter, stories)
 	return err
 }
 
-func (stories Stories) Delete(db database.Database, filter map[string]string) (bool, error) {
+func (stories *Stories) GetWithLimit(db database.Database, filter map[string]interface{}, limit int64) error {
+	return nil
+}
+
+func (stories Stories) Delete(db database.Database, filter map[string]interface{}) (bool, error) {
 	deleted, err := db.DeleteAll("story", filter)
 	return deleted, err
 }

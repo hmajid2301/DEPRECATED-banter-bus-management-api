@@ -9,7 +9,6 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 )
 
-// StoryAPI is related to all the data the controllers need.
 type StoryAPI struct {
 	Conf   core.Conf
 	Logger *log.Logger

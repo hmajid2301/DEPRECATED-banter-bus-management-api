@@ -8,7 +8,6 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-// Conf is the data type for the expected config file.
 type Conf struct {
 	App struct {
 		Env      string `yaml:"environment" env:"BANTER_BUS_ENVIRONMENT" env-default:"production"`
@@ -29,7 +28,6 @@ type Conf struct {
 	} `yaml:"database"`
 }
 
-// NewConfig creates a new config object.
 func NewConfig() (conf Conf, err error) {
 	path, exists := os.LookupEnv("BANTER_BUS_CONFIG_PATH")
 

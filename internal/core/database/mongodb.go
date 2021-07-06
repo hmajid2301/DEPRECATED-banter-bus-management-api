@@ -12,7 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-// MongoDB is a representation of the MongoDB server to connect to
 type MongoDB struct {
 	*mongo.Database
 	Client   *mongo.Client
@@ -26,7 +25,6 @@ type MongoDB struct {
 	Timeout  int
 }
 
-// NewMongoDB sets up the Database
 func NewMongoDB(
 	logger *log.Logger,
 	host string,
@@ -49,9 +47,7 @@ func NewMongoDB(
 	}
 
 	logger.Info("Connecting to database.")
-
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/", username, password, host, port)
-
 	logger.Debugf("Database connection string: %s", uri)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
@@ -71,7 +67,6 @@ func NewMongoDB(
 	return db, nil
 }
 
-// CloseDB closes the database
 func (db *MongoDB) CloseDB() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout))
 	defer cancel()
@@ -82,7 +77,6 @@ func (db *MongoDB) CloseDB() {
 	}
 }
 
-// Ping is used to check if the database is still connected to the app.
 func (db *MongoDB) Ping() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
@@ -91,7 +85,6 @@ func (db *MongoDB) Ping() bool {
 	return err == nil
 }
 
-// Insert adds a new entry to the database.
 func (db *MongoDB) Insert(collectionName string, document Document) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
@@ -117,7 +110,6 @@ func (db *MongoDB) Insert(collectionName string, document Document) (bool, error
 	return inserted, nil
 }
 
-// InsertMultiple adds multiple entries to the database at once.
 func (db *MongoDB) InsertMultiple(collectionName string, documents Documents) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
@@ -138,8 +130,7 @@ func (db *MongoDB) InsertMultiple(collectionName string, documents Documents) er
 	return nil
 }
 
-// Get retrieves an entry from the database.
-func (db *MongoDB) Get(collectionName string, filter map[string]string, document Document) error {
+func (db *MongoDB) Get(collectionName string, filter map[string]interface{}, document Document) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -153,8 +144,48 @@ func (db *MongoDB) Get(collectionName string, filter map[string]string, document
 	return err
 }
 
-// GetUnique retrieves a subdocument from the database.
-func (db *MongoDB) GetUnique(collectionName string, filter map[string]string, field string) ([]string, error) {
+func (db *MongoDB) GetRandom(
+	collectionName string,
+	filter map[string]interface{},
+	limit int64,
+	documents Documents,
+) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
+	defer cancel()
+
+	db.Logger.WithFields(log.Fields{
+		"collection": collectionName,
+		"filter":     filter,
+		"limit":      limit,
+	}).Debug("Getting random fields from database.")
+
+	collection := db.Collection(collectionName)
+	pipeline := mongo.Pipeline{
+		{
+			{
+				Key: "$match", Value: filter,
+			},
+		},
+		{
+			{
+				Key: "$sample",
+				Value: bson.M{
+					"size": limit,
+				},
+			},
+		},
+	}
+
+	aggregate, err := collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return err
+	}
+
+	err = aggregate.All(ctx, documents)
+	return err
+}
+
+func (db *MongoDB) GetUnique(collectionName string, filter map[string]interface{}, field string) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -216,18 +247,36 @@ func (db *MongoDB) GetUnique(collectionName string, filter map[string]string, fi
 	return uniqueItems, nil
 }
 
-// GetAll entries from the database.
-func (db *MongoDB) GetAll(collectionName string, filter map[string]string, documents Documents) error {
+func (db *MongoDB) GetAll(collectionName string, filter map[string]interface{}, documents Documents) error {
+	options := options.Find()
+	err := db.find(collectionName, filter, documents, options)
+	return err
+}
+
+func (db *MongoDB) GetWithLimit(
+	collectionName string,
+	filter map[string]interface{},
+	limit int64,
+	documents Documents,
+) error {
+	options := options.Find()
+	options.SetLimit(limit)
+	err := db.find(collectionName, filter, documents, options)
+	return err
+}
+
+func (db *MongoDB) find(collectionName string, filter map[string]interface{}, documents Documents, options *options.FindOptions) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
 	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"documents":  documents,
+		"options":    options,
 	}).Debug("Getting all documents from database.")
 	collection := db.Collection(collectionName)
 
-	cursor, err := collection.Find(ctx, filter)
+	cursor, err := collection.Find(ctx, filter, options)
 	if err != nil {
 		db.Logger.Errorf("failed to get objects: %v", err)
 		return err
@@ -241,8 +290,7 @@ func (db *MongoDB) GetAll(collectionName string, filter map[string]string, docum
 	return err
 }
 
-// Delete removes a document from the database.
-func (db *MongoDB) Delete(collectionName string, filter map[string]string) (bool, error) {
+func (db *MongoDB) Delete(collectionName string, filter map[string]interface{}) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -267,9 +315,7 @@ func (db *MongoDB) Delete(collectionName string, filter map[string]string) (bool
 	return deleted, nil
 }
 
-// DeleteAll removes all documents from the database that match the filter.
-// If nothing matches the filter then nothing is deleted.
-func (db *MongoDB) DeleteAll(collectionName string, filter map[string]string) (bool, error) {
+func (db *MongoDB) DeleteAll(collectionName string, filter map[string]interface{}) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
 
@@ -294,7 +340,6 @@ func (db *MongoDB) DeleteAll(collectionName string, filter map[string]string) (b
 	return deleted, nil
 }
 
-// RemoveCollection removes a collection from the database.
 func (db *MongoDB) RemoveCollection(collectionName string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
 	defer cancel()
@@ -310,10 +355,9 @@ func (db *MongoDB) RemoveCollection(collectionName string) error {
 	return nil
 }
 
-// Update updates an existing "top-level" object in the database i.e. a user or a game.
 func (db *MongoDB) Update(
 	collectionName string,
-	filter map[string]string,
+	filter map[string]interface{},
 	document Document,
 ) (bool, error) {
 	db.Logger.WithFields(log.Fields{
@@ -326,11 +370,9 @@ func (db *MongoDB) Update(
 	return updated, err
 }
 
-// UpdateObject updates an existing "sub" object in the database i.e. a question inside a game.
-// It is used to add fields to an object.
 func (db *MongoDB) UpdateObject(
 	collectionName string,
-	filter map[string]string,
+	filter map[string]interface{},
 	subDocument UpdateSubDocument,
 ) (bool, error) {
 	db.Logger.WithFields(log.Fields{
@@ -343,10 +385,9 @@ func (db *MongoDB) UpdateObject(
 	return updated, err
 }
 
-// RemoveObject updates an existing sub object in the database i.e. a question inside a game.
 func (db *MongoDB) RemoveObject(
 	collectionName string,
-	filter map[string]string,
+	filter map[string]interface{},
 	subDocument UpdateSubDocument,
 ) (bool, error) {
 	db.Logger.WithFields(log.Fields{
@@ -359,10 +400,9 @@ func (db *MongoDB) RemoveObject(
 	return updated, err
 }
 
-// AppendToList appends an new entry to an array in the database.
 func (db *MongoDB) AppendToList(
 	collectionName string,
-	filter map[string]string,
+	filter map[string]interface{},
 	subDocument NewSubDocument,
 ) (bool, error) {
 	db.Logger.WithFields(log.Fields{
@@ -375,10 +415,9 @@ func (db *MongoDB) AppendToList(
 	return updated, err
 }
 
-// RemoveFromList appends an new entry to an array in the database.
 func (db *MongoDB) RemoveFromList(
 	collectionName string,
-	filter map[string]string,
+	filter map[string]interface{},
 	subDocument SubDocument,
 ) (bool, error) {
 	db.Logger.WithFields(log.Fields{
@@ -393,7 +432,7 @@ func (db *MongoDB) RemoveFromList(
 
 func (db *MongoDB) modifyEntry(
 	collectionName string,
-	filter map[string]string,
+	filter map[string]interface{},
 	modify interface{},
 	operation string,
 ) (bool, error) {

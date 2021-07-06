@@ -18,12 +18,12 @@ type ListGameParams struct {
 }
 
 type ListUserParams struct {
-	AdminStatus string `query:"admin_status" url:"admin_status" enum:"admin,non_admin,all"        default:"all"`
-	Privacy     string `query:"privacy"      url:"privacy"      enum:"private,friends,public,all" default:"all"`
-	Membership  string `query:"membership"   url:"membership"   enum:"free,paid,all"              default:"all"`
+	AdminStatus string `query:"admin_status" enum:"admin,non_admin,all"        default:"all"`
+	Privacy     string `query:"privacy"      enum:"private,friends,public,all" default:"all"`
+	Membership  string `query:"membership"   enum:"free,paid,all"              default:"all"`
 }
 
 type GroupInput struct {
 	internal.GameParams
-	Round string `url:"round" validate:"required" query:"round"`
+	internal.RoundParams
 }

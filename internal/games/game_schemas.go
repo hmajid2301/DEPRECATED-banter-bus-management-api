@@ -19,12 +19,12 @@ func (game *Game) Add(db database.Database) (bool, error) {
 	return inserted, err
 }
 
-func (game *Game) Get(db database.Database, filter map[string]string) error {
+func (game *Game) Get(db database.Database, filter map[string]interface{}) error {
 	err := db.Get("game", filter, game)
 	return err
 }
 
-func (game *Game) Update(db database.Database, filter map[string]string) (bool, error) {
+func (game *Game) Update(db database.Database, filter map[string]interface{}) (bool, error) {
 	updated, err := db.Update("game", filter, game)
 	return updated, err
 }
@@ -36,12 +36,16 @@ func (games *Games) Add(db database.Database) error {
 	return err
 }
 
-func (games *Games) Get(db database.Database, filter map[string]string) error {
+func (games *Games) Get(db database.Database, filter map[string]interface{}) error {
 	err := db.GetAll("game", filter, games)
 	return err
 }
 
-func (games Games) Delete(db database.Database, filter map[string]string) (bool, error) {
+func (games *Games) GetWithLimit(db database.Database, filter map[string]interface{}, limit int64) error {
+	return nil
+}
+
+func (games Games) Delete(db database.Database, filter map[string]interface{}) (bool, error) {
 	deleted, err := db.DeleteAll("game", filter)
 	return deleted, err
 }

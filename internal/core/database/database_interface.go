@@ -1,54 +1,51 @@
 package database
 
-// Documents are a list of document(s) in the database
 type Documents interface {
 	Add(db Database) error
-	Get(db Database, filter map[string]string) error
+	Get(db Database, filter map[string]interface{}) error
+	GetWithLimit(db Database, filter map[string]interface{}, limit int64) error
 	ToInterface() []interface{}
-	Delete(db Database, filter map[string]string) (bool, error)
+	Delete(db Database, filter map[string]interface{}) (bool, error)
 }
 
-// Document is a single "item" in the database i.e. a single user.
 type Document interface {
 	Add(db Database) (bool, error)
-	Get(db Database, filter map[string]string) error
-	Update(db Database, filter map[string]string) (bool, error)
+	Get(db Database, filter map[string]interface{}) error
+	Update(db Database, filter map[string]interface{}) (bool, error)
 }
 
-// NewSubDocument are part of document(s), being added in.
 type NewSubDocument interface {
-	AddToList(db Database, filter map[string]string) (bool, error)
+	AddToList(db Database, filter map[string]interface{}) (bool, error)
 }
 
-// UpdateSubDocument are part of document(s), being added in.
 type UpdateSubDocument interface {
-	Add(db Database, filter map[string]string) (bool, error)
-	Remove(db Database, filter map[string]string) (bool, error)
+	Add(db Database, filter map[string]interface{}) (bool, error)
+	Remove(db Database, filter map[string]interface{}) (bool, error)
 }
 
-// SubDocument are part of document(s), usually as sub-objects.
 type SubDocument interface {
-	RemoveFromList(db Database, filter map[string]string) (bool, error)
+	RemoveFromList(db Database, filter map[string]interface{}) (bool, error)
 }
 
-// Database defines the contract when interacting with a repository (i.e. MongoDB).
 type Database interface {
 	Ping() bool
 	Insert(collectionName string, document Document) (bool, error)
 	InsertMultiple(collectionName string, documents Documents) error
-	Get(collectionName string, filter map[string]string, document Document) error
-	GetAll(collectionName string, filter map[string]string, documents Documents) error
+	Get(collectionName string, filter map[string]interface{}, document Document) error
+	GetAll(collectionName string, filter map[string]interface{}, documents Documents) error
+	GetWithLimit(collectionName string, filter map[string]interface{}, limit int64, documents Documents) error
+	GetRandom(collectionName string, filter map[string]interface{}, limit int64, documents Documents) error
 	GetUnique(
 		collectionName string,
-		filter map[string]string,
+		filter map[string]interface{},
 		fieldName string,
 	) ([]string, error)
-	Delete(collectionName string, filter map[string]string) (bool, error)
-	DeleteAll(collectionName string, filter map[string]string) (bool, error)
+	Delete(collectionName string, filter map[string]interface{}) (bool, error)
+	DeleteAll(collectionName string, filter map[string]interface{}) (bool, error)
 	RemoveCollection(collectionName string) error
-	Update(collectionName string, filter map[string]string, document Document) (bool, error)
-	UpdateObject(collectionName string, filter map[string]string, subDocument UpdateSubDocument) (bool, error)
-	RemoveObject(collectionName string, filter map[string]string, subDocument UpdateSubDocument) (bool, error)
-	AppendToList(collectionName string, filter map[string]string, subDocument NewSubDocument) (bool, error)
-	RemoveFromList(collectionName string, filter map[string]string, subDocument SubDocument) (bool, error)
+	Update(collectionName string, filter map[string]interface{}, document Document) (bool, error)
+	UpdateObject(collectionName string, filter map[string]interface{}, subDocument UpdateSubDocument) (bool, error)
+	RemoveObject(collectionName string, filter map[string]interface{}, subDocument UpdateSubDocument) (bool, error)
+	AppendToList(collectionName string, filter map[string]interface{}, subDocument NewSubDocument) (bool, error)
+	RemoveFromList(collectionName string, filter map[string]interface{}, subDocument SubDocument) (bool, error)
 }

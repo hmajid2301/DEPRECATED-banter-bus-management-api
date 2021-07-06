@@ -34,7 +34,7 @@ func (g *GameService) Add(rulesURL string) error {
 
 func (g *GameService) Get() (*Game, error) {
 	var (
-		filter = map[string]string{"name": g.Name}
+		filter = map[string]interface{}{"name": g.Name}
 		game   = &Game{}
 	)
 
@@ -46,23 +46,18 @@ func (g *GameService) Get() (*Game, error) {
 	return game, nil
 }
 
-func (g *GameService) GetAll(enabled *bool) ([]string, error) {
+func (g *GameService) GetAll(enabled *bool) (Games, error) {
 	games := Games{}
+	filter := map[string]interface{}{}
+	if enabled != nil {
+		filter["enabled"] = *enabled
+	}
 
-	emptyFilter := map[string]string{}
-	err := games.Get(g.DB, emptyFilter)
+	err := games.Get(g.DB, filter)
 	if err != nil {
-		return []string{}, err
+		return Games{}, err
 	}
-
-	var gameNames []string
-	for _, g := range games {
-		if enabled != nil && *enabled != *g.Enabled {
-			continue
-		}
-		gameNames = append(gameNames, g.Name)
-	}
-	return gameNames, nil
+	return games, nil
 }
 
 func (g *GameService) Remove() error {
@@ -72,13 +67,13 @@ func (g *GameService) Remove() error {
 	}
 
 	questions := questions.Questions{}
-	filter := map[string]string{"game_name": g.Name}
+	filter := map[string]interface{}{"game_name": g.Name}
 	_, err := questions.Delete(g.DB, filter)
 	if err != nil {
 		return err
 	}
 
-	filter = map[string]string{"name": g.Name}
+	filter = map[string]interface{}{"name": g.Name}
 	deleted, err := g.DB.Delete("game", filter)
 	if !deleted || err != nil {
 		return errors.Errorf("failed to remove game %s", g.Name)
@@ -95,7 +90,7 @@ func (g *GameService) UpdateEnable(enabled bool) (bool, error) {
 	}
 
 	updateGame := &Game{Name: g.Name, RulesURL: game.RulesURL, Enabled: &enabled}
-	filter := map[string]string{"name": g.Name}
+	filter := map[string]interface{}{"name": g.Name}
 	updated, err := updateGame.Update(g.DB, filter)
 	if err != nil {
 		return false, errors.Errorf("Failed to update g %s", err)

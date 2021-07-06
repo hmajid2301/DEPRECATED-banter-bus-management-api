@@ -8,7 +8,7 @@ type Question struct {
 	Round    string            `bson:"round,omitempty"`
 	Enabled  *bool             `bson:"enabled"`
 	Content  map[string]string `bson:"content"`
-	Group    QuestionGroup     `bson:"group,omitempty"`
+	Group    *QuestionGroup    `bson:"group,omitempty"`
 }
 
 func (question *Question) Add(db database.Database) (bool, error) {
@@ -16,12 +16,12 @@ func (question *Question) Add(db database.Database) (bool, error) {
 	return inserted, err
 }
 
-func (question *Question) Get(db database.Database, filter map[string]string) error {
+func (question *Question) Get(db database.Database, filter map[string]interface{}) error {
 	err := db.Get("question", filter, question)
 	return err
 }
 
-func (question *Question) Update(db database.Database, filter map[string]string) (bool, error) {
+func (question *Question) Update(db database.Database, filter map[string]interface{}) (bool, error) {
 	updated, err := db.Update("question", filter, question)
 	return updated, err
 }
@@ -38,12 +38,22 @@ func (questions *Questions) Add(db database.Database) error {
 	return err
 }
 
-func (questions *Questions) Get(db database.Database, filter map[string]string) error {
+func (questions *Questions) Get(db database.Database, filter map[string]interface{}) error {
 	err := db.GetAll("question", filter, questions)
 	return err
 }
 
-func (questions Questions) Delete(db database.Database, filter map[string]string) (bool, error) {
+func (questions *Questions) GetWithLimit(db database.Database, filter map[string]interface{}, limit int64) error {
+	err := db.GetWithLimit("question", filter, limit, questions)
+	return err
+}
+
+func (questions *Questions) GetRandom(db database.Database, filter map[string]interface{}, limit int64) error {
+	err := db.GetRandom("question", filter, limit, questions)
+	return err
+}
+
+func (questions Questions) Delete(db database.Database, filter map[string]interface{}) (bool, error) {
 	deleted, err := db.DeleteAll("question", filter)
 	return deleted, err
 }
@@ -70,12 +80,21 @@ type GenericQuestionGroup struct {
 
 type UpdateQuestion map[string]interface{}
 
-func (question *UpdateQuestion) Add(db database.Database, filter map[string]string) (bool, error) {
+func (question *UpdateQuestion) Add(db database.Database, filter map[string]interface{}) (bool, error) {
 	inserted, err := db.UpdateObject("question", filter, question)
 	return inserted, err
 }
 
-func (question *UpdateQuestion) Remove(db database.Database, filter map[string]string) (bool, error) {
+func (question *UpdateQuestion) Remove(db database.Database, filter map[string]interface{}) (bool, error) {
 	inserted, err := db.RemoveObject("question", filter, question)
 	return inserted, err
+}
+
+type SearchParams struct {
+	Round     string
+	GroupName string
+	Language  string
+	Enabled   *bool
+	Random    bool
+	Limit     int64
 }

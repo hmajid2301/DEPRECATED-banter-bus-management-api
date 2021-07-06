@@ -6,9 +6,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// GameParams is the name of an existing game.
 type GameParams struct {
-	Name string `description:"The name of the game." example:"quibly" path:"name"`
+	Name string `description:"The name of the game." example:"quibly" path:"name" validate:"required"`
+}
+
+type RoundParams struct {
+	Round string `description:"Name of the round for a game." validate:"required" example:"free_form" query:"round"`
 }
 
 // unmarshalBSONToStruct is a custom unmarshal function, that will unmarshal BSON to structs.
@@ -52,4 +55,21 @@ func UnmarshalJSONToStruct(data []byte, structType interface{}, subField interfa
 	}
 
 	return nil
+}
+
+func GetEnabledBool(enabledStr string) *bool {
+	var (
+		t = true
+		f = false
+	)
+
+	var n *bool
+	filters := map[string]*bool{
+		"enabled":  &t,
+		"disabled": &f,
+		"all":      n,
+	}
+
+	enabled := filters[enabledStr]
+	return enabled
 }
