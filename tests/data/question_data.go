@@ -1193,7 +1193,6 @@ var GetQuestionById = []struct {
 var GetAllQuestionsIds = []struct {
 	TestDescription string
 	Game            string
-	LanguageCode    string
 	Limit           int64
 	Cursor          string
 	ExpectedPayload questions.AllQuestionOut
@@ -1202,7 +1201,6 @@ var GetAllQuestionsIds = []struct {
 	{
 		"Get all questions from fibbing it",
 		"fibbing_it",
-		"en",
 		5,
 		"",
 		questions.AllQuestionOut{
@@ -1220,7 +1218,6 @@ var GetAllQuestionsIds = []struct {
 	{
 		"Get all questions from fibbing it using pagination",
 		"fibbing_it",
-		"en",
 		5,
 		"138bc208-2849-41f3-bbd8-3226a96c5370",
 		questions.AllQuestionOut{
@@ -1238,7 +1235,6 @@ var GetAllQuestionsIds = []struct {
 	{
 		"Get all questions from drawlossuem it using pagination",
 		"drawlosseum",
-		"en",
 		5,
 		"",
 		questions.AllQuestionOut{
@@ -1253,7 +1249,6 @@ var GetAllQuestionsIds = []struct {
 	{
 		"Get all questions from quibly",
 		"quibly",
-		"en",
 		2,
 		"",
 		questions.AllQuestionOut{
@@ -1268,7 +1263,6 @@ var GetAllQuestionsIds = []struct {
 	{
 		"Get all questions from quibly it using pagination",
 		"quibly",
-		"en",
 		3,
 		"a9c00e19-d41e-4b15-a8bd-ec921af9123d",
 		questions.AllQuestionOut{
@@ -1282,7 +1276,6 @@ var GetAllQuestionsIds = []struct {
 	{
 		"Get with invalid limit",
 		"quibly",
-		"en",
 		-1,
 		"",
 		questions.AllQuestionOut{

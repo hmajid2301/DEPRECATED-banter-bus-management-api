@@ -71,7 +71,6 @@ type QuestionInput struct {
 type GetQuestionIDsInput struct {
 	internal.GameParams
 	LimitParams
-	LanguageParams
 	Cursor string `description:"The ID to start at for retrieving ID" example:"60e777f2d24d7d711e971aee" query:"cursor"`
 }
 

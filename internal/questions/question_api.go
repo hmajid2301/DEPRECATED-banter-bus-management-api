@@ -201,33 +201,22 @@ func newGenericQuestionOut(question Question, languageCode string) (QuestionGene
 
 func (env *QuestionAPI) GetQuestionsIDs(_ *gin.Context, questionInput *GetQuestionIDsInput) (AllQuestionOut, error) {
 	var (
-		gameName     = questionInput.Name
-		languageCode = questionInput.Language
-		limit        = questionInput.Limit
-		cursor       = questionInput.Cursor
+		gameName = questionInput.Name
+		limit    = questionInput.Limit
+		cursor   = questionInput.Cursor
 	)
 	questionLogger := env.Logger.WithFields(log.Fields{
-		"game_name":     gameName,
-		"language_code": languageCode,
-		"limit":         limit,
-		"cursor":        cursor,
+		"game_name": gameName,
+		"limit":     limit,
+		"cursor":    cursor,
 	})
 	questionLogger.Debug("Trying to get questions IDs.")
-
-	_, err := language.Parse(languageCode)
-	if err != nil {
-		questionLogger.WithFields(log.Fields{
-			"err":           err,
-			"language_code": languageCode,
-		}).Warn("Bad language code.")
-		return AllQuestionOut{}, errors.BadRequestf("invalid language %s", languageCode)
-	}
-
 	q := QuestionService{
 		DB:       env.DB,
 		GameName: gameName,
 	}
-	questions, err := q.GetAll(limit, cursor, languageCode)
+
+	questions, err := q.GetAll(limit, cursor)
 	if err != nil {
 		questionLogger.WithFields(log.Fields{
 			"err": err,

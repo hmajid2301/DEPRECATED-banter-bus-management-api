@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect"
+
 	"gitlab.com/banter-bus/banter-bus-management-api/tests/data"
 )
 
@@ -46,10 +48,7 @@ func (s *Tests) SubTestGetQuestionsIds(t *testing.T) {
 	for _, tc := range data.GetAllQuestionsIds {
 		testName := fmt.Sprintf("Get All Question IDs: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question/id/%s", tc.Game, tc.LanguageCode)
-			response := s.httpExpect.GET(endpoint).WithQuery("limit", tc.Limit).WithQuery("cursor", tc.Cursor).
-				Expect().
-				Status(tc.ExpectedStatus)
+			response := s.getQuestionsByID(tc.Game, tc.Limit, tc.Cursor, tc.ExpectedStatus)
 
 			if tc.ExpectedStatus == http.StatusOK {
 				response.JSON().Equal(tc.ExpectedPayload)
@@ -155,4 +154,13 @@ func (s *Tests) SubTestGetAllGroups(t *testing.T) {
 			}
 		})
 	}
+}
+
+func (s *Tests) getQuestionsByID(game string, limit int64, cursor string, expectedStatus int) *httpexpect.Response {
+	endpoint := fmt.Sprintf("/game/%s/question/id", game)
+	response := s.httpExpect.GET(endpoint).WithQuery("limit", limit).WithQuery("cursor", cursor).
+		Expect().
+		Status(expectedStatus)
+
+	return response
 }

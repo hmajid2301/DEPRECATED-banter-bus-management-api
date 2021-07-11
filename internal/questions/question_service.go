@@ -70,10 +70,9 @@ func (q *QuestionService) Get() (Question, error) {
 
 //TODO: add endpoint to get all unique languages
 
-func (q *QuestionService) GetAll(limit int64, cursor string, language string) (QuestionIDs, error) {
+func (q *QuestionService) GetAll(limit int64, cursor string) (QuestionIDs, error) {
 	filter := map[string]interface{}{
-		"game_name":                         q.GameName,
-		fmt.Sprintf("content.%s", language): map[string]interface{}{"$exists": true},
+		"game_name": q.GameName,
 	}
 
 	if cursor != "" {
