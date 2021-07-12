@@ -73,6 +73,17 @@ func getRoutes(env *questions.QuestionAPI, grp *fizz.RouterGroup) {
 		),
 	}, tonic.Handler(env.GetQuestionsIDs, http.StatusOK))
 
+	grp.GET("/language", []fizz.OperationOption{
+		fizz.Summary("Get all languages used for all questions."),
+		fizz.Response(
+			fmt.Sprint(http.StatusNotFound),
+			"Game doesn't exist.",
+			APIError{},
+			nil,
+			nil,
+		),
+	}, tonic.Handler(env.GetAllLanguages, http.StatusOK))
+
 	grp.GET("/:question_id/:language", []fizz.OperationOption{
 		fizz.Summary("Get a single question."),
 		fizz.Response(fmt.Sprint(http.StatusBadRequest), "Bad Request", APIError{}, nil, nil),

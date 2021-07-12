@@ -193,16 +193,17 @@ func (db *MongoDB) GetRandom(
 	return err
 }
 
-func (db *MongoDB) GetUnique(collectionName string, filter map[string]interface{}, field string) ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
-	defer cancel()
-
+func (db *MongoDB) GetUniqueValues(
+	collectionName string,
+	filter map[string]interface{},
+	field string,
+) ([]string, error) {
 	db.Logger.WithFields(log.Fields{
 		"collection": collectionName,
 		"filter":     filter,
 		"field_name": field,
 	}).Debug("Getting unique fields from database.")
-	collection := db.Collection(collectionName)
+
 	selector := fmt.Sprintf("$%s", field)
 	pipeline := mongo.Pipeline{
 		{
@@ -217,9 +218,6 @@ func (db *MongoDB) GetUnique(collectionName string, filter map[string]interface{
 					"item": 1,
 					field: bson.M{
 						"$ifNull": []string{selector, ""},
-					},
-					"pool_name": bson.M{
-						"$eq": []string{"$pool_name", ""},
 					},
 				},
 			},
@@ -240,6 +238,76 @@ func (db *MongoDB) GetUnique(collectionName string, filter map[string]interface{
 		},
 	}
 
+	unique, err := db.aggregate(collectionName, pipeline)
+	return unique, err
+}
+
+func (db *MongoDB) GetUniqueKeys(
+	collectionName string,
+	filter map[string]interface{},
+	fieldName string,
+) ([]string, error) {
+	db.Logger.WithFields(log.Fields{
+		"collection": collectionName,
+		"field_name": fieldName,
+	}).Debug("Getting unique key from database.")
+
+	selector := fmt.Sprintf("$%s", fieldName)
+	pipeline := mongo.Pipeline{
+		{
+			{
+				Key: "$match", Value: filter,
+			},
+		},
+		{
+			{
+				Key: "$project", Value: bson.M{
+					"_id": 0,
+				},
+			},
+		},
+		{
+			{
+				Key: "$project",
+				Value: bson.M{
+					"item": 1,
+					"o": bson.M{
+						"$objectToArray": selector,
+					},
+				},
+			},
+		},
+		{
+			{
+				Key:   "$unwind",
+				Value: "$o",
+			},
+		},
+		{
+			{
+				Key: "$group",
+				Value: bson.M{
+					"_id":  "_id",
+					"temp": bson.M{"$addToSet": "$o.k"},
+				},
+			},
+		},
+		{
+			{
+				Key: "$unset", Value: []string{"_id"},
+			},
+		},
+	}
+
+	unique, err := db.aggregate(collectionName, pipeline)
+	return unique, err
+}
+
+func (db *MongoDB) aggregate(collectionName string, pipeline mongo.Pipeline) ([]string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(db.Timeout)*time.Second)
+	defer cancel()
+
+	collection := db.Collection(collectionName)
 	aggregate, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
 		return nil, err
@@ -248,7 +316,9 @@ func (db *MongoDB) GetUnique(collectionName string, filter map[string]interface{
 	model := []map[string][]string{}
 	err = aggregate.All(ctx, &model)
 	if err != nil {
-		return nil, err
+		return []string{}, err
+	} else if len(model) < 1 {
+		return []string{}, nil
 	}
 
 	uniqueItems := model[0]["temp"]

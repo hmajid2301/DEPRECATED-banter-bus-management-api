@@ -194,7 +194,7 @@ func (q *QuestionService) UpdateEnable(enabled bool) (bool, error) {
 
 	filter := q.filter()
 	question := &Question{}
-	// TODO: make FindOneAndUpdate
+
 	err = question.Get(q.DB, filter)
 	if err != nil {
 		return false, err
@@ -222,13 +222,26 @@ func (q *QuestionService) GetGroups(round string) ([]string, error) {
 		"game_name": q.GameName,
 		"round":     round,
 	}
-	uniqueGroups, err := q.DB.GetUnique("question", filter, "group.name")
+	uniqueGroups, err := q.DB.GetUniqueValues("question", filter, "group.name")
 	if err != nil {
 		return nil, err
 	}
 
 	sort.Strings(uniqueGroups)
 	return uniqueGroups, nil
+}
+
+func (q *QuestionService) GetLanguages() ([]string, error) {
+	filter := map[string]interface{}{
+		"game_name": q.GameName,
+	}
+	uniqueLanguages, err := q.DB.GetUniqueKeys("question", filter, "content")
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Strings(uniqueLanguages)
+	return uniqueLanguages, nil
 }
 
 func (q *QuestionService) validateNotFound() error {

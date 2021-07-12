@@ -804,6 +804,56 @@ var GetAllGroups = []struct {
 	},
 }
 
+var GetAllLanguages = []struct {
+	TestDescription   string
+	Payload           internal.GameParams
+	ExpectedLanguages []string
+	ExpectedCode      int
+}{
+	{
+		"Get all languages from questions from fibbing_it game",
+		internal.GameParams{
+			Name: "fibbing_it",
+		},
+		[]string{
+			"en",
+			"it",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get all languages from questions from quibly game",
+		internal.GameParams{
+			Name: "quibly",
+		},
+		[]string{
+			"de",
+			"en",
+			"fr",
+			"ur",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get all languages from questions from drawlosseum game",
+		internal.GameParams{
+			Name: "drawlosseum",
+		},
+		[]string{
+			"en",
+		},
+		http.StatusOK,
+	},
+	{
+		"Get all languages from game that doesn't exist",
+		internal.GameParams{
+			Name: "drawlosseum_v3",
+		},
+		[]string{},
+		http.StatusOK,
+	},
+}
+
 var GetQuestions = []struct {
 	TestDescription   string
 	Game              string

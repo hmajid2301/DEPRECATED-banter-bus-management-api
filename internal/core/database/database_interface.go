@@ -35,11 +35,12 @@ type Database interface {
 	GetAll(collectionName string, filter map[string]interface{}, documents Documents) error
 	GetWithLimit(collectionName string, filter map[string]interface{}, limit int64, documents Documents) error
 	GetRandom(collectionName string, filter map[string]interface{}, limit int64, documents Documents) error
-	GetUnique(
+	GetUniqueValues(
 		collectionName string,
 		filter map[string]interface{},
 		fieldName string,
 	) ([]string, error)
+	GetUniqueKeys(collectionName string, filter map[string]interface{}, fieldName string) ([]string, error)
 	Delete(collectionName string, filter map[string]interface{}) (bool, error)
 	DeleteAll(collectionName string, filter map[string]interface{}) (bool, error)
 	RemoveCollection(collectionName string) error

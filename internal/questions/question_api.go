@@ -297,6 +297,52 @@ func newQuestionOut(questions Questions, languageCode string) []QuestionOut {
 	return questionsOut
 }
 
+func (env *QuestionAPI) GetAllGroups(_ *gin.Context, groupInput *GroupInput) ([]string, error) {
+	gameName := groupInput.Name
+	round := groupInput.Round
+	questionLogger := env.Logger.WithFields(log.Fields{
+		"game_name": gameName,
+		"round":     round,
+	})
+
+	questionLogger.Debug("Trying to get all groups")
+	q := QuestionService{
+		DB:       env.DB,
+		GameName: gameName,
+	}
+
+	groups, err := q.GetGroups(round)
+	if err != nil {
+		questionLogger.WithFields(log.Fields{
+			"err": err,
+		}).Error("Failed to get groups.")
+		return []string{}, err
+	}
+	return groups, nil
+}
+
+func (env *QuestionAPI) GetAllLanguages(_ *gin.Context, gameNameParam *internal.GameParams) ([]string, error) {
+	gameName := gameNameParam.Name
+	questionLogger := env.Logger.WithFields(log.Fields{
+		"game_name": gameNameParam,
+	})
+
+	questionLogger.Debug("Trying to get all languages")
+	q := QuestionService{
+		DB:       env.DB,
+		GameName: gameName,
+	}
+
+	groups, err := q.GetLanguages()
+	if err != nil {
+		questionLogger.WithFields(log.Fields{
+			"err": err,
+		}).Error("Failed to get groups.")
+		return []string{}, err
+	}
+	return groups, nil
+}
+
 func (env *QuestionAPI) AddTranslation(_ *gin.Context, questionInput *AddTranslationInput) error {
 	var (
 		questionID = questionInput.ID
@@ -371,30 +417,6 @@ func (env *QuestionAPI) EnableQuestion(_ *gin.Context, questionInput *QuestionIn
 
 func (env *QuestionAPI) DisableQuestion(_ *gin.Context, questionInput *QuestionInput) (struct{}, error) {
 	return env.updateEnable(questionInput, false)
-}
-
-func (env *QuestionAPI) GetAllGroups(_ *gin.Context, groupInput *GroupInput) ([]string, error) {
-	gameName := groupInput.Name
-	round := groupInput.Round
-	questionLogger := env.Logger.WithFields(log.Fields{
-		"game_name": gameName,
-		"round":     round,
-	})
-
-	questionLogger.Debug("Trying to get all groups")
-	q := QuestionService{
-		DB:       env.DB,
-		GameName: gameName,
-	}
-
-	groups, err := q.GetGroups(round)
-	if err != nil {
-		questionLogger.WithFields(log.Fields{
-			"err": err,
-		}).Error("Failed to get groups.")
-		return []string{}, err
-	}
-	return groups, nil
 }
 
 func (env *QuestionAPI) updateEnable(
