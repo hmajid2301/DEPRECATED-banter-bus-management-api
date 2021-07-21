@@ -59,13 +59,13 @@ func mainLogic() int {
 
 	go terminateHandler(logger, &srv, config.DB.Timeout)
 
-	logger.Info("The webservice is ready to serve requests.")
+	logger.Info("The Banter Bus Management API is ready.")
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Errorf("An Unexpected error while serving HTTP %v.", err)
 		return 1
 	}
 
-	logger.Info("The Banter Bus API has been gracefully terminated.")
+	logger.Info("The Banter Bus Management API has been gracefully terminated.")
 	return 0
 }
 

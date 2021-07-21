@@ -47,7 +47,7 @@ func Setup(env *Env) (*fizz.Fizz, error) {
 		Version:     "1.0.0",
 	}
 
-	fizzApp.GET("/openapi.json", nil, fizzApp.OpenAPI(infos, "json"))
+	fizzApp.GET("/openapi", nil, fizzApp.OpenAPI(infos, "yaml"))
 	routes.GameRoutes(&games.GameAPI{
 		Conf:   env.Conf,
 		Logger: env.Logger,
