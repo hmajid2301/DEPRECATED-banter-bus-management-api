@@ -7,7 +7,7 @@ import (
 )
 
 type GameParams struct {
-	Name string `description:"The name of the game." example:"quibly" path:"name" validate:"required"`
+	GameName string `description:"The name of the game." example:"quibly" path:"game_name" validate:"required"`
 }
 
 type RoundParams struct {

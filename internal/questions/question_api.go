@@ -20,7 +20,7 @@ type QuestionAPI struct {
 func (env *QuestionAPI) AddQuestion(_ *gin.Context, questionInput *AddQuestionInput) (string, error) {
 	var (
 		question = questionInput.QuestionIn
-		gameName = questionInput.Name
+		gameName = questionInput.GameName
 	)
 	questionLogger := env.Logger.WithFields(log.Fields{
 		"question":  question.Content,
@@ -105,7 +105,7 @@ func (env *QuestionAPI) newGenericQuestion(question QuestionIn) GenericQuestion 
 func (env *QuestionAPI) RemoveQuestion(_ *gin.Context, questionInput *QuestionInput) error {
 	var (
 		questionID = questionInput.QuestionIDParams.ID
-		gameName   = questionInput.GameParams.Name
+		gameName   = questionInput.GameParams.GameName
 	)
 	questionLogger := env.Logger.WithFields(log.Fields{
 		"question_id": questionID,
@@ -132,7 +132,7 @@ func (env *QuestionAPI) RemoveQuestion(_ *gin.Context, questionInput *QuestionIn
 func (env *QuestionAPI) GetQuestion(_ *gin.Context, questionInput *GetQuestionInput) (QuestionGenericOut, error) {
 	var (
 		questionID   = questionInput.ID
-		gameName     = questionInput.Name
+		gameName     = questionInput.GameName
 		languageCode = questionInput.Language
 	)
 	questionLogger := env.Logger.WithFields(log.Fields{
@@ -201,7 +201,7 @@ func newGenericQuestionOut(question Question, languageCode string) (QuestionGene
 
 func (env *QuestionAPI) GetQuestionsIDs(_ *gin.Context, questionInput *GetQuestionIDsInput) (AllQuestionOut, error) {
 	var (
-		gameName = questionInput.Name
+		gameName = questionInput.GameName
 		limit    = questionInput.Limit
 		cursor   = questionInput.Cursor
 	)
@@ -229,7 +229,7 @@ func (env *QuestionAPI) GetQuestionsIDs(_ *gin.Context, questionInput *GetQuesti
 
 func (env *QuestionAPI) GetQuestions(_ *gin.Context, params *ListQuestionParams) ([]QuestionOut, error) {
 	questionLogger := env.Logger.WithFields(log.Fields{
-		"game_name":     params.Name,
+		"game_name":     params.GameName,
 		"round":         params.Round,
 		"language_code": params.Language,
 		"group_name":    params.GroupName,
@@ -251,7 +251,7 @@ func (env *QuestionAPI) GetQuestions(_ *gin.Context, params *ListQuestionParams)
 
 	q := QuestionService{
 		DB:       env.DB,
-		GameName: params.Name,
+		GameName: params.GameName,
 	}
 
 	enabled := internal.GetEnabledBool(params.Enabled)
@@ -298,7 +298,7 @@ func newQuestionOut(questions Questions, languageCode string) []QuestionOut {
 }
 
 func (env *QuestionAPI) GetAllGroups(_ *gin.Context, groupInput *GroupInput) ([]string, error) {
-	gameName := groupInput.Name
+	gameName := groupInput.GameName
 	round := groupInput.Round
 	questionLogger := env.Logger.WithFields(log.Fields{
 		"game_name": gameName,
@@ -322,7 +322,7 @@ func (env *QuestionAPI) GetAllGroups(_ *gin.Context, groupInput *GroupInput) ([]
 }
 
 func (env *QuestionAPI) GetAllLanguages(_ *gin.Context, gameNameParam *internal.GameParams) ([]string, error) {
-	gameName := gameNameParam.Name
+	gameName := gameNameParam.GameName
 	questionLogger := env.Logger.WithFields(log.Fields{
 		"game_name": gameNameParam,
 	})
@@ -347,7 +347,7 @@ func (env *QuestionAPI) AddTranslation(_ *gin.Context, questionInput *AddTransla
 	var (
 		questionID = questionInput.ID
 		question   = questionInput.QuestionTranslationIn
-		gameName   = questionInput.Name
+		gameName   = questionInput.GameName
 		lang       = questionInput.Language
 	)
 
@@ -386,7 +386,7 @@ func (env *QuestionAPI) AddTranslation(_ *gin.Context, questionInput *AddTransla
 func (env *QuestionAPI) RemoveTranslation(_ *gin.Context, questionInput *QuestionInput) error {
 	var (
 		questionID = questionInput.QuestionIDParams.ID
-		gameName   = questionInput.GameParams.Name
+		gameName   = questionInput.GameParams.GameName
 		lang       = questionInput.LanguageParams.Language
 	)
 	questionLogger := env.Logger.WithFields(log.Fields{
@@ -425,7 +425,7 @@ func (env *QuestionAPI) updateEnable(
 ) (struct{}, error) {
 	var (
 		questionID = questionInput.ID
-		gameName   = questionInput.Name
+		gameName   = questionInput.GameName
 	)
 	questionLogger := env.Logger.WithFields(log.Fields{
 		"question_id": questionID,

@@ -68,17 +68,17 @@ func (env *GameAPI) GetGames(_ *gin.Context, params *ListGameParams) ([]string, 
 
 func (env *GameAPI) GetGame(_ *gin.Context, params *internal.GameParams) (*GameOut, error) {
 	gameLogger := env.Logger.WithFields(log.Fields{
-		"game_name": params.Name,
+		"game_name": params.GameName,
 	})
 	gameLogger.Debug("Trying to get a game.")
 
-	g := GameService{DB: env.DB, Name: params.Name}
+	g := GameService{DB: env.DB, Name: params.GameName}
 	game, err := g.Get()
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn("Game does not exist.")
-		return &GameOut{}, errors.NotFoundf("The game %s", params.Name)
+		return &GameOut{}, errors.NotFoundf("The game %s", params.GameName)
 	}
 
 	gameObj := &GameOut{
@@ -91,13 +91,13 @@ func (env *GameAPI) GetGame(_ *gin.Context, params *internal.GameParams) (*GameO
 
 func (env *GameAPI) RemoveGame(_ *gin.Context, params *internal.GameParams) (struct{}, error) {
 	gameLogger := env.Logger.WithFields(log.Fields{
-		"game_name": params.Name,
+		"game_name": params.GameName,
 	})
 	gameLogger.Debug("Removing game.")
 
 	var emptyResponse struct{}
 
-	gameService := GameService{DB: env.DB, Name: params.Name}
+	gameService := GameService{DB: env.DB, Name: params.GameName}
 	err := gameService.Remove()
 	if errors.IsNotFound(err) {
 		gameLogger.WithFields(log.Fields{
@@ -116,11 +116,11 @@ func (env *GameAPI) RemoveGame(_ *gin.Context, params *internal.GameParams) (str
 }
 
 func (env *GameAPI) EnableGame(_ *gin.Context, params *internal.GameParams) (struct{}, error) {
-	return env.updateEnableGameState(params.Name, true)
+	return env.updateEnableGameState(params.GameName, true)
 }
 
 func (env *GameAPI) DisableGame(_ *gin.Context, params *internal.GameParams) (struct{}, error) {
-	return env.updateEnableGameState(params.Name, false)
+	return env.updateEnableGameState(params.GameName, false)
 }
 
 func (env *GameAPI) updateEnableGameState(name string, enable bool) (struct{}, error) {

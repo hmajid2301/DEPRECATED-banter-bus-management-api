@@ -97,12 +97,14 @@ var AddStories = []struct {
 
 var GetStories = []struct {
 	TestDescription string
+	GameName        string
 	StoryID         string
 	ExpectedStatus  int
 	ExpectedResult  story.StoryInOut
 }{
 	{
 		"Get a story",
+		"quibly",
 		"1def4233-f674-4a3f-863d-6e850bfbfdb4",
 		http.StatusOK,
 		story.StoryInOut{
@@ -126,6 +128,7 @@ var GetStories = []struct {
 	},
 	{
 		"Get another story",
+		"drawlosseum",
 		"a4ffd1c8-93c5-4f4c-8ace-71996edcbcb7",
 		http.StatusOK,
 		story.StoryInOut{
@@ -150,6 +153,7 @@ var GetStories = []struct {
 	},
 	{
 		"Story does not exist",
+		"quibly",
 		"50-011c-45d8-98f7-819520c253b6",
 		http.StatusNotFound,
 		story.StoryInOut{},
@@ -158,26 +162,31 @@ var GetStories = []struct {
 
 var DeleteStories = []struct {
 	TestDescription string
+	GameName        string
 	StoryID         string
 	ExpectedStatus  int
 }{
 	{
 		"Delete a story",
+		"quibly",
 		"1def4233-f674-4a3f-863d-6e850bfbfdb4",
 		http.StatusOK,
 	},
 	{
 		"Delete another story",
+		"drawlosseum",
 		"a4ffd1c8-93c5-4f4c-8ace-71996edcbcb7",
 		http.StatusOK,
 	},
 	{
 		"Delete a story that was already deleted",
+		"quibly",
 		"1def4233-f674-4a3f-863d-6e850bfbfdb4",
 		http.StatusNotFound,
 	},
 	{
 		"Delete a Story that does not exist",
+		"quibly",
 		"50-011c-45d8-98f7-819520c253b6",
 		http.StatusNotFound,
 	},

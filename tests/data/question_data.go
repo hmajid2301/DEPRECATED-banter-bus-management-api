@@ -742,7 +742,7 @@ var GetAllGroups = []struct {
 		"Get all groups from questions from the opinion round in the Fibbing It game",
 		&questions.GroupInput{
 			GameParams: internal.GameParams{
-				Name: "fibbing_it",
+				GameName: "fibbing_it",
 			},
 			RoundParams: internal.RoundParams{Round: "opinion"},
 		},
@@ -756,7 +756,7 @@ var GetAllGroups = []struct {
 		"Get all groups from questions from the free form round in the Fibbing It game",
 		&questions.GroupInput{
 			GameParams: internal.GameParams{
-				Name: "fibbing_it",
+				GameName: "fibbing_it",
 			},
 			RoundParams: internal.RoundParams{Round: "free_form"},
 		},
@@ -771,7 +771,7 @@ var GetAllGroups = []struct {
 		"Try to get groups from a round in Fibbing It that does not have groups",
 		&questions.GroupInput{
 			GameParams: internal.GameParams{
-				Name: "fibbing_it",
+				GameName: "fibbing_it",
 			},
 			RoundParams: internal.RoundParams{Round: "likely"},
 		},
@@ -783,7 +783,7 @@ var GetAllGroups = []struct {
 		"Try to get groups from a non-existent round",
 		&questions.GroupInput{
 			GameParams: internal.GameParams{
-				Name: "fibbing_it",
+				GameName: "fibbing_it",
 			},
 			RoundParams: internal.RoundParams{Round: "genocide"},
 		},
@@ -795,7 +795,7 @@ var GetAllGroups = []struct {
 		"Try to get groups from a game that does not have groups",
 		&questions.GroupInput{
 			GameParams: internal.GameParams{
-				Name: "quibly",
+				GameName: "quibly",
 			},
 			RoundParams: internal.RoundParams{Round: "opinion"},
 		},
@@ -813,7 +813,7 @@ var GetAllLanguages = []struct {
 	{
 		"Get all languages from questions from fibbing_it game",
 		internal.GameParams{
-			Name: "fibbing_it",
+			GameName: "fibbing_it",
 		},
 		[]string{
 			"en",
@@ -824,7 +824,7 @@ var GetAllLanguages = []struct {
 	{
 		"Get all languages from questions from quibly game",
 		internal.GameParams{
-			Name: "quibly",
+			GameName: "quibly",
 		},
 		[]string{
 			"de",
@@ -837,7 +837,7 @@ var GetAllLanguages = []struct {
 	{
 		"Get all languages from questions from drawlosseum game",
 		internal.GameParams{
-			Name: "drawlosseum",
+			GameName: "drawlosseum",
 		},
 		[]string{
 			"en",
@@ -847,7 +847,7 @@ var GetAllLanguages = []struct {
 	{
 		"Get all languages from game that doesn't exist",
 		internal.GameParams{
-			Name: "drawlosseum_v3",
+			GameName: "drawlosseum_v3",
 		},
 		[]string{},
 		http.StatusOK,

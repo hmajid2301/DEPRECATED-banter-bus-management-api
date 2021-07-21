@@ -11,7 +11,7 @@ import (
 )
 
 func StoryRoutes(env *story.StoryAPI, grp *fizz.RouterGroup) {
-	grp.POST("/:name", []fizz.OperationOption{
+	grp.POST("", []fizz.OperationOption{
 		fizz.Summary("Add a story."),
 	}, tonic.Handler(env.AddStory, http.StatusCreated))
 

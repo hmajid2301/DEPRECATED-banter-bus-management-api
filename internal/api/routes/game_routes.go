@@ -22,23 +22,23 @@ func GameRoutes(env *games.GameAPI, grp *fizz.RouterGroup) {
 		fizz.Summary("Get all games."),
 	}, tonic.Handler(env.GetGames, http.StatusOK))
 
-	grp.GET("/:name", []fizz.OperationOption{
+	grp.GET("/:game_name", []fizz.OperationOption{
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game doesn't exist", APIError{}, nil, nil),
 		fizz.Summary("Get a game."),
 	}, tonic.Handler(env.GetGame, http.StatusOK))
 
-	grp.DELETE("/:name", []fizz.OperationOption{
+	grp.DELETE("/:game_name", []fizz.OperationOption{
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game doesn't exist", APIError{}, nil, nil),
 		fizz.Summary("Delete a game."),
 		fizz.Deprecated(true),
 	}, tonic.Handler(env.RemoveGame, http.StatusOK))
 
-	grp.PUT("/:name/enable", []fizz.OperationOption{
+	grp.PUT("/:game_name/enable", []fizz.OperationOption{
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game doesn't exist", APIError{}, nil, nil),
 		fizz.Summary("Enables a game."),
 	}, tonic.Handler(env.EnableGame, http.StatusOK))
 
-	grp.PUT("/:name/disable", []fizz.OperationOption{
+	grp.PUT("/:game_name/disable", []fizz.OperationOption{
 		fizz.Response(fmt.Sprint(http.StatusNotFound), "Game doesn't exist", APIError{}, nil, nil),
 		fizz.Summary("Disables a game."),
 	}, tonic.Handler(env.DisableGame, http.StatusOK))

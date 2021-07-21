@@ -145,7 +145,7 @@ func (s *Tests) SubTestGetAllGroups(t *testing.T) {
 	for _, tc := range data.GetAllGroups {
 		testName := fmt.Sprintf("Get All Groups: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question/group", tc.Payload.Name)
+			endpoint := fmt.Sprintf("/game/%s/question/group", tc.Payload.GameName)
 			response := s.httpExpect.GET(endpoint).WithQuery("round", tc.Payload.Round).Expect().Status(tc.ExpectedCode)
 
 			if tc.ExpectedCode == http.StatusOK {
@@ -159,7 +159,7 @@ func (s *Tests) SubTestGetAllLanguages(t *testing.T) {
 	for _, tc := range data.GetAllLanguages {
 		testName := fmt.Sprintf("Get All Languages: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/game/%s/question/language", tc.Payload.Name)
+			endpoint := fmt.Sprintf("/game/%s/question/language", tc.Payload.GameName)
 			response := s.httpExpect.GET(endpoint).Expect().Status(tc.ExpectedCode)
 
 			if tc.ExpectedCode == http.StatusOK {

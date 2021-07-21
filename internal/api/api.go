@@ -58,13 +58,13 @@ func Setup(env *Env) (*fizz.Fizz, error) {
 		Conf:   env.Conf,
 		Logger: env.Logger,
 		DB:     env.DB,
-	}, fizzApp.Group("/game/:name/question", "question", "Related to managing the questions."))
+	}, fizzApp.Group("/game/:game_name/question", "question", "Related to managing the questions."))
 
 	routes.StoryRoutes(&story.StoryAPI{
 		Conf:   env.Conf,
 		Logger: env.Logger,
 		DB:     env.DB,
-	}, fizzApp.Group("/story", "story", "Related to managing the stories."))
+	}, fizzApp.Group("/story/:game_name", "story", "Related to managing the stories."))
 
 	if len(fizzApp.Errors()) != 0 {
 		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())

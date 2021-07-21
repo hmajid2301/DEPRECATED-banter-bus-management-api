@@ -25,7 +25,7 @@ func (s *Tests) SubTestGetStories(t *testing.T) {
 	for _, tc := range data.GetStories {
 		testName := fmt.Sprintf("Get Story: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/story/%s", tc.StoryID)
+			endpoint := fmt.Sprintf("/story/%s/%s", tc.GameName, tc.StoryID)
 			response := s.httpExpect.GET(endpoint).
 				Expect().
 				Status(tc.ExpectedStatus)
@@ -41,7 +41,7 @@ func (s *Tests) SubTestDeleteStories(t *testing.T) {
 	for _, tc := range data.GetStories {
 		testName := fmt.Sprintf("Delete Story: %s", tc.TestDescription)
 		t.Run(testName, func(t *testing.T) {
-			endpoint := fmt.Sprintf("/story/%s", tc.StoryID)
+			endpoint := fmt.Sprintf("/story/%s/%s", tc.GameName, tc.StoryID)
 			s.httpExpect.DELETE(endpoint).
 				Expect().
 				Status(tc.ExpectedStatus)

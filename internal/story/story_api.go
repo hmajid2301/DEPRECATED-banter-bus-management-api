@@ -17,7 +17,7 @@ type StoryAPI struct {
 
 func (env *StoryAPI) AddStory(_ *gin.Context, input *NewStoryInput) (string, error) {
 	story := input.StoryInOut
-	gameName := input.GameParams.Name
+	gameName := input.GameParams.GameName
 
 	storyLogger := env.Logger.WithFields(log.Fields{
 		"game_name": gameName,
@@ -58,19 +58,20 @@ func (env *StoryAPI) newStory(gameName string, story StoryInOut) (Story, error) 
 	return newStory, nil
 }
 
-func (env *StoryAPI) GetStory(_ *gin.Context, story *StoryIDParams) (StoryInOut, error) {
+func (env *StoryAPI) GetStory(_ *gin.Context, params *CurrentStoryInput) (StoryInOut, error) {
 	storyLogger := env.Logger.WithFields(log.Fields{
-		"story_id": story.StoryID,
+		"story_id":  params.StoryID,
+		"game_name": params.GameName,
 	})
 	storyLogger.Debug("Trying to get story.")
 
 	s := StoryService{DB: env.DB}
-	stories, err := s.Get(story.StoryID)
+	stories, err := s.Get(params.StoryID, params.GameName)
 	if err != nil {
 		storyLogger.WithFields(log.Fields{
 			"err": err,
 		}).Warn(("Story does not exist."))
-		return StoryInOut{}, errors.NotFoundf("the story %s", story.StoryID)
+		return StoryInOut{}, errors.NotFoundf("the story %s", params.StoryID)
 	}
 
 	srvStories, err := env.newAPIStory(stories)
@@ -95,14 +96,15 @@ func (env *StoryAPI) newAPIStory(story Story) (StoryInOut, error) {
 	return newStory, nil
 }
 
-func (env *StoryAPI) DeleteStory(_ *gin.Context, params *StoryIDParams) error {
+func (env *StoryAPI) DeleteStory(_ *gin.Context, params *CurrentStoryInput) error {
 	storyLogger := env.Logger.WithFields(log.Fields{
-		"story_id": params.StoryID,
+		"story_id":  params.StoryID,
+		"game_name": params.GameName,
 	})
 	storyLogger.Debug("Trying to remove story.")
 
 	s := StoryService{DB: env.DB}
-	err := s.Delete(params.StoryID)
+	err := s.Delete(params.StoryID, params.GameName)
 	if err != nil {
 		storyLogger.WithFields(log.Fields{
 			"err": err,

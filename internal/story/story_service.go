@@ -26,9 +26,10 @@ func (s *StoryService) Add(story Story) (string, error) {
 	return uuid, nil
 }
 
-func (s *StoryService) Get(storyID string) (Story, error) {
+func (s *StoryService) Get(storyID string, gameName string) (Story, error) {
 	filter := map[string]interface{}{
-		"id": storyID,
+		"id":        storyID,
+		"game_name": gameName,
 	}
 
 	story := Story{}
@@ -40,9 +41,10 @@ func (s *StoryService) Get(storyID string) (Story, error) {
 	return story, nil
 }
 
-func (s *StoryService) Delete(storyID string) error {
+func (s *StoryService) Delete(storyID string, gameName string) error {
 	filter := map[string]interface{}{
-		"id": storyID,
+		"id":        storyID,
+		"game_name": gameName,
 	}
 
 	deleted, err := s.DB.Delete("story", filter)
