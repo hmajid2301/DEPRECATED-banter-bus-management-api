@@ -52,8 +52,7 @@ lint:
   only:
     - merge_request
   script:
-    - go get -u github.com/mgechev/revive
-    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/main/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
+    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
     - make lint
 
 format:check:
