@@ -29,15 +29,15 @@ create:merge-request:
   stage: pre
   before_script: []
   except:
-    - master
+    - main
     - tags
   script:
-    - gitlab_auto_mr -t master -c WIP -d .gitlab/merge_request_templates/merge_request.md -r -s --use-issue-name
+    - gitlab_auto_mr -t main -c WIP -d .gitlab/merge_request_templates/merge_request.md -r -s --use-issue-name
 
 publish-docker:test:
   stage: pre
   only:
-    - master
+    - main
   image: docker
   services:
     - docker:dind
@@ -53,7 +53,7 @@ lint:
     - merge_request
   script:
     - go get -u github.com/mgechev/revive
-    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
+    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/main/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
     - make lint
 
 format:check:
@@ -81,10 +81,10 @@ lint:code-quality:
   stage: test
   only:
     - merge_request
-    - master
+    - main
   before_script:
     - apt update && apt install jq -y
-    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
+    - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/main/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
   script:
     - make code-quality | tee gl-code-quality-report.json | jq -r '.[] | "\(.location.path):\(.location.lines.begin) \(.description)"'
   artifacts:
@@ -105,7 +105,7 @@ coverage:
   image: golang
   only:
     - merge_request
-    - master
+    - main
   extends:
     - .mongo
   script:
@@ -127,11 +127,11 @@ coverage:
 
 trigger:openapi:update:docs:
   only:
-    - master
+    - main
   image: curlimages/curl
   before_script: []
   script:
-    - curl -X POST -F token=$DOCS_TRIGGER_TOKEN  -F "variables[SOURCE_TRIGGER]=banter-bus-management-api" -F ref=master https://gitlab.com/api/v4/projects/22432967/trigger/pipeline
+    - curl -X POST -F token=$DOCS_TRIGGER_TOKEN  -F "variables[SOURCE_TRIGGER]=banter-bus-management-api" -F ref=main https://gitlab.com/api/v4/projects/22432967/trigger/pipeline
 
 create:gitlab:release:
   image: registry.gitlab.com/gitlab-automation-toolkit/gitlab-auto-release
