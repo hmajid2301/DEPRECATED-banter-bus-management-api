@@ -11,7 +11,7 @@ COPY cmd/ ./cmd/
 RUN go mod download && \
     go build -o ./app ./cmd/banter-bus-management-api/main.go
 
-FROM scratch
+FROM alpine:3.14.1
 
 EXPOSE 8080
 
