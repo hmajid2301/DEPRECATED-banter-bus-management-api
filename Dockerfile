@@ -13,7 +13,7 @@ RUN go mod download && \
 
 FROM alpine:3.14.1
 
-EXPOSE 8080 8090
+EXPOSE 8090 8080
 
 WORKDIR /app
 

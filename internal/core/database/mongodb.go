@@ -64,10 +64,12 @@ func NewMongoDB(
 	logger.Info("Connected to database.")
 	db.Client = client
 	db.Database = client.Database(name)
+
 	err = db.createIndex("question", "id", true)
 	if err != nil {
 		return &MongoDB{}, fmt.Errorf("error while creating index for question %w", err)
 	}
+
 	err = db.createIndex("story", "id", true)
 	if err != nil {
 		return &MongoDB{}, fmt.Errorf("error while creating index for story %w", err)

@@ -59,7 +59,7 @@ func mainLogic() int {
 
 	go terminateHandler(logger, &srv, config.DB.Timeout)
 
-	logger.Info("The Banter Bus Management API is ready.")
+	logger.Infof("The Banter Bus Management API is ready listening on  %s:%d", config.Srv.Host, config.Srv.Port)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Errorf("An Unexpected error while serving HTTP %v.", err)
 		return 1

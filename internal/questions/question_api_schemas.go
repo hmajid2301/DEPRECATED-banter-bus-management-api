@@ -64,6 +64,11 @@ type LimitParams struct {
 
 type QuestionInput struct {
 	internal.GameParams
+	QuestionIDParams
+}
+
+type QuestionLanguageInput struct {
+	internal.GameParams
 	LanguageParams
 	QuestionIDParams
 }

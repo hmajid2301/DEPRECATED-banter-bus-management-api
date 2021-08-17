@@ -383,7 +383,7 @@ func (env *QuestionAPI) AddTranslation(_ *gin.Context, questionInput *AddTransla
 	return nil
 }
 
-func (env *QuestionAPI) RemoveTranslation(_ *gin.Context, questionInput *QuestionInput) error {
+func (env *QuestionAPI) RemoveTranslation(_ *gin.Context, questionInput *QuestionLanguageInput) error {
 	var (
 		questionID = questionInput.QuestionIDParams.ID
 		gameName   = questionInput.GameParams.GameName
