@@ -15,29 +15,43 @@ var AddGame = []struct {
 	{
 		"Add a new game",
 		&games.GameIn{
-			Name:     "quibly",
-			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+			Name:        "quibly",
+			RulesURL:    "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+			Description: "a game",
 		},
 		http.StatusCreated,
 		games.GameOut{
-			Name:     "quibly",
-			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
-			Enabled:  true,
+			Name:        "quibly",
+			RulesURL:    "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+			Enabled:     true,
+			Description: "a game",
 		},
 	},
 	{
 		"Try to add another game wrong Nam field",
-		struct{ Nam, RulesURL string }{
-			Nam:      "quibly",
-			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+		struct{ Nam, RulesURL, Description string }{
+			Nam:         "quibly",
+			RulesURL:    "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+			Description: "a game",
 		}, http.StatusBadRequest,
 		games.GameOut{},
 	},
 	{
 		"Try to add another game wrong Rule field",
-		struct{ Name, RulURL string }{
-			Name:   "fibbing_it",
-			RulURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
+		struct{ Name, RulURL, Description string }{
+			Name:        "fibbing_it",
+			RulURL:      "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
+			Description: "a game",
+		},
+		http.StatusBadRequest,
+		games.GameOut{},
+	},
+	{
+		"Try to add another game wrong Description field",
+		struct{ Name, RuleURL, Desc string }{
+			Name:    "fibbing_it",
+			RuleURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quiblyv2",
+			Desc:    "a test",
 		},
 		http.StatusBadRequest,
 		games.GameOut{},
@@ -45,8 +59,9 @@ var AddGame = []struct {
 	{
 		"Try to add a game that already exists.",
 		&games.GameIn{
-			Name:     "quibly",
-			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+			Name:        "quibly",
+			RulesURL:    "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+			Description: "a game",
 		}, http.StatusConflict,
 		games.GameOut{},
 	},
@@ -103,9 +118,10 @@ var GetGame = []struct {
 		"quibly",
 		http.StatusOK,
 		games.GameOut{
-			Name:     "quibly",
-			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
-			Enabled:  true,
+			Name:        "quibly",
+			RulesURL:    "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
+			Enabled:     true,
+			Description: "A game about quibbing.",
 		},
 	},
 	{
@@ -113,9 +129,10 @@ var GetGame = []struct {
 		"fibbing_it",
 		http.StatusOK,
 		games.GameOut{
-			Name:     "fibbing_it",
-			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
-			Enabled:  true,
+			Name:        "fibbing_it",
+			RulesURL:    "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
+			Enabled:     true,
+			Description: "A game about lying.",
 		},
 	},
 	{
@@ -165,9 +182,10 @@ var EnableGame = []struct {
 		"drawlosseum",
 		http.StatusOK,
 		games.GameOut{
-			Name:     "drawlosseum",
-			RulesURL: "https://google.com/drawlosseum",
-			Enabled:  true,
+			Name:        "drawlosseum",
+			RulesURL:    "https://google.com/drawlosseum",
+			Enabled:     true,
+			Description: "A game about drawing.",
 		},
 	},
 	{
@@ -175,9 +193,10 @@ var EnableGame = []struct {
 		"drawlosseum",
 		http.StatusOK,
 		games.GameOut{
-			Name:     "drawlosseum",
-			RulesURL: "https://google.com/drawlosseum",
-			Enabled:  true,
+			Name:        "drawlosseum",
+			RulesURL:    "https://google.com/drawlosseum",
+			Enabled:     true,
+			Description: "A game about drawing.",
 		},
 	},
 	{
@@ -199,9 +218,10 @@ var DisableGame = []struct {
 		"fibbing_it",
 		http.StatusOK,
 		games.GameOut{
-			Name:     "fibbing_it",
-			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
-			Enabled:  false,
+			Name:        "fibbing_it",
+			RulesURL:    "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
+			Enabled:     false,
+			Description: "A game about lying.",
 		},
 	},
 	{
@@ -209,9 +229,10 @@ var DisableGame = []struct {
 		"fibbing_it",
 		http.StatusOK,
 		games.GameOut{
-			Name:     "fibbing_it",
-			RulesURL: "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
-			Enabled:  false,
+			Name:        "fibbing_it",
+			RulesURL:    "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
+			Enabled:     false,
+			Description: "A game about lying.",
 		},
 	},
 	{
