@@ -24,7 +24,7 @@ func (env *GameAPI) AddGame(_ *gin.Context, game *GameIn) (struct{}, error) {
 
 	var emptyResponse struct{}
 	g := GameService{DB: env.DB, Name: game.Name}
-	err := g.Add(game.RulesURL, game.Description)
+	err := g.Add(game.RulesURL, game.Description, game.DisplayName)
 
 	if err != nil {
 		gameLogger.WithFields(log.Fields{
@@ -86,6 +86,7 @@ func (env *GameAPI) GetGame(_ *gin.Context, params *internal.GameParams) (*GameO
 		RulesURL:    game.RulesURL,
 		Enabled:     *game.Enabled,
 		Description: game.Description,
+		DisplayName: game.DisplayName,
 	}
 	return gameObj, nil
 }

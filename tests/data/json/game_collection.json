@@ -4,19 +4,22 @@
       "name": "quibly",
       "rules_url": "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/quibly",
       "enabled": true,
-      "description": "A game about quibbing."
+      "description": "A game about quibbing.",
+      "display_name": "Quibly"
     },
     {
       "name": "fibbing_it",
       "rules_url": "https://gitlab.com/banter-bus/banter-bus-server/-/wikis/docs/rules/fibbing_it",
       "enabled": true,
-      "description": "A game about lying."
+      "description": "A game about lying.",
+      "display_name": "Fibbing IT!"
     },
     {
       "name": "drawlosseum",
       "rules_url": "https://google.com/drawlosseum",
       "enabled": false,
-      "description": "A game about drawing."
+      "description": "A game about drawing.",
+      "display_name": "Drawlosseum"
     }
   ]
 }

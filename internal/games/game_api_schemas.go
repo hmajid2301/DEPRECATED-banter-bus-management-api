@@ -6,6 +6,7 @@ type GameIn struct {
 	Name        string `json:"name"        description:"The name of the new game "         example:"quibly"              validate:"required"`
 	RulesURL    string `json:"rules_url"   description:"The URL to the rules of the game." example:"gitlab.com/rules.md" validate:"required"`
 	Description string `json:"description" description:"A brief description of the game."                                validate:"required"`
+	DisplayName string `json:"display_name" description:"The name to display for this game."  example:"Quibly"           validate:"required"`
 }
 
 type GameOut struct {
@@ -13,6 +14,7 @@ type GameOut struct {
 	RulesURL    string `json:"rules_url"   description:"The URL to the rules of the game."   example:"gitlab.com/rules.md"`
 	Enabled     bool   `json:"enabled"     description:"If set to true the game is enabled." example:"false"`
 	Description string `json:"description" description:"A brief description of the game."`
+	DisplayName string `json:"display_name" description:"The name to display for this game."  example:"Quibly"           validate:"required"`
 }
 
 type ListGameParams struct {

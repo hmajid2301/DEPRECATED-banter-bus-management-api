@@ -12,7 +12,7 @@ type GameService struct {
 	Name string
 }
 
-func (g *GameService) Add(rulesURL string, description string) error {
+func (g *GameService) Add(rulesURL string, description string, displayName string) error {
 	exists := g.doesItExist()
 	if exists {
 		return errors.AlreadyExistsf("The game %s", g.Name)
@@ -24,6 +24,7 @@ func (g *GameService) Add(rulesURL string, description string) error {
 		RulesURL:    rulesURL,
 		Enabled:     &t,
 		Description: description,
+		DisplayName: displayName,
 	}
 
 	inserted, err := game.Add(g.DB)

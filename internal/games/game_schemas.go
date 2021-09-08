@@ -13,6 +13,7 @@ type Game struct {
 	RulesURL    string `bson:"rules_url,omitempty"   json:"rules_url,omitempty"`
 	Enabled     *bool  `bson:"enabled,omitempty"`
 	Description string `bson:"description,omitempty"`
+	DisplayName string `bson:"display_name,omitempty" json:"display_name,omitempty"`
 }
 
 func (game *Game) Add(db database.Database) (bool, error) {
