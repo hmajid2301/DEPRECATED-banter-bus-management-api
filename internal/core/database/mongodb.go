@@ -47,7 +47,7 @@ func NewMongoDB(
 	}
 
 	logger.Info("Connecting to database.")
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/", username, password, host, port)
+	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/%s", username, password, host, port, name)
 	logger.Debugf("Database connection string: %s", uri)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
