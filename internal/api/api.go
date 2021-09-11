@@ -19,6 +19,7 @@ import (
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core/database"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/games"
+	"gitlab.com/banter-bus/banter-bus-management-api/internal/maintenance"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/questions"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/story"
 )
@@ -65,6 +66,12 @@ func Setup(env *Env) (*fizz.Fizz, error) {
 		Logger: env.Logger,
 		DB:     env.DB,
 	}, fizzApp.Group("/story/:game_name", "story", "Related to managing the stories."))
+
+	routes.MaintenanceRoutes(&maintenance.MaintenanceAPI{
+		Conf:   env.Conf,
+		Logger: env.Logger,
+		DB:     env.DB,
+	}, fizzApp.Group("", "maintenance", "Related to maintenance of the app."))
 
 	if len(fizzApp.Errors()) != 0 {
 		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())
