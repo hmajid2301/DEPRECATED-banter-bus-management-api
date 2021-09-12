@@ -5,6 +5,7 @@ stages:
   - test
   - build
   - publish
+  - post
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -127,3 +128,10 @@ trigger:openapi:update:docs:
   before_script: []
   script:
     - curl -X POST -F token=$DOCS_TRIGGER_TOKEN  -F "variables[SOURCE_TRIGGER]=banter-bus-management-api" -F ref=main https://gitlab.com/api/v4/projects/22432967/trigger/pipeline
+
+trigger:e2e:tests:
+  stage: post
+  only:
+    - main
+  script:
+    - curl -X POST -F token=$BANTER_BUS_TESTS_CI_TRIGGER_TOKEN  -F "variables[SOURCE_TRIGGER]=banter-bus-management-api" -F ref=main https://gitlab.com/api/v4/projects/28716097/trigger/pipeline

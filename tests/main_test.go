@@ -48,6 +48,7 @@ func (s *Tests) Setup(t *testing.T) {
 	conf, err := core.NewConfig()
 	if err != nil {
 		fmt.Printf("Failed to load config %s", err)
+		return
 	}
 	logger := core.SetupLogger(ioutil.Discard)
 	core.UpdateLogLevel(logger, "DEBUG")
@@ -58,10 +59,12 @@ func (s *Tests) Setup(t *testing.T) {
 		conf.DB.Password,
 		conf.DB.Name,
 		conf.DB.MaxConns,
-		conf.DB.Timeout)
+		conf.DB.Timeout,
+		conf.DB.AuthDB)
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	env := &api.Env{Logger: logger, Conf: conf, DB: db}

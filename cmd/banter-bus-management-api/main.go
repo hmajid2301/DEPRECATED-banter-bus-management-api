@@ -37,7 +37,8 @@ func mainLogic() int {
 		config.DB.Password,
 		config.DB.Name,
 		config.DB.MaxConns,
-		config.DB.Timeout)
+		config.DB.Timeout,
+		config.DB.AuthDB)
 	if err != nil {
 		logger.Error(err.Error())
 		return 1

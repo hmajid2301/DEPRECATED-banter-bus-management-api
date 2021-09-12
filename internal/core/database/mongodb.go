@@ -14,15 +14,9 @@ import (
 
 type MongoDB struct {
 	*mongo.Database
-	Client   *mongo.Client
-	Logger   *log.Logger
-	Host     string
-	Port     int
-	Username string
-	Password string
-	Name     string
-	MaxConns int
-	Timeout  int
+	Client  *mongo.Client
+	Logger  *log.Logger
+	Timeout int
 }
 
 func NewMongoDB(
@@ -34,20 +28,18 @@ func NewMongoDB(
 	name string,
 	maxConns int,
 	timeout int,
+	authDB string,
 ) (*MongoDB, error) {
 	db := &MongoDB{
-		Logger:   logger,
-		Host:     host,
-		Port:     port,
-		Username: username,
-		Password: password,
-		Name:     name,
-		MaxConns: maxConns,
-		Timeout:  timeout,
+		Logger:  logger,
+		Timeout: timeout,
 	}
 
 	logger.Info("Connecting to database.")
 	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/%s", username, password, host, port, name)
+	if authDB != "" {
+		uri += fmt.Sprintf("?authSource=%s", authDB)
+	}
 	logger.Debugf("Database connection string: %s", uri)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)

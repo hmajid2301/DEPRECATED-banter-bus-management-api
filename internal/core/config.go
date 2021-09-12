@@ -23,6 +23,7 @@ type Conf struct {
 		Name     string `yaml:"name" env:"BANTER_BUS_DB_NAME" env-default:"banterbus"`
 		Username string `yaml:"user" env:"BANTER_BUS_DB_USER"`
 		Password string `yaml:"password" env:"BANTER_BUS_DB_PASSWORD"`
+		AuthDB   string `yaml:"authDB" env:"BANTER_BUS_AUTH_DB_NAME"`
 		MaxConns int    `yaml:"maxConns" env:"BANTER_BUS_DB_MAXCONNS" env-default:"50"`
 		Timeout  int    `yaml:"timeout" env:"BANTER_BUS_DB_TIMEOUT" env-default:"3"`
 	} `yaml:"database"`
