@@ -39,6 +39,7 @@ func NewConfig() (conf Conf, err error) {
 	}
 
 	err = cleanenv.ReadConfig(confPath, &conf)
+	fmt.Printf("CORS %s", conf.Srv.Cors)
 	if err != nil {
 		err = fmt.Errorf("error reading config file %w", err)
 		return Conf{}, err
