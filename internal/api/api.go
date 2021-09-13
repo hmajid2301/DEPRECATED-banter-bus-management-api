@@ -37,8 +37,10 @@ func Setup(env *Env) (*fizz.Fizz, error) {
 		engine.Use(gin.Recovery())
 	}
 
-	engine.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = env.Conf.Srv.Cors
 
+	engine.Use(cors.New(corsConfig))
 	engine.Use(ginlogrus.Logger(env.Logger))
 	fizzApp := fizz.NewFromEngine(engine)
 
