@@ -16,7 +16,7 @@ type Conf struct {
 	Srv struct {
 		Host string   `yaml:"host" env:"BANTER_BUS_WEBSERVER_HOST" env-default:"0.0.0.0"`
 		Port int      `yaml:"port" env:"BANTER_BUS_WEBSERVER_PORT" env-default:"8080"`
-		Cors []string `yaml:"cors" env:"BANTER_BUS_WEBSERVER_CORS" env-separator:","`
+		CORS []string `yaml:"cors" env:"BANTER_BUS_WEBSERVER_CORS" env-separator:","`
 	} `yaml:"webserver"`
 	DB struct {
 		Host     string `yaml:"host" env:"BANTER_BUS_DB_HOST" env-default:"banter-bus-database"`

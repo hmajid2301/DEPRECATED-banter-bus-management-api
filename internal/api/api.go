@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -12,8 +11,6 @@ import (
 	"github.com/juju/errors"
 	"github.com/loopfz/gadgeto/tonic"
 	ginlogrus "github.com/toorop/gin-logrus"
-	"github.com/wI2L/fizz"
-	"github.com/wI2L/fizz/openapi"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/api/routes"
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/core"
@@ -30,62 +27,50 @@ type Env struct {
 	DB     database.Database
 }
 
-func Setup(env *Env) (*fizz.Fizz, error) {
-	engine := gin.New()
+func Setup(env *Env) (*gin.Engine, error) {
+	r := gin.New()
 
 	if env.Conf.App.Env == "production" {
-		engine.Use(gin.Recovery())
+		r.Use(gin.Recovery())
 	}
 
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = env.Conf.Srv.Cors
+	corsConfig.AllowOrigins = env.Conf.Srv.CORS
 
-	engine.Use(cors.New(corsConfig))
-	engine.Use(ginlogrus.Logger(env.Logger))
-	fizzApp := fizz.NewFromEngine(engine)
+	r.Use(cors.New(corsConfig))
+	r.Use(ginlogrus.Logger(env.Logger))
 
-	infos := &openapi.Info{
-		Title:       "Banter Bus Management API",
-		Description: "The API specification for the Banter Bus Management API.",
-		Version:     "1.0.0",
-	}
-
-	fizzApp.GET("/openapi", nil, fizzApp.OpenAPI(infos, "yaml"))
 	routes.GameRoutes(&games.GameAPI{
 		Conf:   env.Conf,
 		Logger: env.Logger,
 		DB:     env.DB,
-	}, fizzApp.Group("/game", "game", "Related to managing games."))
+	}, r.Group("/game"))
 
 	routes.QuestionRoutes(&questions.QuestionAPI{
 		Conf:   env.Conf,
 		Logger: env.Logger,
 		DB:     env.DB,
-	}, fizzApp.Group("/game/:game_name/question", "question", "Related to managing the questions."))
+	}, r.Group("/game/:game_name/question"))
 
 	routes.StoryRoutes(&story.StoryAPI{
 		Conf:   env.Conf,
 		Logger: env.Logger,
 		DB:     env.DB,
-	}, fizzApp.Group("/story/:game_name", "story", "Related to managing the stories."))
+	}, r.Group("/story/:game_name"))
 
 	routes.MaintenanceRoutes(&maintenance.MaintenanceAPI{
 		Conf:   env.Conf,
 		Logger: env.Logger,
 		DB:     env.DB,
-	}, fizzApp.Group("", "maintenance", "Related to maintenance of the app."))
-
-	if len(fizzApp.Errors()) != 0 {
-		return nil, fmt.Errorf("fizz errors: %v", fizzApp.Errors())
-	}
+	}, r.Group(""))
 
 	if env.Conf.App.Env != "production" {
 		env.Logger.Info("activating pprof (devmode on)")
-		pprof.Register(engine)
+		pprof.Register(r)
 	}
 
 	tonic.SetErrorHook(errHook)
-	return fizzApp, nil
+	return r, nil
 }
 
 func errHook(_ *gin.Context, e error) (int, interface{}) {

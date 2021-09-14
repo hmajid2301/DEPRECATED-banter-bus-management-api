@@ -76,7 +76,7 @@ func (s *Tests) Setup(t *testing.T) {
 	s.DB = db
 	s.httpExpect = httpexpect.WithConfig(httpexpect.Config{
 		Client: &http.Client{
-			Transport: httpexpect.NewBinder(router.Engine()),
+			Transport: httpexpect.NewBinder(router),
 			Jar:       httpexpect.NewJar(),
 		},
 		Reporter: httpexpect.NewAssertReporter(t),

@@ -121,16 +121,10 @@ coverage:
       junit: junit.xml
       cobertura: cobertura.xml
 
-trigger:openapi:update:docs:
-  only:
-    - main
-  image: curlimages/curl
-  before_script: []
-  script:
-    - curl -X POST -F token=$DOCS_TRIGGER_TOKEN  -F "variables[SOURCE_TRIGGER]=banter-bus-management-api" -F ref=main https://gitlab.com/api/v4/projects/22432967/trigger/pipeline
-
 trigger:e2e:tests:
   stage: post
+  image: curlimages/curl
+  before_script: []
   only:
     - main
   script:
