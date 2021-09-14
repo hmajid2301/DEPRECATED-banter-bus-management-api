@@ -3,18 +3,18 @@ package games
 import "gitlab.com/banter-bus/banter-bus-management-api/internal"
 
 type GameIn struct {
-	Name        string `json:"name"        description:"The name of the new game "         example:"quibly"              validate:"required"`
-	RulesURL    string `json:"rules_url"   description:"The URL to the rules of the game." example:"gitlab.com/rules.md" validate:"required"`
-	Description string `json:"description" description:"A brief description of the game."                                validate:"required"`
-	DisplayName string `json:"display_name" description:"The name to display for this game."  example:"Quibly"           validate:"required"`
+	Name        string `json:"name"         validate:"required"`
+	RulesURL    string `json:"rules_url"    validate:"required"`
+	Description string `json:"description"  validate:"required"`
+	DisplayName string `json:"display_name" validate:"required"`
 }
 
 type GameOut struct {
-	Name        string `json:"name"        description:"The name of the new game."           example:"quibly"`
-	RulesURL    string `json:"rules_url"   description:"The URL to the rules of the game."   example:"gitlab.com/rules.md"`
-	Enabled     bool   `json:"enabled"     description:"If set to true the game is enabled." example:"false"`
-	Description string `json:"description" description:"A brief description of the game."`
-	DisplayName string `json:"display_name" description:"The name to display for this game."  example:"Quibly"           validate:"required"`
+	Name        string `json:"name"`
+	RulesURL    string `json:"rules_url"`
+	Enabled     bool   `json:"enabled"`
+	Description string `json:"description"`
+	DisplayName string `json:"display_name" validate:"required"`
 }
 
 type ListGameParams struct {

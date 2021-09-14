@@ -37,7 +37,7 @@ type QuiblyAnswersInOut []QuiblyAnswerInOut
 type DrawlosseumAnswersInOut []CaertsianCoordinateColor
 
 type StoryIDParams struct {
-	StoryID string `description:"The id for the story." example:"2b45f6c6-d8be-4d13-9fc6-2f821c925774" path:"story_id"`
+	StoryID string `path:"story_id"`
 }
 
 type CurrentStoryInput struct {

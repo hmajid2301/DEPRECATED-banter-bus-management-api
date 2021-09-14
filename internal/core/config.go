@@ -13,6 +13,10 @@ type Conf struct {
 		Env      string `yaml:"environment" env:"BANTER_BUS_ENVIRONMENT" env-default:"production"`
 		LogLevel string `yaml:"logLevel" env:"BANTER_BUS_LOG_LEVEL" env-default:"debug"`
 	} `yaml:"app"`
+	Auth struct {
+		Audience string `yaml:"audience" env:"BANTER_BUS_AUTH_AUDIENCE"`
+		Domain   string `yaml:"domain" env:"BANTER_BUS_AUTH_DOMAIN"`
+	} `yaml:"auth"`
 	Srv struct {
 		Host string   `yaml:"host" env:"BANTER_BUS_WEBSERVER_HOST" env-default:"0.0.0.0"`
 		Port int      `yaml:"port" env:"BANTER_BUS_WEBSERVER_PORT" env-default:"8080"`

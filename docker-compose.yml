@@ -38,3 +38,14 @@ services:
       - /data/db mongoclient/mongoclient
     ports:
       - 3000:3000
+
+  database-seed:
+    container_name: banter-bus-database-seed
+    image: registry.gitlab.com/banter-bus/banter-bus-tests/database-seed:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=banterbus
+      - MONGO_INITDB_ROOT_PASSWORD=banterbus
+      - MONGO_INITDB_DATABASE=banterbus
+      - MONGO_HOSTNAME=banter-bus-database:27017
+    depends_on:
+      - database

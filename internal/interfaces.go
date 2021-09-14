@@ -7,11 +7,11 @@ import (
 )
 
 type GameParams struct {
-	GameName string `description:"The name of the game." example:"quibly" path:"game_name" validate:"required"`
+	GameName string `path:"game_name" validate:"required"`
 }
 
 type RoundParams struct {
-	Round string `description:"Name of the round for a game." validate:"required" example:"free_form" query:"round"`
+	Round string `query:"round" validate:"required"`
 }
 
 // unmarshalBSONToStruct is a custom unmarshal function, that will unmarshal BSON to structs.

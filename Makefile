@@ -58,14 +58,9 @@ code-quality: ## Run code quality job.
 	@golangci-lint run --timeout 3m0s --issues-exit-code 0 --out-format code-climate
 
 
-.PHONY: sast
-sast: ## Run Static Application Security Testing  job
-	@gosec internal/...
-
-
 .PHONY: debug
 debug: ## Run docker ready for debugging in vscode.
-	docker-compose up --build
+	@docker-compose up --build
 
 
 # prompt_example> make start OPTIONS="-- -d"
@@ -76,7 +71,7 @@ start: ## Start the application.
 
 .PHONY: start-db
 start-db: ## Starts the database components Docker images.
-	@docker-compose up -d database database-gui
+	@docker-compose up -d database database-gui database-seed
 
 .PHONY: stop
 stop: ## Stop the application.

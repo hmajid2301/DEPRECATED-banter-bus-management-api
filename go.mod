@@ -4,8 +4,11 @@ go 1.16
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/auth0/go-jwt-middleware v1.0.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/form3tech-oss/jwt-go v3.2.5+incompatible // indirect
 	github.com/gavv/httpexpect v2.0.0+incompatible
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/pprof v1.3.0

@@ -1,6 +1,6 @@
 app:
   logLevel: DEBUG
-  environment: production
+  environment: development
 database:
   host: localhost
   port: 27017

@@ -79,14 +79,6 @@ lint:code-quality:
     reports:
       codequality: gl-code-quality-report.json
 
-security:SAST:
-  stage: test
-  only:
-    - merge_request
-  script:
-    - go get github.com/securego/gosec/v2/cmd/gosec
-    - make sast
-
 test:
   stage: test
   image: golang

@@ -12,5 +12,5 @@ import (
 func StoryRoutes(env *story.StoryAPI, grp *gin.RouterGroup) {
 	grp.POST("", tonic.Handler(env.AddStory, http.StatusCreated))
 	grp.GET("/:story_id", tonic.Handler(env.GetStory, http.StatusOK))
-	grp.DELETE("/:story_id", tonic.Handler(env.DeleteStory, http.StatusOK))
+	grp.DELETE("/:story_id", checkJWT(env.Conf), tonic.Handler(env.DeleteStory, http.StatusOK))
 }

@@ -10,7 +10,7 @@ const DRAWLOSSEUM = "drawlosseum"
 
 type Game struct {
 	Name        string `bson:"name"`
-	RulesURL    string `bson:"rules_url,omitempty"   json:"rules_url,omitempty"`
+	RulesURL    string `bson:"rules_url,omitempty"    json:"rules_url,omitempty"`
 	Enabled     *bool  `bson:"enabled,omitempty"`
 	Description string `bson:"description,omitempty"`
 	DisplayName string `bson:"display_name,omitempty" json:"display_name,omitempty"`

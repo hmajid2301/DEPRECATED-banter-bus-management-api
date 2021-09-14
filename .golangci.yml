@@ -22,7 +22,7 @@ linters:
     # - golint
     - gomnd
     - goprintffuncname
-    - gosec
+    # - gosec
     - gosimple
     - govet
     - ineffassign
@@ -41,6 +41,11 @@ linters:
     - unused
     - varcheck
     - whitespace
+
+linters-settings:
+  gosec:
+    excludes:
+      - G107
 
 service:
   golangci-lint-version: 1.32.2
