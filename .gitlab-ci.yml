@@ -120,4 +120,4 @@ trigger:e2e:tests:
   only:
     - main
   script:
-    - curl -X POST -F token=$BANTER_BUS_TESTS_CI_TRIGGER_TOKEN  -F "variables[SOURCE_TRIGGER]=banter-bus-management-api" -F ref=main https://gitlab.com/api/v4/projects/28716097/trigger/pipeline
+    - curl -X POST -F token=$BANTER_BUS_TESTS_CI_TRIGGER_TOKEN -F "variables[SOURCE_TRIGGER]=banter-bus-management-api" -F "variables[DEPLOY_COMMIT]=$CI_COMMIT_SHA" -F ref=main https://gitlab.com/api/v4/projects/28716097/trigger/pipeline
