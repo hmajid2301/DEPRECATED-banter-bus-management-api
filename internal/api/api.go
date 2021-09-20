@@ -5,11 +5,11 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/juju/errors"
 	"github.com/loopfz/gadgeto/tonic"
+	cors "github.com/rs/cors/wrapper/gin"
 	ginlogrus "github.com/toorop/gin-logrus"
 
 	"gitlab.com/banter-bus/banter-bus-management-api/internal/api/routes"
@@ -34,10 +34,12 @@ func Setup(env *Env) (*gin.Engine, error) {
 		r.Use(gin.Recovery())
 	}
 
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = env.Conf.Srv.CORS
+	corsConfig := cors.New(cors.Options{
+		AllowedOrigins: env.Conf.Srv.CORS,
+		Debug:          true,
+	})
 
-	r.Use(cors.New(corsConfig))
+	r.Use(corsConfig)
 	r.Use(ginlogrus.Logger(env.Logger))
 
 	routes.GameRoutes(&games.GameAPI{

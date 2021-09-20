@@ -4,13 +4,11 @@ go 1.16
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
-	github.com/auth0/go-jwt-middleware v1.0.1 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/auth0/go-jwt-middleware v1.0.1
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
-	github.com/form3tech-oss/jwt-go v3.2.5+incompatible // indirect
+	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/gavv/httpexpect v2.0.0+incompatible
-	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.2
 	github.com/google/go-querystring v1.1.0 // indirect
@@ -24,9 +22,9 @@ require (
 	github.com/onsi/ginkgo v1.16.4 // indirect
 	github.com/onsi/gomega v1.13.0 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/rs/cors v1.8.0
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/toorop/gin-logrus v0.0.0-20210225092905-2c785434f26f
 	github.com/valyala/fasthttp v1.26.0 // indirect
